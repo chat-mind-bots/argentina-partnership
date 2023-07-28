@@ -14,10 +14,15 @@ export class User {
   @Prop({
     required: true,
   })
-  refCode: string;
+  tg_id: number;
 
   @Prop({
     required: true,
+  })
+  refCode: string;
+
+  @Prop({
+    required: false,
   })
   refId: Types.ObjectId;
 
