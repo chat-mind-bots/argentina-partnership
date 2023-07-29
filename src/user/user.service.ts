@@ -14,4 +14,8 @@ export class UserService {
     const user = await this.userModel.create(dto);
     return user;
   }
+
+  async findById(id: number): Promise<UserDocument> {
+    return this.userModel.findOne({ tg_id: id });
+  }
 }

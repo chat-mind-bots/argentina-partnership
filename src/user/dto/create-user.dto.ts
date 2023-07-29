@@ -10,7 +10,7 @@ import { Types } from 'mongoose';
 
 export class CreateUserDto {
   @IsNumber()
-  tg_id: number;
+  readonly tg_id: number;
 
   @IsNumber()
   readonly balance: number;
