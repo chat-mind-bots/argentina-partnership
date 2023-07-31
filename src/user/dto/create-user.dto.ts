@@ -12,6 +12,12 @@ export class CreateUserDto {
   @IsNumber()
   readonly tg_id: number;
 
+  @IsString()
+  readonly username: string;
+
+  @IsString()
+  readonly first_name: string;
+
   @IsNumber()
   readonly balance: number;
 

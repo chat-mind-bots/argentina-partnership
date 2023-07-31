@@ -7,6 +7,7 @@ import { ConfigModule } from '@nestjs/config';
 import { UserModule } from 'src/user/user.module';
 import { BotUpdate } from 'src/bot/bot.update';
 import { AdminScene } from 'src/bot/scenes/admin.scene';
+import { UserScene } from 'src/bot/scenes/user.scene';
 
 @Module({
   imports: [
@@ -18,6 +19,6 @@ import { AdminScene } from 'src/bot/scenes/admin.scene';
     forwardRef(() => UserModule),
   ],
   controllers: [BotController],
-  providers: [BotService, BotUpdate, AdminScene],
+  providers: [BotService, BotUpdate, AdminScene, UserScene],
 })
 export class BotModule {}

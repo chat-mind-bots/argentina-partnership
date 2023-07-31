@@ -1,11 +1,12 @@
-import { Ctx, InjectBot, Message, On, Start, Update } from 'nestjs-telegraf';
+import { Ctx, InjectBot, Message, Start, Update } from 'nestjs-telegraf';
 import { forwardRef, Inject, UseFilters } from '@nestjs/common';
 import { TelegrafExceptionFilter } from 'src/common/filtres/telegraf-exeption.filter';
-import { Context, Telegraf } from 'telegraf';
+import { Context, Markup, Telegraf } from 'telegraf';
 import { isPrivate } from 'src/bot/bot.utils';
 import { UserService } from 'src/user/user.service';
 import { UserRoleEnum } from 'src/user/enum/user-role.enum';
 import { SceneContext } from 'telegraf/typings/scenes';
+import { Chat } from 'typegram/manage';
 
 @Update()
 @UseFilters(TelegrafExceptionFilter)
@@ -22,29 +23,37 @@ export class BotUpdate {
     @Message('chat') chat,
     @Ctx() ctx: Context & SceneContext,
   ) {
-    console.log(ctx);
     if (isPrivate(chat.type)) {
       const isOldUser = await this.userService.findById(from.id);
-      console.log(from.id);
       if (!isOldUser) {
+        const info = (await ctx.getChat()) as Chat.PrivateChat;
+        const { id: tg_id, username, first_name } = info;
         await this.userService.createUser({
-          tg_id: from.id,
+          tg_id,
+          username,
+          first_name,
           balance: 0,
           refCode: 'fixitsoon',
           role: [UserRoleEnum.USER],
         });
         return;
       }
-
-      console.log(isOldUser.role);
-      if (isOldUser.role.includes(UserRoleEnum.ADMIN)) {
-        await ctx.scene.enter('admin');
+      if (isOldUser.role.every((item) => item === UserRoleEnum.USER)) {
+        await ctx.scene.enter('userScene', { data: 'asd' });
+        return;
       }
+      const markupButtons = [];
+      if (isOldUser.role.includes(UserRoleEnum.USER)) {
+        markupButtons.push(Markup.button.callback('войти как юзер', 'asd'));
+      }
+      if (isOldUser.role.includes(UserRoleEnum.ADMIN)) {
+        markupButtons.push(Markup.button.callback('войти как админ', 'asd'));
+      }
+      if (isOldUser.role.includes(UserRoleEnum.PARTNER)) {
+        markupButtons.push(Markup.button.callback('войти как партнер', 'asd'));
+      }
+      const markup = Markup.inlineKeyboard(markupButtons);
+      await ctx.reply('asd', markup);
     }
-  }
-
-  @On('message')
-  async hear(@Ctx() ctx: Context) {
-    await ctx.reply('Сука');
   }
 }

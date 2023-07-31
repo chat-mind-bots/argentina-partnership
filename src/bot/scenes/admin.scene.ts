@@ -3,7 +3,7 @@ import { forwardRef, Inject } from '@nestjs/common';
 import { BotService } from 'src/bot/bot.service';
 import { Context } from 'telegraf';
 
-@Scene('admin')
+@Scene('adminScene')
 export class AdminScene {
   constructor(
     @Inject(forwardRef(() => BotService))
