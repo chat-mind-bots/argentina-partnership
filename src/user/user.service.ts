@@ -3,6 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { User, UserDocument } from 'src/user/user.schema';
 import { Model } from 'mongoose';
 import { CreateUserDto } from 'src/user/dto/create-user.dto';
+import { UserRoleEnum } from 'src/user/enum/user-role.enum';
 
 @Injectable()
 export class UserService {
@@ -15,7 +16,16 @@ export class UserService {
     return user;
   }
 
-  async findById(id: number): Promise<UserDocument> {
+  async promoteUser(id: number, role: UserRoleEnum) {
+    const user = await this.findById(id);
+
+    return user.updateOne({ $addToSet: { role: role } }, { new: true });
+  }
+
+  async findById(id: number) {
     return this.userModel.findOne({ tg_id: id });
+  }
+  async findAllByRole(role: UserRoleEnum) {
+    return this.userModel.find({ role });
   }
 }

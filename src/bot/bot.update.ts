@@ -1,4 +1,11 @@
-import { Ctx, InjectBot, Message, Start, Update } from 'nestjs-telegraf';
+import {
+  Action,
+  Ctx,
+  InjectBot,
+  Message,
+  Start,
+  Update,
+} from 'nestjs-telegraf';
 import { forwardRef, Inject, UseFilters } from '@nestjs/common';
 import { TelegrafExceptionFilter } from 'src/common/filtres/telegraf-exeption.filter';
 import { Context, Markup, Telegraf } from 'telegraf';
@@ -44,16 +51,32 @@ export class BotUpdate {
       }
       const markupButtons = [];
       if (isOldUser.role.includes(UserRoleEnum.USER)) {
-        markupButtons.push(Markup.button.callback('войти как юзер', 'asd'));
+        markupButtons.push(
+          Markup.button.callback('войти как юзер', 'userScene'),
+        );
       }
       if (isOldUser.role.includes(UserRoleEnum.ADMIN)) {
-        markupButtons.push(Markup.button.callback('войти как админ', 'asd'));
+        markupButtons.push(
+          Markup.button.callback('войти как админ', 'adminScene'),
+        );
       }
       if (isOldUser.role.includes(UserRoleEnum.PARTNER)) {
         markupButtons.push(Markup.button.callback('войти как партнер', 'asd'));
       }
       const markup = Markup.inlineKeyboard(markupButtons);
-      await ctx.reply('asd', markup);
+      const greetingText =
+        'Приветствую!\n для продолжения работы выберите под каким профилем хотите войти';
+      await ctx.reply(greetingText, markup);
     }
+  }
+
+  @Action('adminScene')
+  async adminScene(@Ctx() ctx: Context & SceneContext) {
+    await ctx.scene.enter('adminScene');
+  }
+
+  @Action('userScene')
+  async userScene(@Ctx() ctx: Context & SceneContext) {
+    await ctx.scene.enter('userScene');
   }
 }

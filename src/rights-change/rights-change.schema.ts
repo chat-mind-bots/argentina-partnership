@@ -1,21 +1,26 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { now } from 'mongoose';
+import { now, Types, HydratedDocument } from 'mongoose';
 import { ChangeRoles } from 'src/rights-change/types';
+import { User } from 'src/user/user.schema';
 
-export type Status = 'resolve' | 'reject' | 'pending';
+export enum TicketStatus {
+  RESOLVE = 'resolve',
+  REJECT = 'reject',
+  PENDING = 'pending',
+}
 
-export type RightsChangeDocument = RightsChange & Document;
+export type RightsChangeDocument = HydratedDocument<RightsChange>;
 
 @Schema()
 export class RightsChange {
-  @Prop()
-  tg_id: number;
+  @Prop({ required: true, type: Types.ObjectId, ref: User.name })
+  user: Types.ObjectId;
 
-  @Prop()
+  @Prop({ required: true })
   role: ChangeRoles;
 
-  @Prop()
-  status: Status;
+  @Prop({ required: true })
+  status: TicketStatus;
 
   @Prop({ default: now() })
   createdAt: Date;

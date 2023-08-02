@@ -8,6 +8,7 @@ import { UserModule } from 'src/user/user.module';
 import { BotUpdate } from 'src/bot/bot.update';
 import { AdminScene } from 'src/bot/scenes/admin.scene';
 import { UserScene } from 'src/bot/scenes/user.scene';
+import { RightsChangeModule } from 'src/rights-change/rights-change.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { UserScene } from 'src/bot/scenes/user.scene';
       middlewares: [session()],
     }),
     forwardRef(() => UserModule),
+    forwardRef(() => RightsChangeModule),
   ],
   controllers: [BotController],
   providers: [BotService, BotUpdate, AdminScene, UserScene],
