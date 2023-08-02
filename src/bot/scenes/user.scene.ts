@@ -29,10 +29,14 @@ export class UserScene {
       Markup.button.callback('Сотрудничество', 'partnership'),
       Markup.button.callback('Назад', 'leave'),
     ]);
-    await ctx.editMessageText(
-      'Можешь выбрать интересующие тебя функции',
-      markup,
-    );
+    try {
+      await ctx.editMessageText(
+        'Можешь выбрать интересующие тебя функции',
+        markup,
+      );
+    } catch (error) {
+      await ctx.reply('Можешь выбрать интересующие тебя функции', markup);
+    }
   }
 
   @Action('leave')

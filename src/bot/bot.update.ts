@@ -46,7 +46,7 @@ export class BotUpdate {
         return;
       }
       if (isOldUser.role.every((item) => item === UserRoleEnum.USER)) {
-        await ctx.scene.enter('userScene', { data: 'asd' });
+        await ctx.scene.enter('userScene');
         return;
       }
       const markupButtons = [];
