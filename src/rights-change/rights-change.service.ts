@@ -62,12 +62,6 @@ export class RightsChangeService {
         path: 'user',
         select: 'username first_name tg_id',
       });
-    if (!tickets.length) {
-      throw new HttpException(
-        'Document (RightsChange) not found',
-        HttpStatus.NOT_FOUND,
-      );
-    }
     return tickets;
   }
 }

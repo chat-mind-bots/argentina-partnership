@@ -1,5 +1,5 @@
 import { Action, Ctx, Scene, SceneEnter } from 'nestjs-telegraf';
-import { forwardRef, Inject } from '@nestjs/common';
+import { forwardRef, Inject, UseFilters } from '@nestjs/common';
 import { BotService } from 'src/bot/bot.service';
 import { Context, Markup } from 'telegraf';
 import { SceneContext } from 'telegraf/typings/scenes';
@@ -9,8 +9,10 @@ import { UserRoleEnum } from 'src/user/enum/user-role.enum';
 import { telegramDataHelper } from 'src/common/helpers/telegram-data.helper';
 import { Types } from 'mongoose';
 import { TicketStatus } from 'src/rights-change/rights-change.schema';
+import { TelegrafExceptionFilter } from 'src/common/filtres/telegraf-exeption.filter';
 
 @Scene('userScene')
+@UseFilters(TelegrafExceptionFilter)
 export class UserScene {
   constructor(
     @Inject(forwardRef(() => BotService))

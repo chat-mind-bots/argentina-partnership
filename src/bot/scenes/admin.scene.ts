@@ -1,5 +1,5 @@
 import { Action, Ctx, Scene, SceneEnter } from 'nestjs-telegraf';
-import { forwardRef, Inject } from '@nestjs/common';
+import { forwardRef, Inject, UseFilters } from '@nestjs/common';
 import { BotService } from 'src/bot/bot.service';
 import { Markup } from 'telegraf';
 import { SceneContext } from 'telegraf/typings/scenes';
@@ -8,8 +8,10 @@ import { UserService } from 'src/user/user.service';
 import { UserRoleEnum } from 'src/user/enum/user-role.enum';
 import { telegramDataHelper } from 'src/common/helpers/telegram-data.helper';
 import { TicketStatus } from 'src/rights-change/rights-change.schema';
+import { TelegrafExceptionFilter } from 'src/common/filtres/telegraf-exeption.filter';
 
 @Scene('adminScene')
+@UseFilters(TelegrafExceptionFilter)
 export class AdminScene {
   constructor(
     @Inject(forwardRef(() => BotService))
@@ -82,6 +84,10 @@ export class AdminScene {
       UserRoleEnum.ADMIN,
       TicketStatus.PENDING,
     );
+    if (!tickets.length) {
+      await ctx.reply('Сейчас заявок нет');
+      return;
+    }
     tickets.map((ticket) => {
       const markup = Markup.inlineKeyboard([
         Markup.button.callback('Принять', `acceptAdmin__${ticket.id}`),
