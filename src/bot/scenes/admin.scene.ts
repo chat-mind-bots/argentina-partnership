@@ -9,6 +9,7 @@ import { UserRoleEnum } from 'src/user/enum/user-role.enum';
 import { telegramDataHelper } from 'src/common/helpers/telegram-data.helper';
 import { TicketStatus } from 'src/rights-change/rights-change.schema';
 import { TelegrafExceptionFilter } from 'src/common/filtres/telegraf-exeption.filter';
+import { buttonSplitterHelper } from 'src/common/helpers/button-splitter.helper';
 
 @Scene('adminScene')
 @UseFilters(TelegrafExceptionFilter)
@@ -24,15 +25,16 @@ export class AdminScene {
 
   @SceneEnter()
   async enter(@Ctx() ctx: SceneContext) {
-    await ctx.deleteMessage(ctx.callbackQuery.message.message_id);
-
     const markup = Markup.inlineKeyboard([
       Markup.button.callback('Категории', 'category'),
       Markup.button.callback('Админы', 'admin'),
       Markup.button.callback('Партнеры', 'partner'),
       Markup.button.callback('Назад', 'leave'),
     ]);
-    await ctx.reply('Можешь выбрать интересующие тебя функции', markup);
+    await ctx.editMessageText(
+      'Можешь выбрать интересующие тебя функции',
+      markup,
+    );
   }
 
   @Action('leave')
@@ -47,39 +49,68 @@ export class AdminScene {
       Markup.button.callback('Заявки', 'adminTicket'),
       Markup.button.callback('Назад', 'enter'),
     ]);
-    const markup2 = Markup.inlineKeyboard([
-      Markup.button.callback('Список админов', 'adminList'),
-      Markup.button.callback('Заявки2', 'adminTicket'),
-      Markup.button.callback('Назад', 'enter'),
-    ]);
-    await ctx.editMessageText('asd', markup);
-    // await ctx.reply('Можешь выбрать интересующие тебя функции', markup2);
+    await ctx.editMessageText(
+      'Можешь выбрать интересующие тебя функции',
+      markup,
+    );
   }
 
   @Action('partner')
   async partner(@Ctx() ctx: SceneContext) {
-    await ctx.deleteMessage(ctx.callbackQuery.message.message_id);
-
     const markup = Markup.inlineKeyboard([
       Markup.button.callback('Список пратнеров', 'partnerList'),
       Markup.button.callback('Заявки', 'partnerTicket'),
       Markup.button.callback('Назад', 'enter'),
     ]);
-    await ctx.reply('Эта функция в разработке', markup);
+    await ctx.editMessageText('Эта функция в разработке', markup);
   }
 
   @Action('enter')
   async enterAction(@Ctx() ctx: SceneContext) {
-    await ctx.deleteMessage(ctx.callbackQuery.message.message_id);
     await this.enter(ctx);
   }
 
   @Action('adminList')
   async adminList(@Ctx() ctx: SceneContext) {
     const admins = await this.userService.findAllByRole(UserRoleEnum.ADMIN);
-    admins.map((admin) => {
-      ctx.reply(`Админ:` + '\n' + admin.username + '\n' + admin.tg_id);
+    const adminsMas = [];
+    admins.map((admin, i) => {
+      adminsMas.push([`${i + 1}. @${admin.username}`, admin.id]);
     });
+    const lines = buttonSplitterHelper(
+      adminsMas.map((admin) => admin[1]),
+      8,
+    );
+    const actionButtons = lines.map((line) => {
+      return line.map((button, i) => {
+        return Markup.button.callback(`${i + 1}`, `selectAdmin__${button}`);
+      });
+    });
+    const markup = Markup.inlineKeyboard([
+      [Markup.button.callback('Назад', 'admin')],
+      ...actionButtons,
+    ]);
+    await ctx.editMessageText(
+      `Список админов` +
+        '\n' +
+        'Выберете админа:' +
+        '\n' +
+        adminsMas.map((admin) => admin[0]).join('\n'),
+      markup,
+    );
+  }
+
+  @Action(/selectAdmin/)
+  async selectAdmin(@Ctx() ctx: SceneContext) {
+    const userId = telegramDataHelper(ctx.callbackQuery['data'], '__');
+    const user = await this.userService.findById(userId);
+    const userText = `Пользователь \nТелеграм ID: ${
+      user.tg_id
+    }\nДолжность: ${user.role.join(' ')}\nЮзернэйм: @${user.username}`;
+    const markup = Markup.inlineKeyboard([
+      Markup.button.callback('Назад', 'adminList'),
+    ]);
+    await ctx.editMessageText(userText, markup);
   }
 
   @Action('adminTicket')
@@ -89,7 +120,10 @@ export class AdminScene {
       TicketStatus.PENDING,
     );
     if (!tickets.length) {
-      await ctx.reply('Сейчас заявок нет');
+      const markup = Markup.inlineKeyboard([
+        Markup.button.callback('Назад', 'admin'),
+      ]);
+      await ctx.editMessageText('Сейчас заявок нет', markup);
       return;
     }
     tickets.map((ticket) => {

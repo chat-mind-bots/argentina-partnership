@@ -29,20 +29,21 @@ export class UserScene {
       Markup.button.callback('Сотрудничество', 'partnership'),
       Markup.button.callback('Назад', 'leave'),
     ]);
-    await ctx.reply('Можешь выбрать интересующие тебя функции', markup);
+    await ctx.editMessageText(
+      'Можешь выбрать интересующие тебя функции',
+      markup,
+    );
   }
 
   @Action('leave')
   async leave(@Ctx() ctx: SceneContext) {
     await ctx.scene.leave();
-    await ctx.reply('ты вышеш');
+    await ctx.editMessageText('ты вышеш');
   }
 
   @Action('partnership')
   async partnershipAction(@Ctx() ctx: SceneContext) {
-    const user = await this.userService.findById(ctx.callbackQuery.from.id);
-    console.log(user);
-    await ctx.deleteMessage(ctx.callbackQuery.message.message_id);
+    const user = await this.userService.findByTgId(ctx.callbackQuery.from.id);
     const isAdmin = user.role.includes(UserRoleEnum.ADMIN);
     const markup = Markup.inlineKeyboard([
       isAdmin
@@ -53,14 +54,13 @@ export class UserScene {
           ),
       Markup.button.callback('Назад', 'enter'),
     ]);
-    await ctx.reply(
+    await ctx.editMessageText(
       'Тут вы можете отправить свою заявку на сотрудничество',
       markup,
     );
   }
   @Action('enter')
   async enterAction(@Ctx() ctx: SceneContext) {
-    await ctx.deleteMessage(ctx.callbackQuery.message.message_id);
     await this.enter(ctx);
   }
 
@@ -73,8 +73,7 @@ export class UserScene {
       role: UserRoleEnum.ADMIN,
       status: TicketStatus.PENDING,
     });
-    await ctx.deleteMessage(ctx.callbackQuery.message.message_id);
-    await ctx.reply('Ваша заявка была отправлена');
+    await ctx.editMessageText('Ваша заявка была отправлена');
     await this.enter(ctx);
   }
 }

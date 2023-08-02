@@ -31,7 +31,7 @@ export class BotUpdate {
     @Ctx() ctx: Context & SceneContext,
   ) {
     if (isPrivate(chat.type)) {
-      const isOldUser = await this.userService.findById(from.id);
+      const isOldUser = await this.userService.findByTgId(from.id);
       if (!isOldUser) {
         const info = (await ctx.getChat()) as Chat.PrivateChat;
         const { id: tg_id, username, first_name } = info;
@@ -51,18 +51,19 @@ export class BotUpdate {
       }
       const markupButtons = [];
       if (isOldUser.role.includes(UserRoleEnum.USER)) {
-        markupButtons.push(
+        markupButtons.push([
           Markup.button.callback('войти как юзер', 'userScene'),
-        );
+        ]);
       }
       if (isOldUser.role.includes(UserRoleEnum.ADMIN)) {
-        markupButtons.push(
+        markupButtons.push([
           Markup.button.callback('войти как админ', 'adminScene'),
-        );
+        ]);
       }
       if (isOldUser.role.includes(UserRoleEnum.PARTNER)) {
         markupButtons.push(Markup.button.callback('войти как партнер', 'asd'));
       }
+
       const markup = Markup.inlineKeyboard(markupButtons);
       const greetingText =
         'Приветствую!\n для продолжения работы выберите под каким профилем хотите войти';

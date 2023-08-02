@@ -17,14 +17,19 @@ export class UserService {
   }
 
   async promoteUser(id: number, role: UserRoleEnum) {
-    const user = await this.findById(id);
+    const user = await this.findByTgId(id);
 
     return user.updateOne({ $addToSet: { role: role } }, { new: true });
   }
 
-  async findById(id: number) {
+  async findByTgId(id: number) {
     return this.userModel.findOne({ tg_id: id });
   }
+
+  async findById(id: string) {
+    return this.userModel.findOne({ _id: id });
+  }
+
   async findAllByRole(role: UserRoleEnum) {
     return this.userModel.find({ role });
   }
