@@ -42,14 +42,18 @@ export class AdminScene {
 
   @Action('admin')
   async admin(@Ctx() ctx: SceneContext) {
-    await ctx.deleteMessage(ctx.callbackQuery.message.message_id);
-
     const markup = Markup.inlineKeyboard([
       Markup.button.callback('Список админов', 'adminList'),
       Markup.button.callback('Заявки', 'adminTicket'),
       Markup.button.callback('Назад', 'enter'),
     ]);
-    await ctx.reply('Можешь выбрать интересующие тебя функции', markup);
+    const markup2 = Markup.inlineKeyboard([
+      Markup.button.callback('Список админов', 'adminList'),
+      Markup.button.callback('Заявки2', 'adminTicket'),
+      Markup.button.callback('Назад', 'enter'),
+    ]);
+    await ctx.editMessageText('asd', markup);
+    // await ctx.reply('Можешь выбрать интересующие тебя функции', markup2);
   }
 
   @Action('partner')
