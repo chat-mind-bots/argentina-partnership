@@ -1,8 +1,10 @@
 import {
   Action,
+  Command,
   Ctx,
   InjectBot,
   Message,
+  On,
   Start,
   Update,
 } from 'nestjs-telegraf';
@@ -45,29 +47,14 @@ export class BotUpdate {
         });
         return;
       }
-      if (isOldUser.role.every((item) => item === UserRoleEnum.USER)) {
-        await ctx.scene.enter('userScene');
-        return;
-      }
-      const markupButtons = [];
-      if (isOldUser.role.includes(UserRoleEnum.USER)) {
-        markupButtons.push([
-          Markup.button.callback('войти как юзер', 'userScene'),
-        ]);
-      }
-      if (isOldUser.role.includes(UserRoleEnum.ADMIN)) {
-        markupButtons.push([
-          Markup.button.callback('войти как админ', 'adminScene'),
-        ]);
-      }
-      if (isOldUser.role.includes(UserRoleEnum.PARTNER)) {
-        markupButtons.push(Markup.button.callback('войти как партнер', 'asd'));
-      }
 
-      const markup = Markup.inlineKeyboard(markupButtons);
-      const greetingText =
-        'Приветствую!\n для продолжения работы выберите под каким профилем хотите войти';
-      await ctx.reply(greetingText, markup);
+      const keyboardMarkup = Markup.keyboard([
+        [Markup.button.callback('Главное меню', 'menu')],
+        [Markup.button.callback('Помощь', 'help')],
+        [Markup.button.callback('Выйти', 'changeRole')],
+      ]);
+      await ctx.reply('Приветствую!', keyboardMarkup);
+      await this.menuCommand(ctx, from);
     }
   }
 
@@ -79,5 +66,65 @@ export class BotUpdate {
   @Action('userScene')
   async userScene(@Ctx() ctx: Context & SceneContext) {
     await ctx.scene.enter('userScene');
+  }
+
+  @Command('help')
+  async helpCommand(@Ctx() ctx: Context) {
+    console.log(ctx);
+  }
+  async menu(@Ctx() ctx: Context & SceneContext, @Message('from') from) {
+    const isOldUser = await this.userService.findByTgId(from.id);
+    if (isOldUser.role.every((item) => item === UserRoleEnum.USER)) {
+      await ctx.scene.enter('userScene');
+      return;
+    }
+    const markupButtons = [];
+    if (isOldUser.role.includes(UserRoleEnum.USER)) {
+      markupButtons.push([
+        Markup.button.callback('войти как юзер', 'userScene'),
+      ]);
+    }
+    if (
+      isOldUser.role.includes(UserRoleEnum.ADMIN) ||
+      isOldUser.role.includes(UserRoleEnum.SUPER_ADMIN)
+    ) {
+      markupButtons.push([
+        Markup.button.callback('войти как админ', 'adminScene'),
+      ]);
+    }
+    if (isOldUser.role.includes(UserRoleEnum.PARTNER)) {
+      markupButtons.push(Markup.button.callback('войти как партнер', 'asd'));
+    }
+
+    const markup = Markup.inlineKeyboard(markupButtons);
+    const greetingText =
+      'Для продолжения работы выберите под каким профилем хотите войти';
+
+    await ctx.reply(greetingText, markup);
+  }
+
+  @Command('menu')
+  async menuCommand(@Ctx() ctx: Context & SceneContext, @Message('from') from) {
+    await this.menu(ctx, from);
+  }
+  @Command('change_role')
+  async changeRoleCommand(@Ctx() ctx: Context & SceneContext) {
+    console.log(ctx);
+  }
+  @On('text')
+  async actionMenu(
+    @Ctx() ctx: Context & SceneContext,
+    @Message('text') msg: string,
+    @Message('from') from,
+  ) {
+    if (msg === 'Главное меню') {
+      await this.menuCommand(ctx, from);
+    }
+    if (msg === 'Помощь') {
+      await this.menuCommand(ctx, from);
+    }
+    if (msg === 'Выйти') {
+      await this.menuCommand(ctx, from);
+    }
   }
 }

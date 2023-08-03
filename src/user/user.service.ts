@@ -19,7 +19,15 @@ export class UserService {
   async promoteUser(id: number, role: UserRoleEnum) {
     const user = await this.findByTgId(id);
 
-    return user.updateOne({ $addToSet: { role: role } }, { new: true });
+    user.updateOne({ $addToSet: { role: role } }, { new: true });
+    return await this.findByTgId(id);
+  }
+
+  async restrictAdmin(id: number, role: UserRoleEnum) {
+    const user = await this.findByTgId(id);
+
+    user.updateOne({ $pull: { role: role } }, { new: true });
+    return await this.findByTgId(id);
   }
 
   async findByTgId(id: number) {

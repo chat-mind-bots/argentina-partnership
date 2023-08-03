@@ -1,7 +1,7 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { UserChangeCreateDto } from 'src/rights-change/dto/user-change-create.dto';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import {
   RightsChange,
   RightsChangeDocument,
@@ -28,8 +28,12 @@ export class RightsChangeService {
     return await this.findTicketById(id);
   }
 
-  async findTicket(id: number, role: ChangeRoles) {
-    const ticket = await this.rightsChangeModel.findOne({ tg_id: id, role });
+  async findTicket(id: string, role: ChangeRoles, status: TicketStatus) {
+    const ticket = await this.rightsChangeModel.findOne({
+      user: new Types.ObjectId(id),
+      role,
+      status,
+    });
     if (!ticket) {
       throw new HttpException(
         'Document (RightsChange) not found',

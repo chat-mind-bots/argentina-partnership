@@ -3,6 +3,7 @@ import { BotModule } from './bot/bot.module';
 import { UserModule } from './user/user.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { RightsChangeModule } from './rights-change/rights-change.module';
+import { CategoriesModule } from './categories/categories.module';
 
 @Module({
   imports: [
@@ -10,6 +11,7 @@ import { RightsChangeModule } from './rights-change/rights-change.module';
     BotModule,
     UserModule,
     RightsChangeModule,
+    CategoriesModule,
   ],
   controllers: [],
   providers: [],

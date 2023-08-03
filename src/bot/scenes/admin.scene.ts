@@ -1,7 +1,7 @@
-import { Action, Ctx, Scene, SceneEnter } from 'nestjs-telegraf';
+import { Action, Ctx, InjectBot, Scene, SceneEnter } from 'nestjs-telegraf';
 import { forwardRef, Inject, UseFilters } from '@nestjs/common';
 import { BotService } from 'src/bot/bot.service';
-import { Markup } from 'telegraf';
+import { Context, Markup, Telegraf } from 'telegraf';
 import { SceneContext } from 'telegraf/typings/scenes';
 import { RightsChangeService } from 'src/rights-change/rights-change.service';
 import { UserService } from 'src/user/user.service';
@@ -15,6 +15,7 @@ import { buttonSplitterHelper } from 'src/common/helpers/button-splitter.helper'
 @UseFilters(TelegrafExceptionFilter)
 export class AdminScene {
   constructor(
+    @InjectBot() private readonly bot: Telegraf<Context>,
     @Inject(forwardRef(() => BotService))
     private readonly botService: BotService,
     @Inject(forwardRef(() => RightsChangeService))
@@ -26,10 +27,9 @@ export class AdminScene {
   @SceneEnter()
   async enter(@Ctx() ctx: SceneContext) {
     const markup = Markup.inlineKeyboard([
-      Markup.button.callback('Категории', 'category'),
-      Markup.button.callback('Админы', 'admin'),
-      Markup.button.callback('Партнеры', 'partner'),
-      Markup.button.callback('Назад', 'leave'),
+      [Markup.button.callback('Категории', 'category')],
+      [Markup.button.callback('Админы', 'admin')],
+      [Markup.button.callback('Партнеры', 'partner')],
     ]);
     await ctx.editMessageText(
       'Можешь выбрать интересующие тебя функции',
@@ -45,9 +45,11 @@ export class AdminScene {
   @Action('admin')
   async admin(@Ctx() ctx: SceneContext) {
     const markup = Markup.inlineKeyboard([
-      Markup.button.callback('Список админов', 'adminList'),
-      Markup.button.callback('Заявки', 'adminTicket'),
-      Markup.button.callback('Назад', 'enter'),
+      [
+        Markup.button.callback('Список админов', 'adminList'),
+        Markup.button.callback('Заявки', 'adminTicket'),
+      ],
+      [Markup.button.callback('Назад', 'enter')],
     ]);
     await ctx.editMessageText(
       'Можешь выбрать интересующие тебя функции',
@@ -58,11 +60,28 @@ export class AdminScene {
   @Action('partner')
   async partner(@Ctx() ctx: SceneContext) {
     const markup = Markup.inlineKeyboard([
-      Markup.button.callback('Список пратнеров', 'partnerList'),
-      Markup.button.callback('Заявки', 'partnerTicket'),
-      Markup.button.callback('Назад', 'enter'),
+      [
+        Markup.button.callback('Список пратнеров', 'partnerList'),
+        Markup.button.callback('Заявки', 'partnerTicket'),
+      ],
+      [Markup.button.callback('Назад', 'enter')],
     ]);
     await ctx.editMessageText('Эта функция в разработке', markup);
+  }
+
+  @Action('partnerList')
+  async partnerList(@Ctx() ctx: SceneContext) {
+    const markup = Markup.inlineKeyboard([
+      [Markup.button.callback('Назад', 'partner')],
+    ]);
+    await ctx.editMessageText('Список партнеров пока что пуст 😢', markup);
+  }
+  @Action('partnerTicket')
+  async partnerTicket(@Ctx() ctx: SceneContext) {
+    const markup = Markup.inlineKeyboard([
+      [Markup.button.callback('Назад', 'partner')],
+    ]);
+    await ctx.editMessageText('Список заявок пока что пуст 😢', markup);
   }
 
   @Action('enter')
@@ -87,8 +106,8 @@ export class AdminScene {
       });
     });
     const markup = Markup.inlineKeyboard([
-      [Markup.button.callback('Назад', 'admin')],
       ...actionButtons,
+      [Markup.button.callback('Назад', 'admin')],
     ]);
     await ctx.editMessageText(
       `Список админов` +
@@ -126,16 +145,66 @@ export class AdminScene {
       await ctx.editMessageText('Сейчас заявок нет', markup);
       return;
     }
-    tickets.map((ticket) => {
-      const markup = Markup.inlineKeyboard([
+    const adminTickets = [];
+    tickets.map((ticket, i) => {
+      adminTickets.push([
+        `${i + 1}. @${ticket.user.username} ${ticket.user.first_name}`,
+        ticket.id,
+      ]);
+    });
+
+    const lines = buttonSplitterHelper(
+      adminTickets.map((ticket) => ticket[1]),
+      8,
+    );
+
+    const actionButtons = lines.map((line) => {
+      return line.map((button, i) => {
+        return Markup.button.callback(`${i + 1}`, `selectTicket__${button}`);
+      });
+    });
+
+    const markup = Markup.inlineKeyboard([
+      ...actionButtons,
+      [Markup.button.callback('Назад', 'admin')],
+    ]);
+    // tickets.map((ticket) => {
+    //   const markup = Markup.inlineKeyboard([
+    //     Markup.button.callback('Принять', `acceptAdmin__${ticket.id}`),
+    //     Markup.button.callback('Отклонить', `rejectAdmin__${ticket.id}`),
+    //   ]);
+    //   ctx.reply(
+    //     `Заявка:` + '\n' + ticket.role + '\n' + ticket.user.username,
+    //     markup,
+    //   );
+    // });
+
+    await ctx.editMessageText(
+      `Список заявок` +
+        '\n\n' +
+        'Выберите заявку:' +
+        '\n' +
+        adminTickets.map((admin) => admin[0]).join('\n'),
+      markup,
+    );
+  }
+
+  @Action(/selectTicket/)
+  async selectTicket(@Ctx() ctx: SceneContext) {
+    const ticketId = telegramDataHelper(ctx.callbackQuery['data'], '__');
+    const ticket = await this.rightsChangeService.findTicketById(ticketId);
+
+    const markup = Markup.inlineKeyboard([
+      [
         Markup.button.callback('Принять', `acceptAdmin__${ticket.id}`),
         Markup.button.callback('Отклонить', `rejectAdmin__${ticket.id}`),
-      ]);
-      ctx.reply(
-        `Заявка:` + '\n' + ticket.role + '\n' + ticket.user.username,
-        markup,
-      );
-    });
+      ],
+      [Markup.button.callback('Назад', `adminTicket`)],
+    ]);
+    await ctx.editMessageText(
+      `Заявка:` + '\n' + ticket.role + '\n' + ticket.user.username,
+      markup,
+    );
   }
 
   @Action(/acceptAdmin/)
@@ -145,12 +214,43 @@ export class AdminScene {
       id,
       TicketStatus.RESOLVE,
     );
-    await this.userService.promoteUser(ticket.user.tg_id, ticket.role);
+    const user = await this.userService.promoteUser(
+      ticket.user.tg_id,
+      UserRoleEnum.ADMIN,
+    );
+    await this.bot.telegram.sendMessage(
+      user.tg_id,
+      'Вы были повышены до статуса администратора',
+    );
+
+    const markup = Markup.inlineKeyboard([
+      [Markup.button.callback('Назад', `adminTicket`)],
+    ]);
+    await ctx.editMessageText(
+      ctx.callbackQuery.message['text'] +
+        '\n' +
+        'Эта заявка была принята вами ✅',
+      markup,
+    );
   }
 
   @Action(/rejectAdmin/)
   async rejectAdmin(@Ctx() ctx: SceneContext) {
     const id = telegramDataHelper(ctx.callbackQuery['data'], '__');
-    await this.rightsChangeService.updateStatus(id, TicketStatus.REJECT);
+    const ticket = await this.rightsChangeService.updateStatus(
+      id,
+      TicketStatus.REJECT,
+    );
+    await this.bot.telegram.sendMessage(
+      ticket.user.tg_id,
+      'Администратор отклонил вашу заявку на роль администратора',
+    );
+    const markup = Markup.inlineKeyboard([
+      [Markup.button.callback('Назад', `adminTicket`)],
+    ]);
+    await ctx.editMessageText(
+      ctx.callbackQuery.message['text'] + '\n' + 'Эта заявка была отменена ⛔',
+      markup,
+    );
   }
 }

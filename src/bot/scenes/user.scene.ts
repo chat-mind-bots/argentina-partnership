@@ -27,7 +27,6 @@ export class UserScene {
   async enter(@Ctx() ctx: Context & SceneContext) {
     const markup = Markup.inlineKeyboard([
       Markup.button.callback('Сотрудничество', 'partnership'),
-      Markup.button.callback('Назад', 'leave'),
     ]);
     try {
       await ctx.editMessageText(
@@ -70,14 +69,33 @@ export class UserScene {
 
   @Action(/createAdmin/)
   async createPartnerTicket(@Ctx() ctx: SceneContext) {
-    const userId = ctx.callbackQuery['data'] as string;
-    const user = new Types.ObjectId(telegramDataHelper(userId, '__'));
-    await this.rightsChangeService.create({
-      user,
-      role: UserRoleEnum.ADMIN,
-      status: TicketStatus.PENDING,
-    });
-    await ctx.editMessageText('Ваша заявка была отправлена');
-    await this.enter(ctx);
+    const userData = ctx.callbackQuery['data'] as string;
+    const userId = telegramDataHelper(userData, '__');
+    const userObjectId = new Types.ObjectId(userId);
+    const user = await this.userService.findById(userId);
+    const markup = Markup.inlineKeyboard([
+      Markup.button.callback('Назад', 'partnership'),
+    ]);
+    try {
+      const isTicketExist = await this.rightsChangeService.findTicket(
+        userId,
+        UserRoleEnum.ADMIN,
+        TicketStatus.PENDING,
+      );
+      if (isTicketExist) {
+        await ctx.editMessageText(
+          'Ваша заявка сейчас в обработке: 🔄. Ожадайте решения администратора',
+          markup,
+        );
+        return;
+      }
+    } catch (error) {
+      await this.rightsChangeService.create({
+        user: userObjectId,
+        role: UserRoleEnum.ADMIN,
+        status: TicketStatus.PENDING,
+      });
+      await ctx.editMessageText('Ваша заявка была отправлена', markup);
+    }
   }
 }
