@@ -14,14 +14,40 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
+
     - name: Setup env
       run: |
         IMAGE_REPOSITORY=$(echo ${{ github.repository }} | tr [:upper:] [:lower:])
         IMAGE_REGISTRY="docker.pkg.github.com/${IMAGE_REPOSITORY}/${{ env.PACKAGE_NAME }}"
         IMAGE_NAME="${IMAGE_REGISTRY}:${{ github.sha }}"
         echo "IMAGE_NAME=${IMAGE_NAME}" >> $GITHUB_ENV
-    - name: Build the Docker image
-      run: docker build . --file Dockerfile --tag my-image-name:$(date +%s) --label "runnumber=${GITHUB_RUN_ID}"
+
+    - name: Install
+      run: docker build --target install -t ${{ env.IMAGE_NAME }} .
+
+    - name: Check
+      run: docker build --target check-artifacts -t ${{ env.IMAGE_NAME }} .
+
+    - name: Extract test acrtifacts
+      run: |
+        docker create --name extract ${{ env.IMAGE_NAME }}
+        docker cp extract:/artifacts ./check-artifacts
+        docker rm extract
+
+    - name: Archive code coverage results
+      uses: actions/upload-artifact@v2
+      with:
+        name: code-coverage-report
+        path: ./check-artifacts/lcov-report
+
+    - name: Clear code coverage results
+      run: rm -rf ./check-artifacts
+
+    - name: Build app
+      run: docker build --build-arg VERSION=${{ github.sha }} --target web -t ${{ env.IMAGE_NAME }} .
+
+#    - name: Build the Docker image
+#      run: docker build . --file Dockerfile --tag my-image-name:$(date +%s) --label "runnumber=${GITHUB_RUN_ID}"
 #    - name: Log in to registry
 #      run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u $ --password-stdin
 #    - name: Pushing container
