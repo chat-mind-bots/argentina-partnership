@@ -1,4 +1,11 @@
-import { Action, Ctx, InjectBot, Scene, SceneEnter } from 'nestjs-telegraf';
+import {
+  Action,
+  Ctx,
+  InjectBot,
+  Message,
+  Scene,
+  SceneEnter,
+} from 'nestjs-telegraf';
 import { forwardRef, Inject, UseFilters } from '@nestjs/common';
 import { BotService } from 'src/bot/bot.service';
 import { Context, Markup, Telegraf } from 'telegraf';
@@ -10,6 +17,7 @@ import { telegramDataHelper } from 'src/common/helpers/telegram-data.helper';
 import { TicketStatus } from 'src/rights-change/rights-change.schema';
 import { TelegrafExceptionFilter } from 'src/common/filtres/telegraf-exeption.filter';
 import { buttonSplitterHelper } from 'src/common/helpers/button-splitter.helper';
+import { CategoriesService } from 'src/categories/categories.service';
 
 @Scene('adminScene')
 @UseFilters(TelegrafExceptionFilter)
@@ -22,6 +30,8 @@ export class AdminScene {
     private readonly rightsChangeService: RightsChangeService,
     @Inject(forwardRef(() => UserService))
     private readonly userService: UserService,
+    @Inject(forwardRef(() => CategoriesService))
+    private readonly categoriesService: CategoriesService,
   ) {}
 
   @SceneEnter()
@@ -35,6 +45,73 @@ export class AdminScene {
       'Можешь выбрать интересующие тебя функции',
       markup,
     );
+  }
+
+  @Action('category')
+  async category(@Ctx() ctx: SceneContext) {
+    const markup = Markup.inlineKeyboard([
+      [Markup.button.callback('Список категорий', 'categoryList')],
+      [
+        Markup.button.callback('Добавить категорию', 'addCategory'),
+        Markup.button.callback('Назад', 'enter'),
+      ],
+    ]);
+    await ctx.editMessageText(
+      'Можешь выбрать интересующие тебя функции',
+      markup,
+    );
+  }
+
+  @Action('categoryList')
+  async categoryList(@Ctx() ctx: SceneContext, @Message('text') msg: string) {
+    const categories = await this.categoriesService.findAllCategories();
+    console.log(msg);
+    if (!categories.length) {
+      await ctx.editMessageText(
+        'Пока что вы не добавили ни одну категорию',
+        Markup.inlineKeyboard([
+          Markup.button.callback('Назад', 'category'),
+          Markup.button.callback('Добавить категорию', 'addCategory'),
+        ]),
+      );
+      return;
+    }
+
+    const categoriesMas = [];
+    categories.map((category, i) => {
+      categoriesMas.push([`${i + 1}. ${category.title}`, category.id]);
+    });
+    const lines = buttonSplitterHelper(
+      categoriesMas.map((category) => category[1]),
+      8,
+    );
+    const actionButtons = lines.map((line) => {
+      return line.map((button, i) => {
+        return Markup.button.callback(`${i + 1}`, `selectAdmin__${button}`);
+      });
+    });
+    const markup = Markup.inlineKeyboard([
+      ...actionButtons,
+      [Markup.button.callback('Назад', 'category')],
+    ]);
+    await ctx.editMessageText(
+      `Список админов` +
+        '\n' +
+        'Выберете админа:' +
+        '\n' +
+        categoriesMas.map((category) => category[0]).join('\n'),
+      markup,
+    );
+  }
+
+  @Action('addCategory')
+  async addCategory(@Ctx() ctx: SceneContext) {
+    // const markup = Markup.inlineKeyboard([
+    //   [Markup.button.callback('Назад', 'category')],
+    //   [Markup.button.callback('Назад', 'category')],
+    // ]);
+    // await ctx.editMessageText('Категория:\n', markup);
+    await ctx.scene.enter('addCategory');
   }
 
   @Action('leave')
@@ -168,16 +245,6 @@ export class AdminScene {
       ...actionButtons,
       [Markup.button.callback('Назад', 'admin')],
     ]);
-    // tickets.map((ticket) => {
-    //   const markup = Markup.inlineKeyboard([
-    //     Markup.button.callback('Принять', `acceptAdmin__${ticket.id}`),
-    //     Markup.button.callback('Отклонить', `rejectAdmin__${ticket.id}`),
-    //   ]);
-    //   ctx.reply(
-    //     `Заявка:` + '\n' + ticket.role + '\n' + ticket.user.username,
-    //     markup,
-    //   );
-    // });
 
     await ctx.editMessageText(
       `Список заявок` +
