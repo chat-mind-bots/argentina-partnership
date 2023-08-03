@@ -18,3 +18,5 @@ jobs:
       run: docker build . --file Dockerfile --tag my-image-name:$(date +%s) --label "runnumber=${GITHUB_RUN_ID}"
     - name: Log in to registry
       run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u $ --password-stdin
+    - name: Pushing containers
+      run: docker push ghcr.io/chat-mind-bots/IMAGE_NAME:latest
