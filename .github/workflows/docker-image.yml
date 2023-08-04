@@ -18,12 +18,7 @@ jobs:
 
     - name: Build the Docker image
       run: docker build . --file Dockerfile --tag my-image-name:$(date +%s) --label "runnumber=${GITHUB_RUN_ID}"
-#    - name: Log in to registry
-#      run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u $ --password-stdin
-#    - name: Pushing container
-#      run: docker push kurkul608/argentina-partnership-dev:latest
     - name: Push Image
       run: |
         echo "${{ secrets.DOCKERPW }}" | docker login -u "kurkul608" --password-stdin
-#        docker image build -t dab8106/pyflask:latest .
         docker push kurkul608/argentina-partnership-dev:latest
