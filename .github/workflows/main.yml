@@ -1,0 +1,44 @@
+name: Auto Deploy to VPS
+
+on:
+  push:
+    branches:
+      - dev
+
+jobs:
+  deploy:
+    name: Deploy to VPS
+    runs-on: ubuntu-latest
+
+    steps:
+      # Check out the code from the 'dev' branch
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          ref: dev
+
+      # Log in to Docker Hub
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKERLG }}
+          password: ${{ secrets.DOCKERPW }}
+
+      # Build and push Docker container to Docker Hub
+      # - name: Build and push Docker container
+      #   run: |
+      #     docker build . --file Dockerfile --tag kurkul608/argentina-partnership-dev:latest --label "runnumber=${GITHUB_RUN_ID}"
+      #     docker push kurkul608/argentina-partnership-dev:latest
+
+      # SSH into your VPS and pull the latest container
+      - name: Deploy to VPS
+        uses: appleboy/ssh-action@master
+        with:
+          host: 5.159.102.190
+          username: root
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            docker pull kurkul608/argentina-partnership-dev:latest
+            docker stop argentina-partnership-dev || true
+            docker rm argentina-partnership-dev || true
+            docker run -d -p 3000:3000 --name argentina-partnership-dev kurkul608/argentina-partnership-dev:latest
