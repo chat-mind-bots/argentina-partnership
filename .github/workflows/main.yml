@@ -32,13 +32,13 @@ jobs:
 
       # SSH into your VPS and pull the latest container
       - name: Deploy to VPS
-        uses: LuisEnMarroquin/setup-ssh-action@v2.0.0
+        uses: appleboy/ssh-action@v1.0.0
         with:
-          ORIGIN: 5.159.102.190
-          USER: root
-          SSHKEY: ${{ secrets.SSH_PRIVATE_KEY }}
-          PORT: 22
-          NAME: develop
+          host: 5.159.102.190
+          username: root
+          passwordport: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: 22
+          script: ls -la
       - run: ssh develop "docker pull kurkul608/argentina-partnership-dev:latest"
           # script: |
           #   docker pull kurkul608/argentina-partnership-dev:latest
