@@ -45,7 +45,6 @@ export class BotUpdate {
           refCode: 'fixitsoon',
           role: [UserRoleEnum.USER],
         });
-        return;
       }
 
       const keyboardMarkup = Markup.keyboard([
@@ -108,8 +107,11 @@ export class BotUpdate {
     await this.menu(ctx, from);
   }
   @Command('change_role')
-  async changeRoleCommand(@Ctx() ctx: Context & SceneContext) {
-    console.log(ctx);
+  async changeRoleCommand(
+    @Ctx() ctx: Context & SceneContext,
+    @Message('from') from,
+  ) {
+    await this.menu(ctx, from);
   }
   @On('text')
   async actionMenu(
