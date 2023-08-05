@@ -10,6 +10,7 @@ import { telegramDataHelper } from 'src/common/helpers/telegram-data.helper';
 import { TicketStatus } from 'src/rights-change/rights-change.schema';
 import { TelegrafExceptionFilter } from 'src/common/filtres/telegraf-exeption.filter';
 import { buttonSplitterHelper } from 'src/common/helpers/button-splitter.helper';
+import { CategoriesService } from 'src/categories/categories.service';
 
 @Scene('adminScene')
 @UseFilters(TelegrafExceptionFilter)
@@ -22,19 +23,149 @@ export class AdminScene {
     private readonly rightsChangeService: RightsChangeService,
     @Inject(forwardRef(() => UserService))
     private readonly userService: UserService,
+    @Inject(forwardRef(() => CategoriesService))
+    private readonly categoriesService: CategoriesService,
   ) {}
 
   @SceneEnter()
   async enter(@Ctx() ctx: SceneContext) {
+    if (ctx.callbackQuery['data'] === 'category') {
+      await this.category(ctx);
+      return;
+    }
     const markup = Markup.inlineKeyboard([
       [Markup.button.callback('Категории', 'category')],
       [Markup.button.callback('Админы', 'admin')],
       [Markup.button.callback('Партнеры', 'partner')],
     ]);
+
+    const keyboardMarkup = Markup.keyboard([
+      [Markup.button.callback('Главное меню', 'menu')],
+      [Markup.button.callback('Помощь', 'help')],
+      [Markup.button.callback('Выйти', 'changeRole')],
+    ]).resize();
+
+    await ctx.reply('Вы вошли как админ', keyboardMarkup);
+
+    await ctx.reply('Можешь выбрать интересующие тебя функции', markup);
+  }
+
+  @Action('reenter')
+  async reenter(@Ctx() ctx: Context & SceneContext) {
+    await ctx.scene.reenter();
+  }
+
+  @Action('category')
+  async category(@Ctx() ctx: SceneContext) {
+    const markup = Markup.inlineKeyboard([
+      [Markup.button.callback('Список категорий', 'categoryList')],
+      [
+        Markup.button.callback('Добавить категорию', 'addCategory'),
+        Markup.button.callback('Назад', 'enter'),
+      ],
+    ]);
     await ctx.editMessageText(
       'Можешь выбрать интересующие тебя функции',
       markup,
     );
+  }
+
+  @Action('categoryList')
+  async categoryList(@Ctx() ctx: SceneContext) {
+    const categories = await this.categoriesService.findAllCategories();
+    if (!categories.length) {
+      await ctx.editMessageText(
+        'Пока что вы не добавили ни одну категорию',
+        Markup.inlineKeyboard([
+          Markup.button.callback('Назад', 'category'),
+          Markup.button.callback('Добавить категорию', 'addCategory'),
+        ]),
+      );
+      return;
+    }
+
+    const categoriesMas = [];
+    categories.map((category, i) => {
+      categoriesMas.push([`${i + 1}. ${category.title}`, category.id]);
+    });
+    const lines = buttonSplitterHelper(
+      categoriesMas.map((category) => category[1]),
+      8,
+    );
+    const actionButtons = lines.map((line, lineId) => {
+      return line.map((button, i) => {
+        return Markup.button.callback(
+          `${i + 1 + lineId * lines[0].length}`,
+          `selectCategory__${button}`,
+        );
+      });
+    });
+    const markup = Markup.inlineKeyboard([
+      ...actionButtons,
+      [Markup.button.callback('Назад', 'category')],
+    ]);
+    await ctx.editMessageText(
+      `Список категорий` +
+        '\n' +
+        'Выберете категорию:' +
+        '\n' +
+        categoriesMas.map((category) => category[0]).join('\n'),
+      markup,
+    );
+  }
+
+  @Action(/selectCategory/)
+  async selectCategory(@Ctx() ctx: SceneContext) {
+    const categoryId = telegramDataHelper(ctx.callbackQuery['data'], '__');
+    const category = await this.categoriesService.findById(categoryId);
+    const markup = Markup.inlineKeyboard([
+      [
+        Markup.button.callback(
+          'Удалить категорию',
+          `deleteCategory__${categoryId}`,
+        ),
+      ],
+      [Markup.button.callback('Назад', 'categoryList')],
+    ]);
+
+    await ctx.editMessageText(
+      `Категория:` + '\n' + `${category.title}\n${category.description}`,
+      markup,
+    );
+  }
+
+  @Action(/deleteCategory/)
+  async deleteCategory(@Ctx() ctx: SceneContext) {
+    const categoryId = telegramDataHelper(ctx.callbackQuery['data'], '__');
+    const markup = Markup.inlineKeyboard([
+      [Markup.button.callback('Назад', 'categoryList')],
+    ]);
+    try {
+      await this.categoriesService.removeCategory(categoryId);
+      await ctx.editMessageText(
+        ctx.callbackQuery.message['text'] +
+          '\n' +
+          'Категория была успешно удалена',
+        markup,
+      );
+    } catch (erorr) {
+      await ctx.editMessageText(
+        ctx.callbackQuery.message['text'] +
+          '\n' +
+          'Категория не была удалена, что-то пошло не так. Попробуйте снова',
+        markup,
+      );
+    }
+  }
+
+  @Action('addCategory')
+  async addCategory(@Ctx() ctx: SceneContext) {
+    // const markup = Markup.inlineKeyboard([
+    //   [Markup.button.callback('Назад', 'category')],
+    //   [Markup.button.callback('Назад', 'category')],
+    // ]);
+    // await ctx.editMessageText('Категория:\n', markup);
+    await ctx.scene.enter('addCategory');
   }
 
   @Action('leave')
@@ -100,9 +231,12 @@ export class AdminScene {
       adminsMas.map((admin) => admin[1]),
       8,
     );
-    const actionButtons = lines.map((line) => {
+    const actionButtons = lines.map((line, lineId) => {
       return line.map((button, i) => {
-        return Markup.button.callback(`${i + 1}`, `selectAdmin__${button}`);
+        return Markup.button.callback(
+          `${i + 1 + lineId * lines[0].length}`,
+          `selectAdmin__${button}`,
+        );
       });
     });
     const markup = Markup.inlineKeyboard([
@@ -158,9 +292,12 @@ export class AdminScene {
       8,
     );
 
-    const actionButtons = lines.map((line) => {
+    const actionButtons = lines.map((line, lineId) => {
       return line.map((button, i) => {
-        return Markup.button.callback(`${i + 1}`, `selectTicket__${button}`);
+        return Markup.button.callback(
+          `${i + 1 + lineId * lines[0].length}`,
+          `selectTicket__${button}`,
+        );
       });
     });
 
@@ -168,16 +305,6 @@ export class AdminScene {
       ...actionButtons,
       [Markup.button.callback('Назад', 'admin')],
     ]);
-    // tickets.map((ticket) => {
-    //   const markup = Markup.inlineKeyboard([
-    //     Markup.button.callback('Принять', `acceptAdmin__${ticket.id}`),
-    //     Markup.button.callback('Отклонить', `rejectAdmin__${ticket.id}`),
-    //   ]);
-    //   ctx.reply(
-    //     `Заявка:` + '\n' + ticket.role + '\n' + ticket.user.username,
-    //     markup,
-    //   );
-    // });
 
     await ctx.editMessageText(
       `Список заявок` +

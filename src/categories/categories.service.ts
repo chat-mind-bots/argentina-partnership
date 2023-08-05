@@ -23,7 +23,7 @@ export class CategoriesService {
   }
 
   async findById(id: string) {
-    const category = await this.categoryModel.findOne({ id });
+    const category = await this.categoryModel.findOne({ _id: id });
     if (!category) {
       throw new HttpException(
         'Document (Category) not found',

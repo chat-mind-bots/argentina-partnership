@@ -9,6 +9,8 @@ import { BotUpdate } from 'src/bot/bot.update';
 import { AdminScene } from 'src/bot/scenes/admin.scene';
 import { UserScene } from 'src/bot/scenes/user.scene';
 import { RightsChangeModule } from 'src/rights-change/rights-change.module';
+import { CategoriesModule } from 'src/categories/categories.module';
+import { AddCategoryScene } from 'src/bot/scenes/categories.scene';
 
 @Module({
   imports: [
@@ -19,8 +21,9 @@ import { RightsChangeModule } from 'src/rights-change/rights-change.module';
     }),
     forwardRef(() => UserModule),
     forwardRef(() => RightsChangeModule),
+    forwardRef(() => CategoriesModule),
   ],
   controllers: [BotController],
-  providers: [BotService, BotUpdate, AdminScene, UserScene],
+  providers: [BotService, BotUpdate, AdminScene, UserScene, AddCategoryScene],
 })
 export class BotModule {}

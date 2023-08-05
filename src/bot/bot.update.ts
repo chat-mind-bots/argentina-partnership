@@ -45,14 +45,12 @@ export class BotUpdate {
           refCode: 'fixitsoon',
           role: [UserRoleEnum.USER],
         });
-        return;
       }
 
       const keyboardMarkup = Markup.keyboard([
-        [Markup.button.callback('Главное меню', 'menu')],
         [Markup.button.callback('Помощь', 'help')],
-        [Markup.button.callback('Выйти', 'changeRole')],
-      ]);
+      ]).resize();
+
       await ctx.reply('Приветствую!', keyboardMarkup);
       await this.menuCommand(ctx, from);
     }
@@ -61,6 +59,11 @@ export class BotUpdate {
   @Action('adminScene')
   async adminScene(@Ctx() ctx: Context & SceneContext) {
     await ctx.scene.enter('adminScene');
+  }
+  @Action('reenter')
+  async reenter(@Ctx() ctx: Context & SceneContext) {
+    console.log('reenter');
+    await ctx.scene.reenter();
   }
 
   @Action('userScene')
@@ -108,8 +111,11 @@ export class BotUpdate {
     await this.menu(ctx, from);
   }
   @Command('change_role')
-  async changeRoleCommand(@Ctx() ctx: Context & SceneContext) {
-    console.log(ctx);
+  async changeRoleCommand(
+    @Ctx() ctx: Context & SceneContext,
+    @Message('from') from,
+  ) {
+    await this.menu(ctx, from);
   }
   @On('text')
   async actionMenu(
@@ -118,7 +124,7 @@ export class BotUpdate {
     @Message('from') from,
   ) {
     if (msg === 'Главное меню') {
-      await this.menuCommand(ctx, from);
+      await this.reenter(ctx);
     }
     if (msg === 'Помощь') {
       await this.menuCommand(ctx, from);
@@ -126,5 +132,6 @@ export class BotUpdate {
     if (msg === 'Выйти') {
       await this.menuCommand(ctx, from);
     }
+    console.log(ctx);
   }
 }
