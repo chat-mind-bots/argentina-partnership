@@ -1,47 +1,34 @@
-name: Auto Deploy to VPS
+name: Dev Deployment
 
 on:
-  push:
+  workflow_run:
+    workflows: [ "Build" ]
     branches:
-      - dev
+      - main
+    types:
+      - completed
 
 jobs:
   deploy:
-    name: Deploy to VPS
+    name: Deploy to Server
     runs-on: ubuntu-latest
 
     steps:
-      # Check out the code from the 'dev' branch
+      # Checkout the code from the 'dev' branch
       - name: Checkout code
         uses: actions/checkout@v2
         with:
           ref: dev
 
-      # Log in to Docker Hub
-      - name: Log in to Docker Hub
-        uses: docker/login-action@v1
-        with:
-          username: ${{ secrets.DOCKERLG }}
-          password: ${{ secrets.DOCKERPW }}
+      # Set up SSH key for authentication
+      - name: Set up SSH key
+        run: echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa && chmod 600 ~/.ssh/id_rsa
 
-      # Build and push Docker container to Docker Hub
-      # - name: Build and push Docker container
-      #   run: |
-      #     docker build . --file Dockerfile --tag kurkul608/argentina-partnership-dev:latest --label "runnumber=${GITHUB_RUN_ID}"
-      #     docker push kurkul608/argentina-partnership-dev:latest
+      # Install SSH client
+      - name: Install SSH client
+        run: sudo apt-get install -y openssh-client
 
-      # SSH into your VPS and pull the latest container
-      # - name: Deploy to VPS
-      #   uses: appleboy/ssh-action@v1.0.0
-      #   with:
-      #     host: 5.159.102.190
-      #     username: root
-      #     passwordport: ${{ secrets.SSH_PRIVATE_KEY }}
-      #     port: 22
-      #     script: ls -la
-      # - run: ssh develop "docker pull kurkul608/argentina-partnership-dev:latest"
-          # script: |
-          #   docker pull kurkul608/argentina-partnership-dev:latest
-          #   docker stop argentina-partnership-dev || true
-          #   docker rm argentina-partnership-dev || true
-          #   docker run -d -p 3000:3000 --name argentina-partnership-dev kurkul608/argentina-partnership-dev:latest
+      # Connect to the server and run the updateDev.sh script
+      - name: Deploy to Server
+        run: |
+          sshpass -p "bYNT149k2Zid" ssh -o StrictHostKeyChecking=no root@5.159.102.190 "cd ~/argentina-partnership-deploy && bash updateDev.sh"
