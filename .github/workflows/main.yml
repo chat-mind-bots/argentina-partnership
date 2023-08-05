@@ -18,8 +18,8 @@ jobs:
           ref: dev
 
       # Set up SSH key for authentication
-      - name: Set up SSH key
-        run: echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa && chmod 600 ~/.ssh/id_rsa
+#      - name: Set up SSH key
+#        run: echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa && chmod 600 ~/.ssh/id_rsa
 
       # Install SSH client
       - name: Install SSH client
