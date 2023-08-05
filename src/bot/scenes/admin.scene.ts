@@ -339,7 +339,7 @@ export class AdminScene {
     const id = telegramDataHelper(ctx.callbackQuery['data'], '__');
     const ticket = await this.rightsChangeService.updateStatus(
       id,
-      TicketStatus.RESOLVE,
+      TicketStatus.PENDING,
     );
     const user = await this.userService.promoteUser(
       ticket.user.tg_id,
