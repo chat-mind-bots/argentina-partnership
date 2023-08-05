@@ -47,11 +47,6 @@ export class BotUpdate {
         });
       }
 
-      const keyboardMarkup = Markup.keyboard([
-        [Markup.button.callback('Помощь', 'help')],
-      ]).resize();
-
-      await ctx.reply('Приветствую!', keyboardMarkup);
       await this.menuCommand(ctx, from);
     }
   }
@@ -62,7 +57,6 @@ export class BotUpdate {
   }
   @Action('reenter')
   async reenter(@Ctx() ctx: Context & SceneContext) {
-    console.log('reenter');
     await ctx.scene.reenter();
   }
 
@@ -71,10 +65,6 @@ export class BotUpdate {
     await ctx.scene.enter('userScene');
   }
 
-  @Command('help')
-  async helpCommand(@Ctx() ctx: Context) {
-    console.log(ctx);
-  }
   async menu(@Ctx() ctx: Context & SceneContext, @Message('from') from) {
     const isOldUser = await this.userService.findByTgId(from.id);
     if (isOldUser.role.every((item) => item === UserRoleEnum.USER)) {
@@ -132,6 +122,5 @@ export class BotUpdate {
     if (msg === 'Выйти') {
       await this.menuCommand(ctx, from);
     }
-    console.log(ctx);
   }
 }
