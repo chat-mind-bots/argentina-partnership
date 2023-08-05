@@ -11,6 +11,11 @@ import { Types } from 'mongoose';
 import { TicketStatus } from 'src/rights-change/rights-change.schema';
 import { TelegrafExceptionFilter } from 'src/common/filtres/telegraf-exeption.filter';
 
+enum MessageMode {
+  EDIT = 'EDIT',
+  REPLY = 'REPLY',
+}
+
 @Scene('userScene')
 @UseFilters(TelegrafExceptionFilter)
 export class UserScene {
@@ -25,46 +30,72 @@ export class UserScene {
 
   @SceneEnter()
   async enter(@Ctx() ctx: Context & SceneContext) {
+    const keyboardMarkup = Markup.keyboard([
+      [Markup.button.callback('Главное меню', 'menu')],
+      [Markup.button.callback('Помощь', 'help')],
+      [Markup.button.callback('Выйти', 'changeRole')],
+    ]).resize();
+
+    await ctx.reply('Вы вошли как юзер', keyboardMarkup);
+    await this.menu(ctx, MessageMode.REPLY);
+  }
+
+  @Action('menu')
+  async menu(@Ctx() ctx: Context & SceneContext, mode: MessageMode) {
     const markup = Markup.inlineKeyboard([
       Markup.button.callback('Сотрудничество', 'partnership'),
     ]);
-    try {
+    if (mode === MessageMode.REPLY) {
+      await ctx.reply('Можешь выбрать интересующие тебя функции', markup);
+    }
+    if (mode === MessageMode.EDIT) {
       await ctx.editMessageText(
         'Можешь выбрать интересующие тебя функции',
         markup,
       );
-    } catch (error) {
-      await ctx.reply('Можешь выбрать интересующие тебя функции', markup);
     }
   }
 
+  @Action('changeRole')
+  async changeRole(@Ctx() ctx: Context & SceneContext) {
+    await this.leave(ctx);
+  }
   @Action('leave')
   async leave(@Ctx() ctx: SceneContext) {
     await ctx.scene.leave();
-    await ctx.editMessageText('ты вышеш');
+  }
+
+  @Action('callMenu')
+  async enterAction(@Ctx() ctx: SceneContext) {
+    await this.menu(ctx, MessageMode.EDIT);
   }
 
   @Action('partnership')
   async partnershipAction(@Ctx() ctx: SceneContext) {
     const user = await this.userService.findByTgId(ctx.callbackQuery.from.id);
     const isAdmin = user.role.includes(UserRoleEnum.ADMIN);
+    const adminButton = isAdmin
+      ? Markup.button.callback('✅ Администратор', 'callMenu')
+      : Markup.button.callback(
+          'Заявка администратора',
+          `createAdmin__${user.id}`,
+        );
     const markup = Markup.inlineKeyboard([
-      isAdmin
-        ? Markup.button.callback('✅ Администратор', 'enter')
-        : Markup.button.callback(
-            'Заявка администратора',
-            `createAdmin__${user.id}`,
-          ),
-      Markup.button.callback('Назад', 'enter'),
+      [adminButton],
+      [Markup.button.callback('Назад', 'callMenu')],
     ]);
     await ctx.editMessageText(
       'Тут вы можете отправить свою заявку на сотрудничество',
       markup,
     );
   }
-  @Action('enter')
-  async enterAction(@Ctx() ctx: SceneContext) {
-    await this.enter(ctx);
+
+  @Action('isAdmin')
+  async isAdmin(@Ctx() ctx: SceneContext) {
+    const markup = Markup.inlineKeyboard([
+      Markup.button.callback('Назад', 'partnership'),
+    ]);
+    await ctx.editMessageText('Вы уже являетесь администратором ✅', markup);
   }
 
   @Action(/createAdmin/)

@@ -38,10 +38,21 @@ export class AdminScene {
       [Markup.button.callback('Админы', 'admin')],
       [Markup.button.callback('Партнеры', 'partner')],
     ]);
-    await ctx.editMessageText(
-      'Можешь выбрать интересующие тебя функции',
-      markup,
-    );
+
+    const keyboardMarkup = Markup.keyboard([
+      [Markup.button.callback('Главное меню', 'menu')],
+      [Markup.button.callback('Помощь', 'help')],
+      [Markup.button.callback('Выйти', 'changeRole')],
+    ]).resize();
+
+    await ctx.reply('Вы вошли как админ', keyboardMarkup);
+
+    await ctx.reply('Можешь выбрать интересующие тебя функции', markup);
+  }
+
+  @Action('reenter')
+  async reenter(@Ctx() ctx: Context & SceneContext) {
+    await ctx.scene.reenter();
   }
 
   @Action('category')
