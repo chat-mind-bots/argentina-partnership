@@ -1,11 +1,4 @@
-import {
-  Action,
-  Ctx,
-  InjectBot,
-  Message,
-  Scene,
-  SceneEnter,
-} from 'nestjs-telegraf';
+import { Action, Ctx, InjectBot, Scene, SceneEnter } from 'nestjs-telegraf';
 import { forwardRef, Inject, UseFilters } from '@nestjs/common';
 import { BotService } from 'src/bot/bot.service';
 import { Context, Markup, Telegraf } from 'telegraf';
@@ -36,6 +29,10 @@ export class AdminScene {
 
   @SceneEnter()
   async enter(@Ctx() ctx: SceneContext) {
+    if (ctx.callbackQuery['data'] === 'category') {
+      await this.category(ctx);
+      return;
+    }
     const markup = Markup.inlineKeyboard([
       [Markup.button.callback('Категории', 'category')],
       [Markup.button.callback('Админы', 'admin')],
@@ -63,9 +60,8 @@ export class AdminScene {
   }
 
   @Action('categoryList')
-  async categoryList(@Ctx() ctx: SceneContext, @Message('text') msg: string) {
+  async categoryList(@Ctx() ctx: SceneContext) {
     const categories = await this.categoriesService.findAllCategories();
-    console.log(msg);
     if (!categories.length) {
       await ctx.editMessageText(
         'Пока что вы не добавили ни одну категорию',
@@ -85,9 +81,12 @@ export class AdminScene {
       categoriesMas.map((category) => category[1]),
       8,
     );
-    const actionButtons = lines.map((line) => {
+    const actionButtons = lines.map((line, lineId) => {
       return line.map((button, i) => {
-        return Markup.button.callback(`${i + 1}`, `selectAdmin__${button}`);
+        return Markup.button.callback(
+          `${i + 1 + lineId * lines[0].length}`,
+          `selectCategory__${button}`,
+        );
       });
     });
     const markup = Markup.inlineKeyboard([
@@ -95,13 +94,57 @@ export class AdminScene {
       [Markup.button.callback('Назад', 'category')],
     ]);
     await ctx.editMessageText(
-      `Список админов` +
+      `Список категорий` +
         '\n' +
-        'Выберете админа:' +
+        'Выберете категорию:' +
         '\n' +
         categoriesMas.map((category) => category[0]).join('\n'),
       markup,
     );
+  }
+
+  @Action(/selectCategory/)
+  async selectCategory(@Ctx() ctx: SceneContext) {
+    const categoryId = telegramDataHelper(ctx.callbackQuery['data'], '__');
+    const category = await this.categoriesService.findById(categoryId);
+    const markup = Markup.inlineKeyboard([
+      [
+        Markup.button.callback(
+          'Удалить категорию',
+          `deleteCategory__${categoryId}`,
+        ),
+      ],
+      [Markup.button.callback('Назад', 'categoryList')],
+    ]);
+
+    await ctx.editMessageText(
+      `Категория:` + '\n' + `${category.title}\n${category.description}`,
+      markup,
+    );
+  }
+
+  @Action(/deleteCategory/)
+  async deleteCategory(@Ctx() ctx: SceneContext) {
+    const categoryId = telegramDataHelper(ctx.callbackQuery['data'], '__');
+    const markup = Markup.inlineKeyboard([
+      [Markup.button.callback('Назад', 'categoryList')],
+    ]);
+    try {
+      await this.categoriesService.removeCategory(categoryId);
+      await ctx.editMessageText(
+        ctx.callbackQuery.message['text'] +
+          '\n' +
+          'Категория была успешно удалена',
+        markup,
+      );
+    } catch (erorr) {
+      await ctx.editMessageText(
+        ctx.callbackQuery.message['text'] +
+          '\n' +
+          'Категория не была удалена, что-то пошло не так. Попробуйте снова',
+        markup,
+      );
+    }
   }
 
   @Action('addCategory')
@@ -177,9 +220,12 @@ export class AdminScene {
       adminsMas.map((admin) => admin[1]),
       8,
     );
-    const actionButtons = lines.map((line) => {
+    const actionButtons = lines.map((line, lineId) => {
       return line.map((button, i) => {
-        return Markup.button.callback(`${i + 1}`, `selectAdmin__${button}`);
+        return Markup.button.callback(
+          `${i + 1 + lineId * lines[0].length}`,
+          `selectAdmin__${button}`,
+        );
       });
     });
     const markup = Markup.inlineKeyboard([
@@ -235,9 +281,12 @@ export class AdminScene {
       8,
     );
 
-    const actionButtons = lines.map((line) => {
+    const actionButtons = lines.map((line, lineId) => {
       return line.map((button, i) => {
-        return Markup.button.callback(`${i + 1}`, `selectTicket__${button}`);
+        return Markup.button.callback(
+          `${i + 1 + lineId * lines[0].length}`,
+          `selectTicket__${button}`,
+        );
       });
     });
 

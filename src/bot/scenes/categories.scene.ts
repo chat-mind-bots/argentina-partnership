@@ -48,7 +48,7 @@ export class AddCategoryScene {
     await ctx.reply(
       `Ваша категория:\n${ctx.wizard.state['data'].title}\n${ctx.wizard.state['data'].description}`,
       Markup.inlineKeyboard([
-        Markup.button.callback('Сохранить', 'saveCategory__123213'),
+        Markup.button.callback('Сохранить', 'saveCategory'),
       ]),
     );
     ctx.wizard.next();
@@ -62,9 +62,7 @@ export class AddCategoryScene {
     });
     await ctx.editMessageText(
       `Ваша категория была успешно сохранена`,
-      Markup.inlineKeyboard([
-        Markup.button.callback('Категории', 'categoryList'),
-      ]),
+      Markup.inlineKeyboard([Markup.button.callback('Категории', 'category')]),
     );
     ctx.wizard.next();
   }
