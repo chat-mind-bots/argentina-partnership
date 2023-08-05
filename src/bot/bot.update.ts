@@ -45,7 +45,6 @@ export class BotUpdate {
           refCode: 'fixitsoon',
           role: [UserRoleEnum.USER],
         });
-        return;
       }
 
       const keyboardMarkup = Markup.keyboard([
