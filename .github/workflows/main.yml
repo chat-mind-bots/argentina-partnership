@@ -1,12 +1,9 @@
 name: Dev Deployment
 
 on:
-  workflow_run:
-    workflows: [ "Build" ]
+  push:
     branches:
-      - main
-    types:
-      - completed
+      - dev
 
 jobs:
   deploy:
