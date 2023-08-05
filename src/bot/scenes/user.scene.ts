@@ -1,11 +1,4 @@
-import {
-  Action,
-  Command,
-  Ctx,
-  Message,
-  Scene,
-  SceneEnter,
-} from 'nestjs-telegraf';
+import { Action, Command, Ctx, Scene, SceneEnter } from 'nestjs-telegraf';
 import { forwardRef, Inject, UseFilters } from '@nestjs/common';
 import { BotService } from 'src/bot/bot.service';
 import { Context, Markup } from 'telegraf';
@@ -44,8 +37,8 @@ export class UserScene {
   }
 
   @Command('menu')
-  async menuCommand(@Ctx() ctx: Context & SceneContext, @Message('from') from) {
-    await this.menu(ctx, from);
+  async menuCommand(@Ctx() ctx: Context & SceneContext) {
+    await this.menu(ctx, MessageMode.REPLY);
   }
 
   @Action('menu')
