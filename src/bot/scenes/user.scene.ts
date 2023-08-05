@@ -1,4 +1,11 @@
-import { Action, Ctx, Scene, SceneEnter } from 'nestjs-telegraf';
+import {
+  Action,
+  Command,
+  Ctx,
+  Message,
+  Scene,
+  SceneEnter,
+} from 'nestjs-telegraf';
 import { forwardRef, Inject, UseFilters } from '@nestjs/common';
 import { BotService } from 'src/bot/bot.service';
 import { Context, Markup } from 'telegraf';
@@ -10,11 +17,7 @@ import { telegramDataHelper } from 'src/common/helpers/telegram-data.helper';
 import { Types } from 'mongoose';
 import { TicketStatus } from 'src/rights-change/rights-change.schema';
 import { TelegrafExceptionFilter } from 'src/common/filtres/telegraf-exeption.filter';
-
-enum MessageMode {
-  EDIT = 'EDIT',
-  REPLY = 'REPLY',
-}
+import { MessageMode } from 'src/bot/enums/message-mode.enum';
 
 @Scene('userScene')
 @UseFilters(TelegrafExceptionFilter)
@@ -40,6 +43,11 @@ export class UserScene {
     await this.menu(ctx, MessageMode.REPLY);
   }
 
+  @Command('menu')
+  async menuCommand(@Ctx() ctx: Context & SceneContext, @Message('from') from) {
+    await this.menu(ctx, from);
+  }
+
   @Action('menu')
   async menu(@Ctx() ctx: Context & SceneContext, mode: MessageMode) {
     const markup = Markup.inlineKeyboard([
@@ -56,17 +64,8 @@ export class UserScene {
     }
   }
 
-  @Action('changeRole')
-  async changeRole(@Ctx() ctx: Context & SceneContext) {
-    await this.leave(ctx);
-  }
-  @Action('leave')
-  async leave(@Ctx() ctx: SceneContext) {
-    await ctx.scene.leave();
-  }
-
   @Action('callMenu')
-  async enterAction(@Ctx() ctx: SceneContext) {
+  async callMenu(@Ctx() ctx: SceneContext) {
     await this.menu(ctx, MessageMode.EDIT);
   }
 
