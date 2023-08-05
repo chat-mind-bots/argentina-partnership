@@ -31,15 +31,15 @@ jobs:
       #     docker push kurkul608/argentina-partnership-dev:latest
 
       # SSH into your VPS and pull the latest container
-      - name: Deploy to VPS
-        uses: appleboy/ssh-action@v1.0.0
-        with:
-          host: 5.159.102.190
-          username: root
-          passwordport: ${{ secrets.SSH_PRIVATE_KEY }}
-          port: 22
-          script: ls -la
-      - run: ssh develop "docker pull kurkul608/argentina-partnership-dev:latest"
+      # - name: Deploy to VPS
+      #   uses: appleboy/ssh-action@v1.0.0
+      #   with:
+      #     host: 5.159.102.190
+      #     username: root
+      #     passwordport: ${{ secrets.SSH_PRIVATE_KEY }}
+      #     port: 22
+      #     script: ls -la
+      # - run: ssh develop "docker pull kurkul608/argentina-partnership-dev:latest"
           # script: |
           #   docker pull kurkul608/argentina-partnership-dev:latest
           #   docker stop argentina-partnership-dev || true
