@@ -107,6 +107,14 @@ export class BotUpdate {
   ) {
     await this.menu(ctx, from);
   }
+
+  @Command('help')
+  async helpCommand(@Ctx() ctx: Context & SceneContext) {
+    await ctx.reply(
+      'Если что-то пошло не так обратитесь за помощью в канал @canal_name',
+    );
+  }
+
   @On('text')
   async actionMenu(
     @Ctx() ctx: Context & SceneContext,
@@ -117,7 +125,7 @@ export class BotUpdate {
       await this.reenter(ctx);
     }
     if (msg === 'Помощь') {
-      await this.menuCommand(ctx, from);
+      await this.helpCommand(ctx);
     }
     if (msg === 'Выйти') {
       await this.menuCommand(ctx, from);

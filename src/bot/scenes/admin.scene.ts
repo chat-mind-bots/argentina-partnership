@@ -1,4 +1,12 @@
-import { Action, Ctx, InjectBot, Scene, SceneEnter } from 'nestjs-telegraf';
+import {
+  Action,
+  Command,
+  Ctx,
+  InjectBot,
+  Message,
+  Scene,
+  SceneEnter,
+} from 'nestjs-telegraf';
 import { forwardRef, Inject, UseFilters } from '@nestjs/common';
 import { BotService } from 'src/bot/bot.service';
 import { Context, Markup, Telegraf } from 'telegraf';
@@ -11,6 +19,7 @@ import { TicketStatus } from 'src/rights-change/rights-change.schema';
 import { TelegrafExceptionFilter } from 'src/common/filtres/telegraf-exeption.filter';
 import { buttonSplitterHelper } from 'src/common/helpers/button-splitter.helper';
 import { CategoriesService } from 'src/categories/categories.service';
+import { MessageMode } from 'src/bot/enums/message-mode.enum';
 
 @Scene('adminScene')
 @UseFilters(TelegrafExceptionFilter)
@@ -28,31 +37,51 @@ export class AdminScene {
   ) {}
 
   @SceneEnter()
-  async enter(@Ctx() ctx: SceneContext) {
-    if (ctx.callbackQuery['data'] === 'category') {
-      await this.category(ctx);
-      return;
-    }
-    const markup = Markup.inlineKeyboard([
-      [Markup.button.callback('Категории', 'category')],
-      [Markup.button.callback('Админы', 'admin')],
-      [Markup.button.callback('Партнеры', 'partner')],
-    ]);
+  async enter(@Ctx() ctx: Context & SceneContext) {
+    try {
+      if (ctx.callbackQuery['data'] === 'category') {
+        await this.category(ctx);
+        return;
+      }
+    } catch (error) {}
 
     const keyboardMarkup = Markup.keyboard([
       [Markup.button.callback('Главное меню', 'menu')],
       [Markup.button.callback('Помощь', 'help')],
       [Markup.button.callback('Выйти', 'changeRole')],
     ]).resize();
-
     await ctx.reply('Вы вошли как админ', keyboardMarkup);
 
-    await ctx.reply('Можешь выбрать интересующие тебя функции', markup);
+    await this.menu(ctx, MessageMode.REPLY);
+  }
+
+  @Command('menu')
+  async menuCommand(@Ctx() ctx: Context & SceneContext, @Message('from') from) {
+    await this.menu(ctx, from);
   }
 
   @Action('reenter')
   async reenter(@Ctx() ctx: Context & SceneContext) {
     await ctx.scene.reenter();
+  }
+
+  @Action('menu')
+  async menu(@Ctx() ctx: Context & SceneContext, mode: MessageMode) {
+    const markup = Markup.inlineKeyboard([
+      [Markup.button.callback('Категории', 'category')],
+      [Markup.button.callback('Админы', 'admin')],
+      [Markup.button.callback('Партнеры', 'partner')],
+    ]);
+
+    if (mode === MessageMode.REPLY) {
+      await ctx.reply('Можешь выбрать интересующие тебя функции', markup);
+    }
+    if (mode === MessageMode.EDIT) {
+      await ctx.editMessageText(
+        'Можешь выбрать интересующие тебя функции',
+        markup,
+      );
+    }
   }
 
   @Action('category')
@@ -61,7 +90,7 @@ export class AdminScene {
       [Markup.button.callback('Список категорий', 'categoryList')],
       [
         Markup.button.callback('Добавить категорию', 'addCategory'),
-        Markup.button.callback('Назад', 'enter'),
+        Markup.button.callback('Назад', 'callMenu'),
       ],
     ]);
     await ctx.editMessageText(
@@ -173,6 +202,11 @@ export class AdminScene {
     await ctx.scene.leave();
   }
 
+  @Action('callMenu')
+  async callMenu(@Ctx() ctx: SceneContext) {
+    await this.menu(ctx, MessageMode.EDIT);
+  }
+
   @Action('admin')
   async admin(@Ctx() ctx: SceneContext) {
     const markup = Markup.inlineKeyboard([
@@ -180,7 +214,7 @@ export class AdminScene {
         Markup.button.callback('Список админов', 'adminList'),
         Markup.button.callback('Заявки', 'adminTicket'),
       ],
-      [Markup.button.callback('Назад', 'enter')],
+      [Markup.button.callback('Назад', 'callMenu')],
     ]);
     await ctx.editMessageText(
       'Можешь выбрать интересующие тебя функции',
@@ -195,7 +229,7 @@ export class AdminScene {
         Markup.button.callback('Список пратнеров', 'partnerList'),
         Markup.button.callback('Заявки', 'partnerTicket'),
       ],
-      [Markup.button.callback('Назад', 'enter')],
+      [Markup.button.callback('Назад', 'callMenu')],
     ]);
     await ctx.editMessageText('Эта функция в разработке', markup);
   }
@@ -339,7 +373,7 @@ export class AdminScene {
     const id = telegramDataHelper(ctx.callbackQuery['data'], '__');
     const ticket = await this.rightsChangeService.updateStatus(
       id,
-      TicketStatus.PENDING,
+      TicketStatus.RESOLVE,
     );
     const user = await this.userService.promoteUser(
       ticket.user.tg_id,
