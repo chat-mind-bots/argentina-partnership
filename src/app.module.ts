@@ -4,6 +4,8 @@ import { UserModule } from './user/user.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { RightsChangeModule } from './rights-change/rights-change.module';
 import { CategoriesModule } from './categories/categories.module';
+import { UserCodesModule } from './user-codes/user-codes.module';
+import { QrcodeModule } from './qrcode/qrcode.module';
 
 @Module({
   imports: [
@@ -12,6 +14,8 @@ import { CategoriesModule } from './categories/categories.module';
     UserModule,
     RightsChangeModule,
     CategoriesModule,
+    UserCodesModule,
+    QrcodeModule,
   ],
   controllers: [],
   providers: [],

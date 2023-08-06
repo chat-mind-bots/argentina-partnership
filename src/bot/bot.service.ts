@@ -16,4 +16,13 @@ export class BotService implements OnModuleInit {
       { command: 'help', description: 'Получить подсказку' },
     ]);
   }
+
+  async sendMessage(chatId: number, message: string) {
+    await this.bot.telegram.sendMessage(chatId, message);
+    return;
+  }
+
+  async sendPhoto(chatId: number, image: Buffer) {
+    await this.bot.telegram.sendPhoto(chatId, { source: image });
+  }
 }

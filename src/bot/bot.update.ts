@@ -16,6 +16,7 @@ import { UserService } from 'src/user/user.service';
 import { UserRoleEnum } from 'src/user/enum/user-role.enum';
 import { SceneContext } from 'telegraf/typings/scenes';
 import { Chat } from 'typegram/manage';
+import { UserCodesService } from 'src/user-codes/user-codes.service';
 
 @Update()
 @UseFilters(TelegrafExceptionFilter)
@@ -24,6 +25,7 @@ export class BotUpdate {
     @InjectBot() private readonly bot: Telegraf<Context>,
     @Inject(forwardRef(() => UserService))
     private readonly userService: UserService,
+    private readonly userCodeService: UserCodesService,
   ) {}
 
   @Start()
@@ -112,6 +114,24 @@ export class BotUpdate {
   async helpCommand(@Ctx() ctx: Context & SceneContext) {
     await ctx.reply(
       'Если что-то пошло не так обратитесь за помощью в канал @canal_name',
+    );
+  }
+
+  @Command('generate_code')
+  async generateCode(@Ctx() ctx: Context, @Message('from') from) {
+    const user = await this.userService.findByTgId(from.id);
+
+    const { qrCode, codeDocument } =
+      await this.userCodeService.generateUniqCode(user._id);
+
+    await ctx.replyWithPhoto({ source: qrCode });
+    await ctx.replyWithHTML(`<b>${codeDocument.code}</b>`);
+    await ctx.replyWithHTML(
+      `Ваш уникальный код: <b>${codeDocument.code}</b>
+Покажите Qr-код, или код в текстовом формате во время расчета
+Код можно использовать только 1 раз\n
+<b>Внимание, код будет действителен в течении одного часа</b>\n
+Если вы не успеет активировать его в течении 1-го часа, то просто сгененрируйте новый, при помощи команды: /generate_code`,
     );
   }
 

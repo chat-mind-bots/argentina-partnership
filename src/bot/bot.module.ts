@@ -11,6 +11,7 @@ import { UserScene } from 'src/bot/scenes/user.scene';
 import { RightsChangeModule } from 'src/rights-change/rights-change.module';
 import { CategoriesModule } from 'src/categories/categories.module';
 import { AddCategoryScene } from 'src/bot/scenes/categories.scene';
+import { UserCodesModule } from 'src/user-codes/user-codes.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { AddCategoryScene } from 'src/bot/scenes/categories.scene';
     forwardRef(() => UserModule),
     forwardRef(() => RightsChangeModule),
     forwardRef(() => CategoriesModule),
+    UserCodesModule,
   ],
   controllers: [BotController],
   providers: [BotService, BotUpdate, AdminScene, UserScene, AddCategoryScene],
