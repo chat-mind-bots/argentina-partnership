@@ -3,6 +3,7 @@ import { UserCodesService } from './user-codes.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import { UserCodesSchema, UserCodes } from 'src/user-codes/user-codes.schema';
 import { QrcodeModule } from 'src/qrcode/qrcode.module';
+import { UserCodesController } from './user-codes.controller';
 
 @Module({
   imports: [
@@ -13,5 +14,6 @@ import { QrcodeModule } from 'src/qrcode/qrcode.module';
   ],
   providers: [UserCodesService],
   exports: [UserCodesService],
+  controllers: [UserCodesController],
 })
 export class UserCodesModule {}

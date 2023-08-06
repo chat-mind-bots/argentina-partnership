@@ -4,11 +4,16 @@ import * as process from 'process';
 
 @Injectable()
 export class QrcodeService {
-  async getQrCodeByQuery(query: string): Promise<Buffer> {
+  async getQrCodeByParam(param: string): Promise<Buffer> {
     const qrImage = await this.generateQRCode(
       `${process.env.MODE === 'LOCAL' ? 'http' : 'https'}://${
         process.env.BASE_URL
-      }?${query}`,
+      }/user-codes/${param}`,
+    );
+    console.log(
+      `${process.env.MODE === 'LOCAL' ? 'http' : 'https'}://${
+        process.env.BASE_URL
+      }/user-codes/${param}`,
     );
     return qrImage;
   }

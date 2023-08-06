@@ -42,12 +42,12 @@ export class UserCodesService {
 
     const code = await this.userCodesModel.create(uniqCode);
 
-    const qrCode = await this.qrCodeService.getQrCodeByQuery(`code=${code}`);
+    const qrCode = await this.qrCodeService.getQrCodeByParam(uniqCode.code);
 
     return { codeDocument: code, qrCode: qrCode };
   }
 
-  async checkCode(code: string) {
+  async checkCode(code: string): Promise<'authorized' | 'reject'> {
     const codeDB = await this.userCodesModel
       .findOne({
         code: code,
@@ -56,7 +56,10 @@ export class UserCodesService {
       })
       .populate('user');
 
-    return codeDB;
+    if (codeDB) {
+      await codeDB.updateOne({ status: UserCodeStatusEnum.activated });
+    }
+    return codeDB ? 'authorized' : 'reject';
   }
 
   async updateCodeStatus(codeId: Types.ObjectId, status: UserCodeStatusEnum) {
