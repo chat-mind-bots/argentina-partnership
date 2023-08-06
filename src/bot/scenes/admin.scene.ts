@@ -56,8 +56,8 @@ export class AdminScene {
   }
 
   @Command('menu')
-  async menuCommand(@Ctx() ctx: Context & SceneContext, @Message('from') from) {
-    await this.menu(ctx, from);
+  async menuCommand(@Ctx() ctx: Context & SceneContext) {
+    await this.menu(ctx, MessageMode.REPLY);
   }
 
   @Action('reenter')
