@@ -1,4 +1,4 @@
-import { Controller, Get, Render, Param, Res } from '@nestjs/common';
+import { Controller, Get, Param, Res } from '@nestjs/common';
 import { Response } from 'express';
 import { UserCodesService } from 'src/user-codes/user-codes.service';
 
