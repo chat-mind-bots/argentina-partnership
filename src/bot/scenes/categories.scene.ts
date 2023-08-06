@@ -1,10 +1,15 @@
 import { Action, Ctx, Message, Wizard, WizardStep } from 'nestjs-telegraf';
+import { Update } from 'telegraf/typings/core/types/typegram';
 import { forwardRef, Inject, UseFilters } from '@nestjs/common';
 import { CategoriesService } from 'src/categories/categories.service';
 import { UserService } from 'src/user/user.service';
 import { WizardContext } from 'telegraf/typings/scenes';
 import { Context, Markup } from 'telegraf';
 import { TelegrafExceptionFilter } from 'src/common/filtres/telegraf-exeption.filter';
+import { isCommandString } from 'src/common/helpers/string.helper';
+import { KeyboardMessageEnum } from 'src/bot/enums/keyboard-message.enum';
+import { valueInEnum } from 'src/common/helpers/enum-value.helper';
+import { BotService } from 'src/bot/bot.service';
 
 @Wizard('addCategory')
 @UseFilters(TelegrafExceptionFilter)
@@ -14,6 +19,8 @@ export class AddCategoryScene {
     private readonly categoriesService: CategoriesService,
     @Inject(forwardRef(() => UserService))
     private readonly userService: UserService,
+    @Inject(forwardRef(() => BotService))
+    private readonly botService: BotService,
   ) {}
   @WizardStep(0)
   async step0(
@@ -21,17 +28,53 @@ export class AddCategoryScene {
     @Ctx() ctx: Context & WizardContext,
   ) {
     ctx.wizard.state['data'] = {};
-    await ctx.editMessageText('Введите название категории');
+    try {
+      await ctx.editMessageText('Введите название категории');
+    } catch (error) {
+      await ctx.reply('Введите название категории');
+    }
+    console.log(msg);
     ctx.wizard.next();
   }
   @WizardStep(1)
   async step1(
     @Message('text') msg: string,
     @Ctx() ctx: Context & WizardContext,
+    @Message('from') from,
   ) {
     ctx.wizard.state['data'] = { ...ctx.wizard.state['data'], title: msg };
-    await ctx.reply('Введите описание категории');
-    ctx.wizard.next();
+    const isAllowedMessage =
+      !valueInEnum(msg, KeyboardMessageEnum) && !isCommandString(msg);
+
+    if (isCommandString(msg)) {
+      if (msg === '/menu') {
+        await ctx.scene.leave();
+        await ctx.scene.enter('adminScene');
+        return;
+      }
+      if (msg === '/start') {
+        await ctx.scene.leave();
+        await this.botService.menu(ctx, from);
+        return;
+      }
+      if (msg === '/changeRole') {
+        await ctx.scene.leave();
+        await this.botService.menu(ctx, from);
+        return;
+      }
+      if (msg === '/help') {
+        await ctx.scene.leave();
+        await this.botService.helpCommand(ctx);
+        return;
+      }
+    }
+    if (!isAllowedMessage) {
+      await ctx.reply('Попробуйте еще раз.');
+    }
+    if (isAllowedMessage) {
+      await ctx.reply('Введите описание категории');
+      ctx.wizard.next();
+    }
   }
 
   @WizardStep(2)
@@ -45,35 +88,175 @@ export class AddCategoryScene {
       ...ctx.wizard.state['data'],
       description: msg,
     };
-    await ctx.reply(
-      `Ваша категория:\n${ctx.wizard.state['data'].title}\n${ctx.wizard.state['data'].description}`,
-      Markup.inlineKeyboard([
-        Markup.button.callback('Сохранить', 'saveCategory'),
-      ]),
-    );
-    ctx.wizard.next();
+
+    if (isCommandString(msg)) {
+      if (msg === '/menu') {
+        await ctx.scene.leave();
+        await ctx.scene.enter('adminScene');
+        return;
+      }
+      if (msg === '/start') {
+        await ctx.scene.leave();
+        await this.botService.menu(ctx, from);
+        return;
+      }
+      if (msg === '/changeRole') {
+        await ctx.scene.leave();
+        await this.botService.menu(ctx, from);
+        return;
+      }
+      if (msg === '/help') {
+        await ctx.scene.leave();
+        await this.botService.helpCommand(ctx);
+        return;
+      }
+    }
+
+    const isAllowedMessage =
+      !isCommandString(msg) && !valueInEnum(msg, KeyboardMessageEnum);
+
+    const markup = Markup.inlineKeyboard([
+      [Markup.button.callback('Сохранить', 'saveCategory')],
+      [Markup.button.callback('Заполнить заново', 'reenter')],
+      [Markup.button.callback('Отменить', 'category')],
+    ]);
+    if (!isAllowedMessage) {
+      await ctx.reply('Попробуйте еще раз.');
+    }
+
+    if (isAllowedMessage) {
+      await ctx.reply(
+        `Ваша категория:\n${ctx.wizard.state['data'].title}\n${ctx.wizard.state['data'].description}`,
+        markup,
+      );
+      ctx.wizard.next();
+    }
   }
 
   @WizardStep(3)
-  async step3(@Ctx() ctx: Context & WizardContext) {
-    const category = await this.categoriesService.createCategory({
-      title: ctx.wizard.state['data'].title,
-      description: ctx.wizard.state['data'].description,
-    });
-    await ctx.editMessageText(
-      `Ваша категория была успешно сохранена`,
-      Markup.inlineKeyboard([Markup.button.callback('Категории', 'category')]),
-    );
+  async step3(
+    ctx: Context & WizardContext & { update: Update.CallbackQueryUpdate },
+    @Message('text') msg: string,
+    @Message('from') from,
+  ) {
+    if (isCommandString(msg)) {
+      if (msg === '/menu') {
+        await ctx.scene.leave();
+        await ctx.scene.enter('adminScene');
+        return;
+      }
+      if (msg === '/start') {
+        await ctx.scene.leave();
+        await this.botService.menu(ctx, from);
+        return;
+      }
+      if (msg === '/changeRole') {
+        await ctx.scene.leave();
+        await this.botService.menu(ctx, from);
+        return;
+      }
+      if (msg === '/help') {
+        await ctx.scene.leave();
+        await this.botService.helpCommand(ctx);
+        return;
+      }
+    }
+
+    const markup = Markup.inlineKeyboard([
+      [Markup.button.callback('Категории', 'category')],
+      [Markup.button.callback('Добавить категорию', 'reenter')],
+    ]);
+
+    const cbQuery = ctx.update.callback_query;
+    if (cbQuery) {
+      const userAnswer = 'data' in cbQuery ? cbQuery.data : null;
+      if (userAnswer === 'category') {
+        await ctx.scene.enter('adminScene');
+        return;
+      }
+      if (userAnswer === 'reenter') {
+        await ctx.scene.reenter();
+        return;
+      }
+    }
+    try {
+      const category = await this.categoriesService.createCategory({
+        title: ctx.wizard.state['data'].title,
+        description: ctx.wizard.state['data'].description,
+      });
+      await ctx.editMessageText(
+        `Ваша категория была успешно сохранена`,
+        markup,
+      );
+    } catch (error) {
+      await ctx.editMessageText(
+        `Категория с таким названием уже создана`,
+        markup,
+      );
+    }
     ctx.wizard.next();
   }
 
   @WizardStep(4)
-  async step4(@Ctx() ctx: Context & WizardContext) {
-    await ctx.scene.enter('adminScene');
+  async step4(
+    @Ctx()
+    ctx: Context & WizardContext & { update: Update.CallbackQueryUpdate },
+    @Message('text') msg: string,
+    @Message('from') from,
+  ) {
+    if (isCommandString(msg)) {
+      if (msg === '/menu') {
+        await ctx.scene.leave();
+        await ctx.scene.enter('adminScene');
+        return;
+      }
+      if (msg === '/start') {
+        await ctx.scene.leave();
+        await this.botService.menu(ctx, from);
+        return;
+      }
+      if (msg === '/changeRole') {
+        await ctx.scene.leave();
+        await this.botService.menu(ctx, from);
+        return;
+      }
+      if (msg === '/help') {
+        await ctx.scene.leave();
+        await this.botService.helpCommand(ctx);
+        return;
+      }
+    }
+    const cbQuery = ctx.update.callback_query;
+    if (cbQuery) {
+      const userAnswer = 'data' in cbQuery ? cbQuery.data : null;
+      if (userAnswer === 'reenter') {
+        await ctx.scene.reenter();
+        return;
+      }
+      await ctx.scene.enter('adminScene');
+    }
   }
 
   @Action('leave')
   async leaveScene(@Ctx() ctx: Context & WizardContext) {
     await ctx.scene.enter('adminScene');
   }
+
+  // @Action('reenter')
+  // async reenterScene(
+  //   @Ctx() ctx: Context & WizardContext,
+  //   @Message('text') msg: string,
+  // ) {
+  //   ctx.wizard.selectStep(0);
+  // }
+
+  // @On('text')
+  // async text(
+  //   @Ctx() ctx: Context & WizardContext,
+  //   @Message('text') msg: string,
+  // ) {
+  //   if (isCommandString(msg)) {
+  //     await ctx.reply('Сейчас вы не можете использовать данную команду.');
+  //   }
+  // }
 }

@@ -3,7 +3,6 @@ import {
   Command,
   Ctx,
   InjectBot,
-  Message,
   Scene,
   SceneEnter,
 } from 'nestjs-telegraf';
