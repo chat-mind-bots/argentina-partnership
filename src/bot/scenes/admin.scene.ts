@@ -286,11 +286,7 @@ export class AdminScene {
   }
 
   @Action(/selectAdmin/)
-  async selectAdmin(
-    @Ctx() ctx: SceneContext,
-    @Message('from') from,
-    @Message('chat') chat,
-  ) {
+  async selectAdmin(@Ctx() ctx: SceneContext) {
     const userId = telegramDataHelper(ctx.callbackQuery['data'], '__');
     const user = await this.userService.findById(userId);
     const ownProfile = await this.userService.findByTgId(
