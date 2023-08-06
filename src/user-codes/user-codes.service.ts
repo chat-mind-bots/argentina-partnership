@@ -3,15 +3,17 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model, now, Types } from 'mongoose';
 import { UserCodes, UserCodesDocument } from 'src/user-codes/user-codes.schema';
 import { UserCodeStatusEnum } from 'src/user-codes/enums/user-code-status.enum';
+import { QrcodeService } from 'src/qrcode/qrcode.service';
 
 @Injectable()
 export class UserCodesService {
   constructor(
     @InjectModel(UserCodes.name)
     private readonly userCodesModel: Model<UserCodesDocument>,
+    private readonly qrCodeService: QrcodeService,
   ) {}
 
-  generateRandomUserCode(length): string {
+  private generateRandomUserCode(length): string {
     const characters = 'ABCDEFGHJKMNPQRSTUVWXYZabcdefghjmnpqrstuvwxyz123456789';
     let code = '';
 
@@ -23,12 +25,14 @@ export class UserCodesService {
     return code;
   }
 
-  getFutureDate() {
+  private getFutureDate() {
     const now = new Date();
     return new Date(now.getTime() + 60 * 60 * 1000 + 60 * 1000);
   }
 
-  async generateUniqCode(userId: Types.ObjectId) {
+  async generateUniqCode(
+    userId: Types.ObjectId,
+  ): Promise<{ codeDocument: UserCodesDocument; qrCode: Buffer }> {
     const uniqCode: Partial<UserCodes> = {
       user: userId,
       code: this.generateRandomUserCode(6),
@@ -37,7 +41,10 @@ export class UserCodesService {
     };
 
     const code = await this.userCodesModel.create(uniqCode);
-    return code;
+
+    const qrCode = await this.qrCodeService.getQrCodeByQuery(`code=${code}`);
+
+    return { codeDocument: code, qrCode: qrCode };
   }
 
   async checkCode(code: string) {

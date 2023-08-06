@@ -16,6 +16,7 @@ import { UserService } from 'src/user/user.service';
 import { UserRoleEnum } from 'src/user/enum/user-role.enum';
 import { SceneContext } from 'telegraf/typings/scenes';
 import { Chat } from 'typegram/manage';
+import { UserCodesService } from 'src/user-codes/user-codes.service';
 
 @Update()
 @UseFilters(TelegrafExceptionFilter)
@@ -24,6 +25,7 @@ export class BotUpdate {
     @InjectBot() private readonly bot: Telegraf<Context>,
     @Inject(forwardRef(() => UserService))
     private readonly userService: UserService,
+    private readonly userCodeService: UserCodesService,
   ) {}
 
   @Start()
@@ -117,6 +119,18 @@ export class BotUpdate {
   ) {
     await this.menu(ctx, from);
   }
+
+  @Command('generate_code')
+  async generateCode(@Ctx() ctx: Context, @Message('from') from) {
+    const user = await this.userService.findByTgId(from.id);
+    const { qrCode, codeDocument } =
+      await this.userCodeService.generateUniqCode(user._id);
+    await ctx.replyWithPhoto({ source: qrCode });
+    await ctx.reply(
+      `Ваш уникальный код - <s>${codeDocument.code}</s>\r<s>Внимание, код будет действителен в течении одного часа</s>`,
+    );
+  }
+
   @On('text')
   async actionMenu(
     @Ctx() ctx: Context & SceneContext,
