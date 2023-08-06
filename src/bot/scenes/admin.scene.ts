@@ -1,14 +1,7 @@
-import {
-  Action,
-  Command,
-  Ctx,
-  InjectBot,
-  Scene,
-  SceneEnter,
-} from 'nestjs-telegraf';
+import { Action, Command, Ctx, Scene, SceneEnter } from 'nestjs-telegraf';
 import { forwardRef, Inject, UseFilters } from '@nestjs/common';
 import { BotService } from 'src/bot/bot.service';
-import { Context, Markup, Telegraf } from 'telegraf';
+import { Context, Markup } from 'telegraf';
 import { SceneContext } from 'telegraf/typings/scenes';
 import { RightsChangeService } from 'src/rights-change/rights-change.service';
 import { UserService } from 'src/user/user.service';
@@ -24,7 +17,6 @@ import { MessageMode } from 'src/bot/enums/message-mode.enum';
 @UseFilters(TelegrafExceptionFilter)
 export class AdminScene {
   constructor(
-    @InjectBot() private readonly bot: Telegraf<Context>,
     @Inject(forwardRef(() => BotService))
     private readonly botService: BotService,
     @Inject(forwardRef(() => RightsChangeService))
@@ -378,7 +370,7 @@ export class AdminScene {
       ticket.user.tg_id,
       UserRoleEnum.ADMIN,
     );
-    await this.bot.telegram.sendMessage(
+    await this.botService.sendMessage(
       user.tg_id,
       'Вы были повышены до статуса администратора',
     );
@@ -401,7 +393,7 @@ export class AdminScene {
       id,
       TicketStatus.REJECT,
     );
-    await this.bot.telegram.sendMessage(
+    await this.botService.sendMessage(
       ticket.user.tg_id,
       'Администратор отклонил вашу заявку на роль администратора',
     );

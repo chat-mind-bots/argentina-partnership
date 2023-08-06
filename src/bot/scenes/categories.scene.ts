@@ -25,7 +25,8 @@ export class AddCategoryScene {
   @WizardStep(0)
   async step0(
     @Message('text') msg: string,
-    @Ctx() ctx: Context & WizardContext,
+    @Ctx()
+    ctx: Context & WizardContext & { update: Update.CallbackQueryUpdate },
   ) {
     ctx.wizard.state['data'] = {};
     try {
@@ -33,41 +34,21 @@ export class AddCategoryScene {
     } catch (error) {
       await ctx.reply('Введите название категории');
     }
-    console.log(msg);
     ctx.wizard.next();
   }
   @WizardStep(1)
   async step1(
     @Message('text') msg: string,
-    @Ctx() ctx: Context & WizardContext,
+    @Ctx()
+    ctx: Context & WizardContext & { update: Update.CallbackQueryUpdate },
     @Message('from') from,
   ) {
     ctx.wizard.state['data'] = { ...ctx.wizard.state['data'], title: msg };
     const isAllowedMessage =
       !valueInEnum(msg, KeyboardMessageEnum) && !isCommandString(msg);
 
-    if (isCommandString(msg)) {
-      if (msg === '/menu') {
-        await ctx.scene.leave();
-        await ctx.scene.enter('adminScene');
-        return;
-      }
-      if (msg === '/start') {
-        await ctx.scene.leave();
-        await this.botService.menu(ctx, from);
-        return;
-      }
-      if (msg === '/changeRole') {
-        await ctx.scene.leave();
-        await this.botService.menu(ctx, from);
-        return;
-      }
-      if (msg === '/help') {
-        await ctx.scene.leave();
-        await this.botService.helpCommand(ctx);
-        return;
-      }
-    }
+    await this.commandAction(ctx, from, msg);
+
     if (!isAllowedMessage) {
       await ctx.reply('Попробуйте еще раз.');
     }
@@ -82,35 +63,15 @@ export class AddCategoryScene {
     @Message('text') msg: string,
     @Message('from') from,
     @Message('chat') chat,
-    @Ctx() ctx: Context & WizardContext,
+    @Ctx()
+    ctx: Context & WizardContext & { update: Update.CallbackQueryUpdate },
   ) {
     ctx.wizard.state['data'] = {
       ...ctx.wizard.state['data'],
       description: msg,
     };
 
-    if (isCommandString(msg)) {
-      if (msg === '/menu') {
-        await ctx.scene.leave();
-        await ctx.scene.enter('adminScene');
-        return;
-      }
-      if (msg === '/start') {
-        await ctx.scene.leave();
-        await this.botService.menu(ctx, from);
-        return;
-      }
-      if (msg === '/changeRole') {
-        await ctx.scene.leave();
-        await this.botService.menu(ctx, from);
-        return;
-      }
-      if (msg === '/help') {
-        await ctx.scene.leave();
-        await this.botService.helpCommand(ctx);
-        return;
-      }
-    }
+    await this.commandAction(ctx, from, msg);
 
     const isAllowedMessage =
       !isCommandString(msg) && !valueInEnum(msg, KeyboardMessageEnum);
@@ -139,28 +100,7 @@ export class AddCategoryScene {
     @Message('text') msg: string,
     @Message('from') from,
   ) {
-    if (isCommandString(msg)) {
-      if (msg === '/menu') {
-        await ctx.scene.leave();
-        await ctx.scene.enter('adminScene');
-        return;
-      }
-      if (msg === '/start') {
-        await ctx.scene.leave();
-        await this.botService.menu(ctx, from);
-        return;
-      }
-      if (msg === '/changeRole') {
-        await ctx.scene.leave();
-        await this.botService.menu(ctx, from);
-        return;
-      }
-      if (msg === '/help') {
-        await ctx.scene.leave();
-        await this.botService.helpCommand(ctx);
-        return;
-      }
-    }
+    await this.commandAction(ctx, from, msg);
 
     const markup = Markup.inlineKeyboard([
       [Markup.button.callback('Категории', 'category')],
@@ -197,12 +137,11 @@ export class AddCategoryScene {
     ctx.wizard.next();
   }
 
-  @WizardStep(4)
-  async step4(
+  async commandAction(
     @Ctx()
     ctx: Context & WizardContext & { update: Update.CallbackQueryUpdate },
-    @Message('text') msg: string,
     @Message('from') from,
+    msg: string,
   ) {
     if (isCommandString(msg)) {
       if (msg === '/menu') {
@@ -215,7 +154,7 @@ export class AddCategoryScene {
         await this.botService.menu(ctx, from);
         return;
       }
-      if (msg === '/changeRole') {
+      if (msg === '/change_role') {
         await ctx.scene.leave();
         await this.botService.menu(ctx, from);
         return;
@@ -226,6 +165,17 @@ export class AddCategoryScene {
         return;
       }
     }
+  }
+
+  @WizardStep(4)
+  async step4(
+    @Ctx()
+    ctx: Context & WizardContext & { update: Update.CallbackQueryUpdate },
+    @Message('text') msg: string,
+    @Message('from') from,
+  ) {
+    await this.commandAction(ctx, from, msg);
+
     const cbQuery = ctx.update.callback_query;
     if (cbQuery) {
       const userAnswer = 'data' in cbQuery ? cbQuery.data : null;
