@@ -1,4 +1,11 @@
-import { Action, Command, Ctx, Scene, SceneEnter } from 'nestjs-telegraf';
+import {
+  Action,
+  Command,
+  Ctx,
+  Message,
+  Scene,
+  SceneEnter,
+} from 'nestjs-telegraf';
 import { forwardRef, Inject, UseFilters } from '@nestjs/common';
 import { BotService } from 'src/bot/bot.service';
 import { Context, Markup } from 'telegraf';
@@ -279,16 +286,66 @@ export class AdminScene {
   }
 
   @Action(/selectAdmin/)
-  async selectAdmin(@Ctx() ctx: SceneContext) {
+  async selectAdmin(
+    @Ctx() ctx: SceneContext,
+    @Message('from') from,
+    @Message('chat') chat,
+  ) {
     const userId = telegramDataHelper(ctx.callbackQuery['data'], '__');
     const user = await this.userService.findById(userId);
-    const userText = `Пользователь \nТелеграм ID: ${
-      user.tg_id
-    }\nДолжность: ${user.role.join(' ')}\nЮзернэйм: @${user.username}`;
+    const ownProfile = await this.userService.findByTgId(
+      ctx.callbackQuery.from.id,
+    );
+    const userText = `Администратор
+<b>Логин пользователя</b>: ${user.first_name}
+<b>Профиль пользователя</b>: @${user.username}
+<b>ID пользователя</b>: ${user.tg_id}`;
+    const isSuperAdmin = ownProfile.role.includes(UserRoleEnum.SUPER_ADMIN);
+    const showRestrictButton = isSuperAdmin && user.tg_id !== ownProfile.tg_id;
+    await ctx.editMessageText(userText, {
+      reply_markup: {
+        inline_keyboard: [
+          [Markup.button.callback('Назад', 'adminList')],
+          showRestrictButton
+            ? [
+                Markup.button.callback(
+                  'Разжаловать',
+                  `requestRestrictAdmin__${user.id}`,
+                ),
+              ]
+            : [],
+        ],
+      },
+      parse_mode: 'HTML',
+    });
+  }
+
+  @Action(/requestRestrictAdmin/)
+  async requestRestrictAdmin(@Ctx() ctx: SceneContext) {
+    const userId = telegramDataHelper(ctx.callbackQuery['data'], '__');
     const markup = Markup.inlineKeyboard([
-      Markup.button.callback('Назад', 'adminList'),
+      [Markup.button.callback('Подтвердить', `restrictAdmin__${userId}`)],
+      [Markup.button.callback('Назад', `selectAdmin__${userId}`)],
     ]);
-    await ctx.editMessageText(userText, markup);
+    const oldText = ctx.callbackQuery.message['text'];
+    await ctx.editMessageText(
+      oldText + '\n\n' + 'Вы действительно хотите удалить администратора?',
+      markup,
+    );
+  }
+
+  @Action(/restrictAdmin/)
+  async restrictAdmin(@Ctx() ctx: SceneContext) {
+    const userId = telegramDataHelper(ctx.callbackQuery['data'], '__');
+    const markup = Markup.inlineKeyboard([
+      [Markup.button.callback('Список Администраторов', `adminList`)],
+    ]);
+    try {
+      await this.userService.restrictAdmin(userId, UserRoleEnum.ADMIN);
+      await ctx.editMessageText(`Пользователь был ограничен в правах`, markup);
+    } catch (error) {
+      await ctx.editMessageText(`Что-то пошло не так`, markup);
+    }
   }
 
   @Action('adminTicket')
@@ -346,17 +403,26 @@ export class AdminScene {
     const ticketId = telegramDataHelper(ctx.callbackQuery['data'], '__');
     const ticket = await this.rightsChangeService.findTicketById(ticketId);
 
-    const markup = Markup.inlineKeyboard([
+    const markup = [
       [
         Markup.button.callback('Принять', `acceptAdmin__${ticket.id}`),
         Markup.button.callback('Отклонить', `rejectAdmin__${ticket.id}`),
       ],
       [Markup.button.callback('Назад', `adminTicket`)],
-    ]);
-    await ctx.editMessageText(
-      `Заявка:` + '\n' + ticket.role + '\n' + ticket.user.username,
-      markup,
-    );
+    ];
+
+    const userText = `Заявка на должность
+<b>Название должности</b>: Администратор
+<b>Логин пользователя</b>: ${ticket.user.first_name}
+<b>Профиль пользователя</b>: @${ticket.user.username}
+<b>ID пользователя</b>: ${ticket.user.tg_id}`;
+
+    await ctx.editMessageText(userText, {
+      reply_markup: {
+        inline_keyboard: markup,
+      },
+      parse_mode: 'HTML',
+    });
   }
 
   @Action(/acceptAdmin/)

@@ -26,7 +26,7 @@ export class AddCategoryScene {
   async step0(
     @Message('text') msg: string,
     @Ctx()
-    ctx: Context & WizardContext & { update: Update.CallbackQueryUpdate },
+    ctx: Context & WizardContext,
   ) {
     ctx.wizard.state['data'] = {};
     try {
@@ -96,6 +96,7 @@ export class AddCategoryScene {
 
   @WizardStep(3)
   async step3(
+    @Ctx()
     ctx: Context & WizardContext & { update: Update.CallbackQueryUpdate },
     @Message('text') msg: string,
     @Message('from') from,
@@ -106,8 +107,7 @@ export class AddCategoryScene {
       [Markup.button.callback('Категории', 'category')],
       [Markup.button.callback('Добавить категорию', 'reenter')],
     ]);
-
-    const cbQuery = ctx.update.callback_query;
+    const cbQuery = ctx?.update.callback_query;
     if (cbQuery) {
       const userAnswer = 'data' in cbQuery ? cbQuery.data : null;
       if (userAnswer === 'category') {
@@ -138,31 +138,32 @@ export class AddCategoryScene {
   }
 
   async commandAction(
-    @Ctx()
     ctx: Context & WizardContext & { update: Update.CallbackQueryUpdate },
     @Message('from') from,
     msg: string,
   ) {
-    if (isCommandString(msg)) {
-      if (msg === '/menu') {
-        await ctx.scene.leave();
-        await ctx.scene.enter('adminScene');
-        return;
-      }
-      if (msg === '/start') {
-        await ctx.scene.leave();
-        await this.botService.menu(ctx, from);
-        return;
-      }
-      if (msg === '/change_role') {
-        await ctx.scene.leave();
-        await this.botService.menu(ctx, from);
-        return;
-      }
-      if (msg === '/help') {
-        await ctx.scene.leave();
-        await this.botService.helpCommand(ctx);
-        return;
+    if (msg) {
+      if (isCommandString(msg)) {
+        if (msg === '/menu') {
+          await ctx.scene.leave();
+          await ctx.scene.enter('adminScene');
+          return;
+        }
+        if (msg === '/start') {
+          await ctx.scene.leave();
+          await this.botService.menu(ctx, from);
+          return;
+        }
+        if (msg === '/change_role') {
+          await ctx.scene.leave();
+          await this.botService.menu(ctx, from);
+          return;
+        }
+        if (msg === '/help') {
+          await ctx.scene.leave();
+          await this.botService.helpCommand(ctx);
+          return;
+        }
       }
     }
   }
@@ -176,7 +177,7 @@ export class AddCategoryScene {
   ) {
     await this.commandAction(ctx, from, msg);
 
-    const cbQuery = ctx.update.callback_query;
+    const cbQuery = ctx?.update.callback_query;
     if (cbQuery) {
       const userAnswer = 'data' in cbQuery ? cbQuery.data : null;
       if (userAnswer === 'reenter') {
