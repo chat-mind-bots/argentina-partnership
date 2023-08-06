@@ -10,20 +10,10 @@ export class QrcodeService {
         process.env.BASE_URL
       }/user-codes/${param}`,
     );
-    console.log(
-      `${process.env.MODE === 'LOCAL' ? 'http' : 'https'}://${
-        process.env.BASE_URL
-      }/user-codes/${param}`,
-    );
     return qrImage;
   }
 
   async generateQRCode(url): Promise<Buffer> {
     return await QRCode.toBuffer(url);
-  }
-
-  async checkQrCode(query: string) {
-    console.log(query);
-    return;
   }
 }
