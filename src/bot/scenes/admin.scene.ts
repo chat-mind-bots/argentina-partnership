@@ -41,7 +41,7 @@ export class AdminScene {
       [Markup.button.callback('Помощь', 'help')],
       [Markup.button.callback('Выйти', 'changeRole')],
     ]).resize();
-    await ctx.reply('Вы вошли как админ', keyboardMarkup);
+    await ctx.reply('Вы вошли как администратор', keyboardMarkup);
 
     await this.menu(ctx, MessageMode.REPLY);
   }
@@ -60,7 +60,7 @@ export class AdminScene {
   async menu(@Ctx() ctx: Context & SceneContext, mode: MessageMode) {
     const markup = Markup.inlineKeyboard([
       [Markup.button.callback('Категории', 'category')],
-      [Markup.button.callback('Админы', 'admin')],
+      [Markup.button.callback('Администраторы', 'admin')],
       [Markup.button.callback('Партнеры', 'partner')],
     ]);
 
