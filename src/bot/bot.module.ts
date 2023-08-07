@@ -15,6 +15,7 @@ import { CategoriesModule } from 'src/categories/categories.module';
 import { AddCategoryScene } from 'src/bot/scenes/categories.scene';
 import { UserCodesModule } from 'src/user-codes/user-codes.module';
 import * as process from 'process';
+import { session } from 'telegraf';
 
 @Module({
   imports: [
@@ -22,13 +23,17 @@ import * as process from 'process';
     TelegrafModule.forRoot({
       token: process.env.TELEGRAM_API_KEY,
       middlewares: [
-        new RedisSession({
-          store: {
-            host: process.env.REDIS_HOST,
-            port: process.env.REDIS_PORT,
-            password: process.env.REDIS_PASSWORD,
-          },
-        }).middleware(),
+        ...(process.env.MODE === 'LOCAL'
+          ? [session()]
+          : [
+              new RedisSession({
+                store: {
+                  host: process.env.REDIS_HOST,
+                  port: process.env.REDIS_PORT,
+                  password: process.env.REDIS_PASSWORD,
+                },
+              }).middleware(),
+            ]),
       ],
     }),
     forwardRef(() => UserModule),
