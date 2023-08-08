@@ -1,11 +1,4 @@
-import {
-  Action,
-  Command,
-  Ctx,
-  Message,
-  Scene,
-  SceneEnter,
-} from 'nestjs-telegraf';
+import { Action, Command, Ctx, Scene, SceneEnter } from 'nestjs-telegraf';
 import { forwardRef, Inject, UseFilters } from '@nestjs/common';
 import { BotService } from 'src/bot/bot.service';
 import { Context, Markup } from 'telegraf';
