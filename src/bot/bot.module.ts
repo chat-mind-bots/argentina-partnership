@@ -12,10 +12,12 @@ import { AdminScene } from 'src/bot/scenes/admin.scene';
 import { UserScene } from 'src/bot/scenes/user.scene';
 import { RightsChangeModule } from 'src/rights-change/rights-change.module';
 import { CategoriesModule } from 'src/categories/categories.module';
-import { AddCategoryScene } from 'src/bot/scenes/categories.scene';
+import { AddCategoryScene } from 'src/bot/scenes/category/categories.scene';
 import { UserCodesModule } from 'src/user-codes/user-codes.module';
 import * as process from 'process';
 import { session } from 'telegraf';
+import { editCategoryTitleScene } from 'src/bot/scenes/category/category-change-title.scene';
+import { editCategoryDescriptionScene } from 'src/bot/scenes/category/category-change-description.scene';
 
 @Module({
   imports: [
@@ -42,6 +44,14 @@ import { session } from 'telegraf';
     UserCodesModule,
   ],
   controllers: [BotController],
-  providers: [BotService, BotUpdate, AdminScene, UserScene, AddCategoryScene],
+  providers: [
+    BotService,
+    BotUpdate,
+    AdminScene,
+    UserScene,
+    AddCategoryScene,
+    editCategoryTitleScene,
+    editCategoryDescriptionScene,
+  ],
 })
 export class BotModule {}
