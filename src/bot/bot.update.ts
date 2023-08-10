@@ -129,5 +129,9 @@ export class BotUpdate {
     if (msg === 'Выйти') {
       await this.menuCommand(ctx, from);
     }
+    // @ts-ignore
+    if (msg?.web_app_data?.data) {
+      await this.menu(ctx, from);
+    }
   }
 }
