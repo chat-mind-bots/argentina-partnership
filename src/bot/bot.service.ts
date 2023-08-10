@@ -68,4 +68,14 @@ export class BotService implements OnModuleInit {
       'Если что-то пошло не так обратитесь за помощью в канал @canal_name',
     );
   }
+
+  async sendMessageWithWebApp(chatId: number) {
+    await this.bot.telegram.sendMessage(
+      chatId,
+      'Открыть список партнеров',
+      Markup.inlineKeyboard([
+        Markup.button.webApp('Открыть список партнеров', 'https://google.com'),
+      ]),
+    );
+  }
 }

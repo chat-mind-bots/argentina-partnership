@@ -1,11 +1,9 @@
 import { forwardRef, Module } from '@nestjs/common';
 import { BotService } from './bot.service';
 import { BotController } from './bot.controller';
-import { TelegrafModule, TelegrafModuleOptions } from 'nestjs-telegraf';
-// import { session } from 'telegraf';
-// import { Redis } from '@telegraf/session/redis';
+import { TelegrafModule } from 'nestjs-telegraf';
 import RedisSession from 'telegraf-session-redis';
-import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ConfigModule } from '@nestjs/config';
 import { UserModule } from 'src/user/user.module';
 import { BotUpdate } from 'src/bot/bot.update';
 import { AdminScene } from 'src/bot/scenes/admin.scene';
