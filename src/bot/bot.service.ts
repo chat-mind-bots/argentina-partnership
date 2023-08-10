@@ -4,6 +4,7 @@ import { Context, Markup, Telegraf } from 'telegraf';
 import { SceneContext } from 'telegraf/typings/scenes';
 import { UserRoleEnum } from 'src/user/enum/user-role.enum';
 import { UserService } from 'src/user/user.service';
+import * as process from 'process';
 
 @Injectable()
 export class BotService implements OnModuleInit {
@@ -74,7 +75,10 @@ export class BotService implements OnModuleInit {
       chatId,
       'Открыть список партнеров',
       Markup.inlineKeyboard([
-        Markup.button.webApp('Открыть список партнеров', 'https://google.com'),
+        Markup.button.webApp(
+          'Открыть список партнеров',
+          `https://${process.env.BASE_URL}/partners`,
+        ),
       ]),
     );
   }
