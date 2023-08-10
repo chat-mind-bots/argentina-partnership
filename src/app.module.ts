@@ -8,6 +8,7 @@ import { UserCodesModule } from './user-codes/user-codes.module';
 import { QrcodeModule } from './qrcode/qrcode.module';
 import { PaymentModule } from './payment/payment.module';
 import { CryptomusModule } from './cryptomus/cryptomus.module';
+import { BusinessModule } from 'src/business/business.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { CryptomusModule } from './cryptomus/cryptomus.module';
     QrcodeModule,
     PaymentModule,
     CryptomusModule,
+    BusinessModule,
   ],
   controllers: [],
   providers: [],
