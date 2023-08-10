@@ -129,6 +129,7 @@ export class BotUpdate {
     if (msg === 'Выйти') {
       await this.menuCommand(ctx, from);
     }
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     if (msg?.web_app_data?.data) {
       await this.menu(ctx, from);
