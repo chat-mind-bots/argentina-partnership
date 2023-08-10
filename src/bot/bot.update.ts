@@ -109,6 +109,11 @@ export class BotUpdate {
     );
   }
 
+  @Command('open_partners')
+  async openPartners(@Ctx() ctx: Context, @Message('from') from) {
+    await this.botService.sendMessageWithWebApp(from.id);
+  }
+
   @On('text')
   async actionMenu(
     @Ctx() ctx: Context & SceneContext,

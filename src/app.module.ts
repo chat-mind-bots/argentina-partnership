@@ -6,6 +6,8 @@ import { RightsChangeModule } from './rights-change/rights-change.module';
 import { CategoriesModule } from './categories/categories.module';
 import { UserCodesModule } from './user-codes/user-codes.module';
 import { QrcodeModule } from './qrcode/qrcode.module';
+import { PaymentModule } from './payment/payment.module';
+import { CryptomusModule } from './cryptomus/cryptomus.module';
 
 @Module({
   imports: [
@@ -16,6 +18,8 @@ import { QrcodeModule } from './qrcode/qrcode.module';
     CategoriesModule,
     UserCodesModule,
     QrcodeModule,
+    PaymentModule,
+    CryptomusModule,
   ],
   controllers: [],
   providers: [],
