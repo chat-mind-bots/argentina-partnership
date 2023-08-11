@@ -2,6 +2,9 @@ import { IsOptional, IsString } from 'class-validator';
 
 export class CreateBusinessDto {
   @IsString()
+  readonly categoryId: string;
+
+  @IsString()
   readonly title: string;
 
   @IsString()

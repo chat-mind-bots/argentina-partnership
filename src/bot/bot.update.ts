@@ -130,6 +130,16 @@ export class BotUpdate {
     );
   }
 
+  @Command('test')
+  async testWeb(@Ctx() ctx: Context, @Message('from') from) {
+    await this.botService.sendMessageWithWebApp(
+      from.id,
+      WebAppRoutes.TEST,
+      'Добавить бизнес',
+      'Добавить бизнес',
+    );
+  }
+
   @On('text')
   async actionMenu(
     @Ctx() ctx: Context & SceneContext,
@@ -144,14 +154,6 @@ export class BotUpdate {
     }
     if (msg === 'Выйти') {
       await this.menuCommand(ctx, from);
-    }
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    if (msg?.web_app_data?.data) {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      console.log(msg?.web_app_data?.data);
-      await this.menu(ctx, from);
     }
   }
 }
