@@ -7,7 +7,7 @@ export class UserCodesController {
   constructor(private readonly userCodesService: UserCodesService) {}
 
   @Get(':code')
-  async userCodesCheck(@Param('code') code: string, @Res() res: Response) {
-    return await this.userCodesService.checkCode(code);
+  async userCodesCheck(@Param('code') code: string) {
+    return this.userCodesService.checkCode(code);
   }
 }
