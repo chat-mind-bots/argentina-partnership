@@ -8,6 +8,7 @@ export class UserCodesController {
 
   @Get(':code')
   async userCodesCheck(@Param('code') code: string) {
-    return this.userCodesService.checkCode(code);
+    const result = await this.userCodesService.checkCode(code);
+    return { status: result };
   }
 }
