@@ -42,7 +42,9 @@ export class UserCodesService {
 
     const code = await this.userCodesModel.create(uniqCode);
 
-    const qrCode = await this.qrCodeService.getQrCodeByParam(uniqCode.code);
+    const qrCode = await this.qrCodeService.getQrCodeByParam(
+      `user-code-${uniqCode.code}`,
+    );
 
     return { codeDocument: code, qrCode: qrCode };
   }
