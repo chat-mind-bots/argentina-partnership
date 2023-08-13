@@ -307,7 +307,7 @@ export class AdminScene {
     );
     if (!tickets.length) {
       const markup = Markup.inlineKeyboard([
-        Markup.button.callback('Назад', 'admin'),
+        Markup.button.callback('Назад', 'partner'),
       ]);
       await ctx.editMessageText('Список заявок пока что пуст 😢', markup);
       return;
