@@ -22,7 +22,7 @@ export class UserService {
     return await this.findByTgId(id);
   }
 
-  async restrictAdmin(id: string, role: UserRoleEnum) {
+  async restrictUser(id: string, role: UserRoleEnum) {
     const user = await this.findById(id);
 
     await user.updateOne({ $pull: { role: role } }, { new: true });

@@ -418,6 +418,20 @@ export class AdminScene {
     });
   }
 
+  @Action(/requestRestrictPartner/)
+  async requestRestrictPartner(@Ctx() ctx: SceneContext) {
+    const userId = telegramDataHelper(ctx.callbackQuery['data'], '__');
+    const markup = Markup.inlineKeyboard([
+      [Markup.button.callback('Подтвердить', `restrictPartner__${userId}`)],
+      [Markup.button.callback('Назад', `selectPartner__${userId}`)],
+    ]);
+    const oldText = ctx.callbackQuery.message['text'];
+    await ctx.editMessageText(
+      oldText + '\n\n' + 'Вы действительно хотите разжаловать партнера?',
+      markup,
+    );
+  }
+
   @Action(/requestRestrictAdmin/)
   async requestRestrictAdmin(@Ctx() ctx: SceneContext) {
     const userId = telegramDataHelper(ctx.callbackQuery['data'], '__');
@@ -439,10 +453,30 @@ export class AdminScene {
       [Markup.button.callback('Список Администраторов', `adminList`)],
     ]);
     try {
-      await this.userService.restrictAdmin(userId, UserRoleEnum.ADMIN);
+      await this.userService.restrictUser(userId, UserRoleEnum.ADMIN);
       await ctx.editMessageText(`Пользователь был ограничен в правах`, markup);
     } catch (error) {
-      await ctx.editMessageText(`Что-то пошло не так`, markup);
+      await ctx.editMessageText(
+        `Что-то пошло не так. Попробуйте снова или обратитесь за помощью`,
+        markup,
+      );
+    }
+  }
+
+  @Action(/restrictPartner/)
+  async restrictPartner(@Ctx() ctx: SceneContext) {
+    const userId = telegramDataHelper(ctx.callbackQuery['data'], '__');
+    const markup = Markup.inlineKeyboard([
+      [Markup.button.callback('Список Партнеров', `partnerList`)],
+    ]);
+    try {
+      await this.userService.restrictUser(userId, UserRoleEnum.PARTNER);
+      await ctx.editMessageText(`Пользователь был ограничен в правах`, markup);
+    } catch (error) {
+      await ctx.editMessageText(
+        `Что-то пошло не так. Попробуйте снова или обратитесь за помощью`,
+        markup,
+      );
     }
   }
 
