@@ -14,6 +14,8 @@ import { AddCategoryScene } from 'src/bot/scenes/categories.scene';
 import { UserCodesModule } from 'src/user-codes/user-codes.module';
 import * as process from 'process';
 import { session } from 'telegraf';
+import { PartnerScene } from 'src/bot/scenes/partner.scene';
+import { BusinessModule } from 'src/business/business.module';
 
 @Module({
   imports: [
@@ -37,9 +39,17 @@ import { session } from 'telegraf';
     forwardRef(() => UserModule),
     forwardRef(() => RightsChangeModule),
     forwardRef(() => CategoriesModule),
+    forwardRef(() => BusinessModule),
     UserCodesModule,
   ],
   controllers: [BotController],
-  providers: [BotService, BotUpdate, AdminScene, UserScene, AddCategoryScene],
+  providers: [
+    BotService,
+    BotUpdate,
+    AdminScene,
+    UserScene,
+    AddCategoryScene,
+    PartnerScene,
+  ],
 })
 export class BotModule {}

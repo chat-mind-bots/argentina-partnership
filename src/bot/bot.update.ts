@@ -65,6 +65,11 @@ export class BotUpdate {
     await ctx.scene.reenter();
   }
 
+  @Action('partnerScene')
+  async partnerScene(@Ctx() ctx: Context & SceneContext) {
+    await ctx.scene.enter('partnerScene');
+  }
+
   @Action('userScene')
   async userScene(@Ctx() ctx: Context & SceneContext) {
     await ctx.scene.enter('userScene');
