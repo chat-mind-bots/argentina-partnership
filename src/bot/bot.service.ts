@@ -51,7 +51,7 @@ export class BotService implements OnModuleInit {
       isOldUser.role.includes(UserRoleEnum.SUPER_ADMIN)
     ) {
       markupButtons.push([
-        Markup.button.callback('войти как админ', 'adminScene'),
+        Markup.button.callback('войти как администратор', 'adminScene'),
       ]);
     }
     if (isOldUser.role.includes(UserRoleEnum.PARTNER)) {

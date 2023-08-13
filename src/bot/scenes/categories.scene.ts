@@ -78,7 +78,7 @@ export class AddCategoryScene {
 
     const markup = Markup.inlineKeyboard([
       [Markup.button.callback('Сохранить', 'saveCategory')],
-      [Markup.button.callback('Заполнить заново', 'reenter')],
+      [Markup.button.callback('Начать заново', 'reenter')],
       [Markup.button.callback('Отменить', 'category')],
     ]);
     if (!isAllowedMessage) {

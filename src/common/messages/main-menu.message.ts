@@ -7,7 +7,9 @@ export const mainMenuMessage = async (userRoles: UserRoleEnum[]) => {
     markupButtons.push(Markup.button.callback('войти как юзер', 'userScene'));
   }
   if (userRoles.includes(UserRoleEnum.ADMIN)) {
-    markupButtons.push(Markup.button.callback('войти как админ', 'adminScene'));
+    markupButtons.push(
+      Markup.button.callback('войти как администратор', 'adminScene'),
+    );
   }
   if (userRoles.includes(UserRoleEnum.PARTNER)) {
     markupButtons.push(Markup.button.callback('войти как партнер', 'asd'));
