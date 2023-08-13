@@ -322,7 +322,7 @@ export class AdminScene {
       return line.map((button, i) => {
         return Markup.button.callback(
           `${i + 1 + lineId * lines[0].length}`,
-          `selectPartnerTicket__${button}`,
+          `selectPartTicket__${button}`,
         );
       });
     });
@@ -523,9 +523,10 @@ export class AdminScene {
     );
   }
 
-  @Action(/selectPartnerTicket/)
+  @Action(/selectPartTicket/)
   async selectPartnerTicket(@Ctx() ctx: SceneContext) {
     const ticketId = telegramDataHelper(ctx.callbackQuery['data'], '__');
+    console.log(ticketId);
     const ticket = await this.rightsChangeService.findTicketById(ticketId);
 
     const markup = [
@@ -535,7 +536,6 @@ export class AdminScene {
       ],
       [Markup.button.callback('Назад', `partnerTicket`)],
     ];
-
     const userText = `Заявка на должность
 <b>Название должности</b>: Партнер
 <b>Логин пользователя</b>: ${ticket.user.first_name}
