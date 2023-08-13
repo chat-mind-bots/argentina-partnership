@@ -56,8 +56,9 @@ export class PartnerScene {
   async businessList(@Ctx() ctx: SceneContext) {
     const user = await this.userService.findByTgId(ctx.callbackQuery.from.id);
     const businesses = await this.businessService.findAllBusinessesByOwnerId(
-      user.id,
+      user._id,
     );
+    console.log(businesses);
     if (!businesses.length) {
       await ctx.editMessageText(
         'Пока что вы не добавили ни одного бизнеса',

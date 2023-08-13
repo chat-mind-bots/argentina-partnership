@@ -30,11 +30,11 @@ export class BusinessService {
     return result;
   }
 
-  async findAllBusinessesByOwnerId(ownerId: string) {
+  async findAllBusinessesByOwnerId(ownerId: Types.ObjectId) {
     const result = await this.businessModel
       .find({ owner: ownerId })
       .populate<{ user: Pick<User, 'username' | 'first_name' | 'tg_id'> }>({
-        path: 'user',
+        path: 'owner',
         select: 'username first_name tg_id',
       })
       .populate<{ user: Pick<Category, 'title' | 'description'> }>({
