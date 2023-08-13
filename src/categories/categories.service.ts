@@ -34,7 +34,9 @@ export class CategoriesService {
   }
 
   async findAllCategories() {
-    return this.categoryModel.find();
+    const categories = await this.categoryModel.find();
+    console.log(categories);
+    return categories;
   }
 
   async createCategory(dto: CreateCategoryDto) {

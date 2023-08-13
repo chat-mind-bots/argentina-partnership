@@ -18,6 +18,7 @@ import { SceneContext } from 'telegraf/typings/scenes';
 import { Chat } from 'typegram/manage';
 import { UserCodesService } from 'src/user-codes/user-codes.service';
 import { BotService } from 'src/bot/bot.service';
+import { WebAppRoutes } from 'src/bot/interfaces/webAppRoutes';
 
 @Update()
 @UseFilters(TelegrafExceptionFilter)
@@ -51,7 +52,6 @@ export class BotUpdate {
           role: [UserRoleEnum.USER],
         });
       }
-
       await this.menuCommand(ctx, from);
     }
   }
@@ -63,6 +63,11 @@ export class BotUpdate {
   @Action('reenter')
   async reenter(@Ctx() ctx: Context & SceneContext) {
     await ctx.scene.reenter();
+  }
+
+  @Action('partnerScene')
+  async partnerScene(@Ctx() ctx: Context & SceneContext) {
+    await ctx.scene.enter('partnerScene');
   }
 
   @Action('userScene')
@@ -111,7 +116,32 @@ export class BotUpdate {
 
   @Command('open_partners')
   async openPartners(@Ctx() ctx: Context, @Message('from') from) {
-    await this.botService.sendMessageWithWebApp(from.id);
+    await this.botService.sendMessageWithWebApp(
+      from.id,
+      WebAppRoutes.PARTNERS,
+      'Открыть список партнеров',
+      'Открыть список партнеров',
+    );
+  }
+
+  @Command('add_business')
+  async openAddBusiness(@Ctx() ctx: Context, @Message('from') from) {
+    await this.botService.sendMessageWithWebApp(
+      from.id,
+      WebAppRoutes.ADD_BUSINESS,
+      'Добавить бизнес',
+      'Добавить бизнес',
+    );
+  }
+
+  @Command('test')
+  async testWeb(@Ctx() ctx: Context, @Message('from') from) {
+    await this.botService.sendMessageWithWebApp(
+      from.id,
+      WebAppRoutes.TEST,
+      'Добавить бизнес',
+      'Добавить бизнес',
+    );
   }
 
   @On('text')
@@ -128,14 +158,6 @@ export class BotUpdate {
     }
     if (msg === 'Выйти') {
       await this.menuCommand(ctx, from);
-    }
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    if (msg?.web_app_data?.data) {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      console.log(msg?.web_app_data?.data);
-      await this.menu(ctx, from);
     }
   }
 }

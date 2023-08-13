@@ -5,6 +5,7 @@ import { SceneContext } from 'telegraf/typings/scenes';
 import { UserRoleEnum } from 'src/user/enum/user-role.enum';
 import { UserService } from 'src/user/user.service';
 import * as process from 'process';
+import { WebAppRoutes } from 'src/bot/interfaces/webAppRoutes';
 
 @Injectable()
 export class BotService implements OnModuleInit {
@@ -22,6 +23,8 @@ export class BotService implements OnModuleInit {
       { command: 'menu', description: 'Меню' },
       { command: 'change_role', description: 'Сменить роль' },
       { command: 'help', description: 'Получить подсказку' },
+      { command: 'open_partners', description: 'Получить список партнеров' },
+      { command: 'add_business', description: 'Добавить бизнес' },
     ]);
   }
 
@@ -55,7 +58,9 @@ export class BotService implements OnModuleInit {
       ]);
     }
     if (isOldUser.role.includes(UserRoleEnum.PARTNER)) {
-      markupButtons.push(Markup.button.callback('войти как партнер', 'asd'));
+      markupButtons.push([
+        Markup.button.callback('войти как партнер', 'partnerScene'),
+      ]);
     }
 
     const markup = Markup.inlineKeyboard(markupButtons);
@@ -70,14 +75,19 @@ export class BotService implements OnModuleInit {
     );
   }
 
-  async sendMessageWithWebApp(chatId: number) {
+  async sendMessageWithWebApp(
+    chatId: number,
+    route: WebAppRoutes,
+    mainText: string,
+    webAppButtonText: string,
+  ) {
     await this.bot.telegram.sendMessage(
       chatId,
-      'Открыть список партнеров',
+      mainText,
       Markup.inlineKeyboard([
         Markup.button.webApp(
-          'Открыть список партнеров',
-          `https://${process.env.BASE_URL}/partners`,
+          webAppButtonText,
+          `https://${process.env.BASE_URL}/${route}`,
         ),
       ]),
     );

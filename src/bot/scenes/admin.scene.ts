@@ -222,22 +222,124 @@ export class AdminScene {
       ],
       [Markup.button.callback('Назад', 'callMenu')],
     ]);
-    await ctx.editMessageText('Эта функция в разработке', markup);
+    await ctx.editMessageText(
+      'Можешь выбрать интересующие тебя функции',
+      markup,
+    );
   }
 
   @Action('partnerList')
   async partnerList(@Ctx() ctx: SceneContext) {
+    const partners = await this.userService.findAllByRole(UserRoleEnum.PARTNER);
+    if (!partners) {
+      const markup = Markup.inlineKeyboard([
+        [Markup.button.callback('Назад', 'partner')],
+      ]);
+      await ctx.editMessageText('Список партнеров пока что пуст 😢', markup);
+      return;
+    }
+    const partnersMas = [];
+    partners.map((partner, i) => {
+      partnersMas.push([`${i + 1}. @${partner.username}`, partner.id]);
+    });
+    const lines = buttonSplitterHelper(
+      partnersMas.map((partner) => partner[1]),
+      8,
+    );
+    const actionButtons = lines.map((line, lineId) => {
+      return line.map((button, i) => {
+        return Markup.button.callback(
+          `${i + 1 + lineId * lines[0].length}`,
+          `selectPartner__${button}`,
+        );
+      });
+    });
     const markup = Markup.inlineKeyboard([
+      ...actionButtons,
       [Markup.button.callback('Назад', 'partner')],
     ]);
-    await ctx.editMessageText('Список партнеров пока что пуст 😢', markup);
+    await ctx.editMessageText(
+      `Список партнеров` +
+        '\n' +
+        'Выберете партнера:' +
+        '\n' +
+        partnersMas.map((partner) => partner[0]).join('\n'),
+      markup,
+    );
   }
+
+  @Action(/selectPartner/)
+  async selectPartner(@Ctx() ctx: SceneContext) {
+    const userId = telegramDataHelper(ctx.callbackQuery['data'], '__');
+    const user = await this.userService.findById(userId);
+    const userText = `Партнер
+<b>Логин пользователя</b>: ${user.first_name}
+<b>Профиль пользователя</b>: @${user.username}
+<b>ID пользователя</b>: ${user.tg_id}`;
+    await ctx.editMessageText(userText, {
+      reply_markup: {
+        inline_keyboard: [
+          [Markup.button.callback('Назад', 'partnerList')],
+          [
+            Markup.button.callback(
+              'Разжаловать',
+              `requestRestrictPartner__${user.id}`,
+            ),
+          ],
+        ],
+      },
+      parse_mode: 'HTML',
+    });
+  }
+
   @Action('partnerTicket')
   async partnerTicket(@Ctx() ctx: SceneContext) {
+    const tickets = await this.rightsChangeService.findTicketsByStatus(
+      UserRoleEnum.PARTNER,
+      TicketStatus.PENDING,
+    );
+    if (!tickets.length) {
+      const markup = Markup.inlineKeyboard([
+        Markup.button.callback('Назад', 'partner'),
+      ]);
+      await ctx.editMessageText('Список заявок пока что пуст 😢', markup);
+      return;
+    }
+    const partnerTickets = [];
+    tickets.map((ticket, i) => {
+      partnerTickets.push([
+        `${i + 1}. @${ticket.user.username} ${ticket.user.first_name}`,
+        ticket.id,
+      ]);
+    });
+
+    const lines = buttonSplitterHelper(
+      partnerTickets.map((ticket) => ticket[1]),
+      8,
+    );
+
+    const actionButtons = lines.map((line, lineId) => {
+      return line.map((button, i) => {
+        return Markup.button.callback(
+          `${i + 1 + lineId * lines[0].length}`,
+          `selectPartnerTicket__${button}`,
+        );
+      });
+    });
+
     const markup = Markup.inlineKeyboard([
+      ...actionButtons,
       [Markup.button.callback('Назад', 'partner')],
     ]);
-    await ctx.editMessageText('Список заявок пока что пуст 😢', markup);
+
+    await ctx.editMessageText(
+      `Список заявок` +
+        '\n\n' +
+        'Выберите заявку:' +
+        '\n' +
+        partnerTickets.map((partner) => partner[0]).join('\n'),
+      markup,
+    );
   }
 
   @Action('enter')
@@ -309,6 +411,20 @@ export class AdminScene {
     });
   }
 
+  @Action(/requestRestrictPartner/)
+  async requestRestrictPartner(@Ctx() ctx: SceneContext) {
+    const userId = telegramDataHelper(ctx.callbackQuery['data'], '__');
+    const markup = Markup.inlineKeyboard([
+      [Markup.button.callback('Подтвердить', `restrictPartner__${userId}`)],
+      [Markup.button.callback('Назад', `selectPartner__${userId}`)],
+    ]);
+    const oldText = ctx.callbackQuery.message['text'];
+    await ctx.editMessageText(
+      oldText + '\n\n' + 'Вы действительно хотите разжаловать партнера?',
+      markup,
+    );
+  }
+
   @Action(/requestRestrictAdmin/)
   async requestRestrictAdmin(@Ctx() ctx: SceneContext) {
     const userId = telegramDataHelper(ctx.callbackQuery['data'], '__');
@@ -330,10 +446,30 @@ export class AdminScene {
       [Markup.button.callback('Список Администраторов', `adminList`)],
     ]);
     try {
-      await this.userService.restrictAdmin(userId, UserRoleEnum.ADMIN);
+      await this.userService.restrictUser(userId, UserRoleEnum.ADMIN);
       await ctx.editMessageText(`Пользователь был ограничен в правах`, markup);
     } catch (error) {
-      await ctx.editMessageText(`Что-то пошло не так`, markup);
+      await ctx.editMessageText(
+        `Что-то пошло не так. Попробуйте снова или обратитесь за помощью`,
+        markup,
+      );
+    }
+  }
+
+  @Action(/restrictPartner/)
+  async restrictPartner(@Ctx() ctx: SceneContext) {
+    const userId = telegramDataHelper(ctx.callbackQuery['data'], '__');
+    const markup = Markup.inlineKeyboard([
+      [Markup.button.callback('Список Партнеров', `partnerList`)],
+    ]);
+    try {
+      await this.userService.restrictUser(userId, UserRoleEnum.PARTNER);
+      await ctx.editMessageText(`Пользователь был ограничен в правах`, markup);
+    } catch (error) {
+      await ctx.editMessageText(
+        `Что-то пошло не так. Попробуйте снова или обратитесь за помощью`,
+        markup,
+      );
     }
   }
 
@@ -387,6 +523,33 @@ export class AdminScene {
     );
   }
 
+  @Action(/selectPartnerTicket/)
+  async selectPartnerTicket(@Ctx() ctx: SceneContext) {
+    const ticketId = telegramDataHelper(ctx.callbackQuery['data'], '__');
+    const ticket = await this.rightsChangeService.findTicketById(ticketId);
+
+    const markup = [
+      [
+        Markup.button.callback('Принять', `acceptPartner__${ticket.id}`),
+        Markup.button.callback('Отклонить', `rejectPartner__${ticket.id}`),
+      ],
+      [Markup.button.callback('Назад', `partnerTicket`)],
+    ];
+
+    const userText = `Заявка на должность
+<b>Название должности</b>: Партнер
+<b>Логин пользователя</b>: ${ticket.user.first_name}
+<b>Профиль пользователя</b>: @${ticket.user.username}
+<b>ID пользователя</b>: ${ticket.user.tg_id}`;
+
+    await ctx.editMessageText(userText, {
+      reply_markup: {
+        inline_keyboard: markup,
+      },
+      parse_mode: 'HTML',
+    });
+  }
+
   @Action(/selectTicket/)
   async selectTicket(@Ctx() ctx: SceneContext) {
     const ticketId = telegramDataHelper(ctx.callbackQuery['data'], '__');
@@ -414,6 +577,33 @@ export class AdminScene {
     });
   }
 
+  @Action(/acceptPartner/)
+  async acceptPartner(@Ctx() ctx: SceneContext) {
+    const id = telegramDataHelper(ctx.callbackQuery['data'], '__');
+    const ticket = await this.rightsChangeService.updateStatus(
+      id,
+      TicketStatus.RESOLVE,
+    );
+    const user = await this.userService.promoteUser(
+      ticket.user.tg_id,
+      UserRoleEnum.PARTNER,
+    );
+    await this.botService.sendMessage(
+      user.tg_id,
+      'Вы были повышены до статуса партнера.\nиспользуйте команду: /start чтобы открыть новое меню',
+    );
+
+    const markup = Markup.inlineKeyboard([
+      [Markup.button.callback('Назад', `partnerTicket`)],
+    ]);
+    await ctx.editMessageText(
+      ctx.callbackQuery.message['text'] +
+        '\n' +
+        'Эта заявка была принята вами ✅',
+      markup,
+    );
+  }
+
   @Action(/acceptAdmin/)
   async acceptAdmin(@Ctx() ctx: SceneContext) {
     const id = telegramDataHelper(ctx.callbackQuery['data'], '__');
@@ -437,6 +627,26 @@ export class AdminScene {
       ctx.callbackQuery.message['text'] +
         '\n' +
         'Эта заявка была принята вами ✅',
+      markup,
+    );
+  }
+
+  @Action(/rejectPartner/)
+  async rejectPartner(@Ctx() ctx: SceneContext) {
+    const id = telegramDataHelper(ctx.callbackQuery['data'], '__');
+    const ticket = await this.rightsChangeService.updateStatus(
+      id,
+      TicketStatus.REJECT,
+    );
+    await this.botService.sendMessage(
+      ticket.user.tg_id,
+      'Администратор отклонил вашу заявку на роль партнера',
+    );
+    const markup = Markup.inlineKeyboard([
+      [Markup.button.callback('Назад', `partnerTicket`)],
+    ]);
+    await ctx.editMessageText(
+      ctx.callbackQuery.message['text'] + '\n' + 'Эта заявка была отменена ⛔',
       markup,
     );
   }
