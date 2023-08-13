@@ -1,4 +1,4 @@
-import { Action, Ctx, Message, Scene, SceneEnter } from 'nestjs-telegraf';
+import { Action, Ctx, Scene, SceneEnter } from 'nestjs-telegraf';
 import { forwardRef, Inject, UseFilters } from '@nestjs/common';
 import { TelegrafExceptionFilter } from 'src/common/filtres/telegraf-exeption.filter';
 import { Context, Markup } from 'telegraf';
