@@ -1,12 +1,13 @@
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Business, BusinessDocument } from 'src/business/business.schema';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { CreateBusinessDto } from 'src/business/dto/create-business.dto';
 import { User } from 'src/user/user.schema';
 import { Category } from 'src/categories/ctegories.schema';
 import { UserService } from 'src/user/user.service';
 import { CategoriesService } from 'src/categories/categories.service';
+import { UpdateBusinessDto } from 'src/business/dto/update-business.dto';
 
 @Injectable()
 export class BusinessService {
@@ -21,8 +22,8 @@ export class BusinessService {
 
   async create(ownerId: string, categoryId: string, dto: CreateBusinessDto) {
     const result = await this.businessModel.create({
-      owner: ownerId,
-      category: categoryId,
+      owner: new Types.ObjectId(ownerId),
+      category: new Types.ObjectId(categoryId),
       ...dto,
     });
 
@@ -47,11 +48,18 @@ export class BusinessService {
     return await this.userService.findByTgId(id);
   }
 
-  async isCategoryExist(categoryId: string): Promise<boolean> {
-    const category = await this.categoryService.findById(categoryId);
-    if (!category) {
-      return false;
-    }
-    return true;
+  async findCategory(categoryName: string) {
+    const category = await this.categoryService.findCategoryByTitle(
+      categoryName,
+    );
+    return category;
+  }
+
+  async updateBusiness(id: string, dto: UpdateBusinessDto) {
+    return this.businessModel.findOneAndUpdate({ _id: id }, dto, { new: true });
+  }
+
+  async findBusinessById(id: string) {
+    return this.businessModel.find({ _id: id });
   }
 }

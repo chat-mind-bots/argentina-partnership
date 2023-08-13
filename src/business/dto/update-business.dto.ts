@@ -1,14 +1,17 @@
 import { IsOptional, IsString } from 'class-validator';
 
-export class CreateBusinessDto {
+export class UpdateBusinessDto {
   @IsString()
-  readonly categoryName: string;
+  @IsOptional()
+  readonly categoryId?: string;
 
   @IsString()
-  readonly title: string;
+  @IsOptional()
+  readonly title?: string;
 
   @IsString()
-  readonly contacts: string;
+  @IsOptional()
+  readonly contacts?: string;
 
   @IsString()
   @IsOptional()
