@@ -52,7 +52,6 @@ export class BotUpdate {
           role: [UserRoleEnum.USER],
         });
       }
-
       await this.menuCommand(ctx, from);
     }
   }

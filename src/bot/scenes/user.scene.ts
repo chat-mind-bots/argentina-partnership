@@ -66,14 +66,21 @@ export class UserScene {
   async partnershipAction(@Ctx() ctx: SceneContext) {
     const user = await this.userService.findByTgId(ctx.callbackQuery.from.id);
     const isAdmin = user.role.includes(UserRoleEnum.ADMIN);
+    const isPartner = user.role.includes(UserRoleEnum.PARTNER);
     const adminButton = isAdmin
-      ? Markup.button.callback('✅ Администратор', 'callMenu')
+      ? Markup.button.callback('✅ Администратор', 'isAdmin')
       : Markup.button.callback(
           'Заявка администратора',
           `createAdmin__${user.id}`,
         );
+
+    const partnerButton = isPartner
+      ? Markup.button.callback('✅ Партнер', 'isPartner')
+      : Markup.button.callback('Заявка партнера', `createPartner__${user.id}`);
+
     const markup = Markup.inlineKeyboard([
       [adminButton],
+      [partnerButton],
       [Markup.button.callback('Назад', 'callMenu')],
     ]);
     await ctx.editMessageText(
@@ -90,8 +97,48 @@ export class UserScene {
     await ctx.editMessageText('Вы уже являетесь администратором ✅', markup);
   }
 
-  @Action(/createAdmin/)
+  @Action('isPartner')
+  async isPartner(@Ctx() ctx: SceneContext) {
+    const markup = Markup.inlineKeyboard([
+      Markup.button.callback('Назад', 'partnership'),
+    ]);
+    await ctx.editMessageText('Вы уже являетесь партнером ✅', markup);
+  }
+
+  @Action(/createPartner/)
   async createPartnerTicket(@Ctx() ctx: SceneContext) {
+    const userData = ctx.callbackQuery['data'] as string;
+    const userId = telegramDataHelper(userData, '__');
+    const userObjectId = new Types.ObjectId(userId);
+    const user = await this.userService.findById(userId);
+    const markup = Markup.inlineKeyboard([
+      Markup.button.callback('Назад', 'partnership'),
+    ]);
+    try {
+      const isTicketExist = await this.rightsChangeService.findTicket(
+        userId,
+        UserRoleEnum.PARTNER,
+        TicketStatus.PENDING,
+      );
+      if (isTicketExist) {
+        await ctx.editMessageText(
+          'Ваша заявка сейчас в обработке: 🔄. Ожадайте решения администратора',
+          markup,
+        );
+        return;
+      }
+    } catch (error) {
+      await this.rightsChangeService.create({
+        user: userObjectId,
+        role: UserRoleEnum.PARTNER,
+        status: TicketStatus.PENDING,
+      });
+      await ctx.editMessageText('Ваша заявка была отправлена', markup);
+    }
+  }
+
+  @Action(/createAdmin/)
+  async createAdminTicket(@Ctx() ctx: SceneContext) {
     const userData = ctx.callbackQuery['data'] as string;
     const userId = telegramDataHelper(userData, '__');
     const userObjectId = new Types.ObjectId(userId);

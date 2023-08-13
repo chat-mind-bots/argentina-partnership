@@ -58,7 +58,9 @@ export class BotService implements OnModuleInit {
       ]);
     }
     if (isOldUser.role.includes(UserRoleEnum.PARTNER)) {
-      markupButtons.push(Markup.button.callback('войти как партнер', 'asd'));
+      markupButtons.push([
+        Markup.button.callback('войти как партнер', 'partnerScene'),
+      ]);
     }
 
     const markup = Markup.inlineKeyboard(markupButtons);
