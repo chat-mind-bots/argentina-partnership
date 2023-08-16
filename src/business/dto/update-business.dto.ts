@@ -1,4 +1,6 @@
-import { IsOptional, IsString } from 'class-validator';
+import { IsArray, IsObject, IsOptional, IsString } from 'class-validator';
+import { IContacts } from 'src/business/interfaces/contacts.interface';
+import { IAddress } from 'src/business/interfaces/address.interface';
 
 export class UpdateBusinessDto {
   @IsString()
@@ -9,17 +11,16 @@ export class UpdateBusinessDto {
   @IsOptional()
   readonly title?: string;
 
-  @IsString()
+  @IsArray()
   @IsOptional()
-  readonly contacts?: string;
+  readonly contacts?: Array<IContacts>;
 
   @IsString()
   @IsOptional()
   readonly description?: string;
 
-  @IsString()
-  @IsOptional()
-  readonly address?: string;
+  @IsObject()
+  readonly address: IAddress;
 
   @IsString()
   @IsOptional()

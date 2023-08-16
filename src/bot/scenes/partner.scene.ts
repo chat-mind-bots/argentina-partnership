@@ -58,7 +58,6 @@ export class PartnerScene {
     const businesses = await this.businessService.findAllBusinessesByOwnerId(
       user._id,
     );
-    console.log(businesses);
     if (!businesses.length) {
       await ctx.editMessageText(
         'Пока что вы не добавили ни одного бизнеса',
@@ -87,7 +86,7 @@ export class PartnerScene {
     });
     const markup = Markup.inlineKeyboard([
       ...actionButtons,
-      [Markup.button.callback('Назад', 'category')],
+      [Markup.button.callback('Назад', 'menu')],
     ]);
     await ctx.editMessageText(
       `Список бизнесов` +

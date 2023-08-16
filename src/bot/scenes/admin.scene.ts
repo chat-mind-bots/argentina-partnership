@@ -526,7 +526,6 @@ export class AdminScene {
   @Action(/selectPartTicket/)
   async selectPartnerTicket(@Ctx() ctx: SceneContext) {
     const ticketId = telegramDataHelper(ctx.callbackQuery['data'], '__');
-    console.log(ticketId);
     const ticket = await this.rightsChangeService.findTicketById(ticketId);
 
     const markup = [
