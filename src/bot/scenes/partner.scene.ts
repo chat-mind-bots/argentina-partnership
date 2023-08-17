@@ -42,12 +42,12 @@ export class PartnerScene {
     ]);
 
     if (mode === MessageMode.REPLY) {
-      await ctx.reply('Можешь выбрать интересующие тебя функции', markup);
+      await ctx.reply('Можете выбрать интересующие вас функции', markup);
       return;
     }
 
     await ctx.editMessageText(
-      'Можешь выбрать интересующие тебя функции',
+      'Можете выбрать интересующие вас функции',
       markup,
     );
   }
@@ -63,7 +63,7 @@ export class PartnerScene {
         'Пока что вы не добавили ни одного бизнеса',
         Markup.inlineKeyboard([
           Markup.button.callback('Назад', 'menu'),
-          Markup.button.callback('Добавить категорию', 'addBusiness'),
+          Markup.button.callback('Добавить бизнес', 'addBusiness'),
         ]),
       );
       return;
