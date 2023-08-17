@@ -41,7 +41,7 @@ export class AdminScene {
       [Markup.button.callback('Помощь', 'help')],
       [Markup.button.callback('Выйти', 'changeRole')],
     ]).resize();
-    await ctx.reply('Вы вошли как админ', keyboardMarkup);
+    await ctx.reply('Вы вошли как администратор', keyboardMarkup);
 
     await this.menu(ctx, MessageMode.REPLY);
   }
@@ -60,7 +60,7 @@ export class AdminScene {
   async menu(@Ctx() ctx: Context & SceneContext, mode: MessageMode) {
     const markup = Markup.inlineKeyboard([
       [Markup.button.callback('Категории', 'category')],
-      [Markup.button.callback('Админы', 'admin')],
+      [Markup.button.callback('Администраторы', 'admin')],
       [Markup.button.callback('Партнеры', 'partner')],
     ]);
 
@@ -202,7 +202,7 @@ export class AdminScene {
   async admin(@Ctx() ctx: SceneContext) {
     const markup = Markup.inlineKeyboard([
       [
-        Markup.button.callback('Список админов', 'adminList'),
+        Markup.button.callback('Список администраторов', 'adminList'),
         Markup.button.callback('Заявки', 'adminTicket'),
       ],
       [Markup.button.callback('Назад', 'callMenu')],
@@ -371,9 +371,9 @@ export class AdminScene {
       [Markup.button.callback('Назад', 'admin')],
     ]);
     await ctx.editMessageText(
-      `Список админов` +
+      `Список администраторов` +
         '\n' +
-        'Выберете админа:' +
+        'Выберете администратора:' +
         '\n' +
         adminsMas.map((admin) => admin[0]).join('\n'),
       markup,
@@ -434,7 +434,7 @@ export class AdminScene {
     ]);
     const oldText = ctx.callbackQuery.message['text'];
     await ctx.editMessageText(
-      oldText + '\n\n' + 'Вы действительно хотите удалить администратора?',
+      oldText + '\n\n' + 'Вы действительно хотите разжаловать администратора?',
       markup,
     );
   }
