@@ -1,10 +1,25 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { HydratedDocument, now, Types } from 'mongoose';
+import { HydratedDocument, now, Types, Document } from 'mongoose';
 import { User } from 'src/user/user.schema';
 import { Category } from 'src/categories/ctegories.schema';
+import { IContacts } from 'src/business/interfaces/contacts.interface';
+import { IAddress } from 'src/business/interfaces/address.interface';
 
 export type BusinessDocument = HydratedDocument<Business>;
 
+@Schema()
+export class Address extends Document {
+  @Prop({ required: true })
+  isExist: boolean;
+  @Prop({ required: false })
+  addressLine: string;
+  @Prop({ required: false })
+  googleMapsLink: string;
+  @Prop({ required: false })
+  comment: string;
+}
+
+export const AddressSchema = SchemaFactory.createForClass(Address);
 @Schema()
 export class Business {
   @Prop({ required: true, type: Types.ObjectId, ref: User.name })
@@ -14,7 +29,7 @@ export class Business {
   title: string;
 
   @Prop({ required: true })
-  contacts: string;
+  contacts: Array<IContacts>;
 
   @Prop({ required: true, type: Types.ObjectId, ref: Category.name })
   category: Types.ObjectId;
@@ -22,8 +37,8 @@ export class Business {
   @Prop({ required: false })
   description: string;
 
-  @Prop({ required: false })
-  address: string;
+  @Prop({ required: true, type: AddressSchema })
+  address: IAddress;
 
   @Prop({ required: false })
   preview: string;

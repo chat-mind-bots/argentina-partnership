@@ -25,7 +25,6 @@ export class BusinessController {
     const category = await this.businessService.findCategory(dto.categoryName);
 
     if (!user.role.includes(UserRoleEnum.PARTNER)) {
-      console.log(user);
       throw new HttpException('User not partner', HttpStatus.NOT_ACCEPTABLE);
     }
     if (!!category) {
