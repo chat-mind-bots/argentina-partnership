@@ -69,7 +69,7 @@ export class AdminScene {
     }
     if (mode === MessageMode.EDIT) {
       await ctx.editMessageText(
-        'Можешь выбрать интересующие тебя функции',
+        'Можете выбрать интересующие вас функции',
         markup,
       );
     }
@@ -85,7 +85,7 @@ export class AdminScene {
       ],
     ]);
     await ctx.editMessageText(
-      'Можешь выбрать интересующие тебя функции',
+      'Можете выбрать интересующие вас функции',
       markup,
     );
   }
@@ -208,7 +208,7 @@ export class AdminScene {
       [Markup.button.callback('Назад', 'callMenu')],
     ]);
     await ctx.editMessageText(
-      'Можешь выбрать интересующие тебя функции',
+      'Можете выбрать интересующие вас функции',
       markup,
     );
   }
@@ -223,7 +223,7 @@ export class AdminScene {
       [Markup.button.callback('Назад', 'callMenu')],
     ]);
     await ctx.editMessageText(
-      'Можешь выбрать интересующие тебя функции',
+      'Можете выбрать интересующие вас функции',
       markup,
     );
   }

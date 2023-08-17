@@ -33,11 +33,11 @@ export class BusinessService {
   async findAllBusinessesByOwnerId(ownerId: Types.ObjectId) {
     const result = await this.businessModel
       .find({ owner: ownerId })
-      .populate<{ user: Pick<User, 'username' | 'first_name' | 'tg_id'> }>({
+      .populate<{ owner: Pick<User, 'username' | 'first_name' | 'tg_id'> }>({
         path: 'owner',
         select: 'username first_name tg_id',
       })
-      .populate<{ user: Pick<Category, 'title' | 'description'> }>({
+      .populate<{ category: Pick<Category, 'title' | 'description'> }>({
         path: 'category',
         select: 'title description',
       }); //check this expression for the second condition
@@ -60,6 +60,15 @@ export class BusinessService {
   }
 
   async findBusinessById(id: string) {
-    return this.businessModel.find({ _id: id });
+    return this.businessModel
+      .findOne({ _id: id })
+      .populate<{ owner: Pick<User, 'username' | 'first_name' | 'tg_id'> }>({
+        path: 'owner',
+        select: 'username first_name tg_id',
+      })
+      .populate<{ category: Pick<Category, 'title' | 'description'> }>({
+        path: 'category',
+        select: 'title description',
+      });
   }
 }

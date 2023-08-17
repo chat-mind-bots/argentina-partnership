@@ -77,12 +77,34 @@ export class BotService implements OnModuleInit {
 
   async sendMessageWithWebApp(
     chatId: number,
-    route: WebAppRoutes,
+    route: string,
     mainText: string,
     webAppButtonText: string,
   ) {
     await this.bot.telegram.sendMessage(
       chatId,
+      mainText,
+      Markup.inlineKeyboard([
+        Markup.button.webApp(
+          webAppButtonText,
+          `https://${process.env.BASE_URL}/${route}`,
+        ),
+      ]),
+    );
+  }
+
+  async editMessageWithWebApp(
+    chatId: number,
+    messageId: number,
+    inlineId: string,
+    route: WebAppRoutes,
+    mainText: string,
+    webAppButtonText: string,
+  ) {
+    await this.bot.telegram.editMessageText(
+      chatId,
+      messageId,
+      inlineId,
       mainText,
       Markup.inlineKeyboard([
         Markup.button.webApp(

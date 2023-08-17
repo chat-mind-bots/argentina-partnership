@@ -47,11 +47,11 @@ export class UserScene {
       Markup.button.callback('Сотрудничество', 'partnership'),
     ]);
     if (mode === MessageMode.REPLY) {
-      await ctx.reply('Можешь выбрать интересующие тебя функции', markup);
+      await ctx.reply('Можете выбрать интересующие вас функции', markup);
     }
     if (mode === MessageMode.EDIT) {
       await ctx.editMessageText(
-        'Можешь выбрать интересующие тебя функции',
+        'Можете выбрать интересующие вас функции',
         markup,
       );
     }

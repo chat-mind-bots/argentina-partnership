@@ -9,6 +9,8 @@ import { UserService } from 'src/user/user.service';
 import { WebAppRoutes } from 'src/bot/interfaces/webAppRoutes';
 import { BusinessService } from 'src/business/business.service';
 import { buttonSplitterHelper } from 'src/common/helpers/button-splitter.helper';
+import { telegramDataHelper } from 'src/common/helpers/telegram-data.helper';
+import { routeReplacer } from 'src/common/helpers/route.helper';
 
 @Scene('partnerScene')
 @UseFilters(TelegrafExceptionFilter)
@@ -42,12 +44,12 @@ export class PartnerScene {
     ]);
 
     if (mode === MessageMode.REPLY) {
-      await ctx.reply('Можешь выбрать интересующие тебя функции', markup);
+      await ctx.reply('Можете выбрать интересующие вас функции', markup);
       return;
     }
 
     await ctx.editMessageText(
-      'Можешь выбрать интересующие тебя функции',
+      'Можете выбрать интересующие вас функции',
       markup,
     );
   }
@@ -63,7 +65,7 @@ export class PartnerScene {
         'Пока что вы не добавили ни одного бизнеса',
         Markup.inlineKeyboard([
           Markup.button.callback('Назад', 'menu'),
-          Markup.button.callback('Добавить категорию', 'addBusiness'),
+          Markup.button.callback('Добавить бизнес', 'addBusiness'),
         ]),
       );
       return;
@@ -107,7 +109,23 @@ export class PartnerScene {
       'Добавить бизнес',
     );
   }
-
+  @Action(/selectBusiness/)
+  async selectBusiness(@Ctx() ctx: SceneContext) {
+    const businessId = telegramDataHelper(ctx.callbackQuery['data'], '__');
+    const business = await this.businessService.findBusinessById(businessId);
+    const markup = Markup.inlineKeyboard([
+      Markup.button.callback('Назад', 'businessList'),
+      Markup.button.callback('Редактировать', `editBusiness__${businessId}`),
+    ]);
+    await ctx.editMessageText(
+      `Ваш бизнес:
+Название: ${business.title}
+Описание: ${business.description}
+Категория: ${business.category.title}
+    `,
+      markup,
+    );
+  }
   @Action('checkCode')
   async checkCode(@Ctx() ctx: SceneContext) {
     await this.botService.sendMessageWithWebApp(
@@ -115,6 +133,33 @@ export class PartnerScene {
       WebAppRoutes.ADD_BUSINESS,
       'Добавить бизнес',
       'Добавить бизнес',
+    );
+  }
+
+  @Action(/editBusiness/)
+  async editBusiness(@Ctx() ctx: SceneContext) {
+    const businessId = telegramDataHelper(ctx.callbackQuery['data'], '__');
+    const markup = Markup.inlineKeyboard([
+      Markup.button.callback('Назад', `selectBusiness__${businessId}`),
+      Markup.button.callback(
+        'Редактировать превью бизнеса',
+        `selectBusiness__${businessId}`,
+      ),
+      Markup.button.callback('Открыть вебприложение', `web__${businessId}`),
+    ]);
+    await ctx.editMessageText(ctx.callbackQuery.message['text'], markup);
+  }
+  @Action(/web/)
+  async webApp(@Ctx() ctx: SceneContext) {
+    const businessId = telegramDataHelper(ctx.callbackQuery['data'], '__');
+    const business = await this.businessService.findBusinessById(businessId);
+    const userId = String(ctx.callbackQuery.from.id);
+
+    await this.botService.sendMessageWithWebApp(
+      ctx.callbackQuery.message.chat.id,
+      routeReplacer(WebAppRoutes.UPDATE_BUSINESS, [userId, business.id]),
+      'edit',
+      'edit',
     );
   }
 }
