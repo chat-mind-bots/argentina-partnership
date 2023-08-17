@@ -33,7 +33,7 @@ export class BusinessController {
   }
 
   @Get(':businessId')
-  async getBusiness(@Param() businessId: string) {
+  async getBusiness(@Param('businessId') businessId: string) {
     return await this.businessService.findBusinessById(businessId);
   }
 
@@ -44,8 +44,8 @@ export class BusinessController {
 
   @Patch(':userId/business/:businessId')
   async updateBusiness(
-    @Param() userId: number,
-    @Param() businessId: string,
+    @Param('userId') userId: number,
+    @Param('businessId') businessId: string,
     @Body() dto: CreateBusinessDto,
   ) {
     const user = await this.businessService.findPartnerByTgId(userId);
