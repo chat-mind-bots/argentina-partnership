@@ -18,8 +18,4 @@ export class CreateBusinessDto {
 
   @IsObject()
   readonly address: IAddress;
-
-  @IsString()
-  @IsOptional()
-  readonly preview?: string;
 }

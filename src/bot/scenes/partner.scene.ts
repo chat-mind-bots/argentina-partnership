@@ -1,7 +1,7 @@
-import { Action, Ctx, Scene, SceneEnter } from 'nestjs-telegraf';
+import { Action, Ctx, InjectBot, Scene, SceneEnter } from 'nestjs-telegraf';
 import { forwardRef, Inject, UseFilters } from '@nestjs/common';
 import { TelegrafExceptionFilter } from 'src/common/filtres/telegraf-exeption.filter';
-import { Context, Markup } from 'telegraf';
+import { Context, Markup, Telegraf } from 'telegraf';
 import { SceneContext } from 'telegraf/typings/scenes';
 import { MessageMode } from 'src/bot/enums/message-mode.enum';
 import { BotService } from 'src/bot/bot.service';
@@ -22,9 +22,16 @@ export class PartnerScene {
     private readonly userService: UserService,
     @Inject(forwardRef(() => BusinessService))
     private readonly businessService: BusinessService,
+    @InjectBot() private readonly bot: Telegraf<Context>,
   ) {}
   @SceneEnter()
   async enter(@Ctx() ctx: Context & SceneContext) {
+    try {
+      if (ctx.session['fromScene']) {
+        delete ctx.session['fromScene'];
+        return;
+      }
+    } catch (error) {}
     const keyboardMarkup = Markup.keyboard([
       [Markup.button.callback('Главное меню', 'menu')],
       [Markup.button.callback('Помощь', 'help')],
@@ -114,8 +121,16 @@ export class PartnerScene {
     const businessId = telegramDataHelper(ctx.callbackQuery['data'], '__');
     const business = await this.businessService.findBusinessById(businessId);
     const markup = Markup.inlineKeyboard([
-      Markup.button.callback('Назад', 'businessList'),
-      Markup.button.callback('Редактировать', `editBusiness__${businessId}`),
+      [
+        business.preview
+          ? Markup.button.callback(
+              'Посмотреть превью',
+              `imageView__${businessId}`,
+            )
+          : null,
+      ],
+      [Markup.button.callback('Редактировать', `editBusiness__${businessId}`)],
+      [Markup.button.callback('Назад', 'businessList')],
     ]);
     await ctx.editMessageText(
       `Ваш бизнес:
@@ -140,12 +155,14 @@ export class PartnerScene {
   async editBusiness(@Ctx() ctx: SceneContext) {
     const businessId = telegramDataHelper(ctx.callbackQuery['data'], '__');
     const markup = Markup.inlineKeyboard([
-      Markup.button.callback('Назад', `selectBusiness__${businessId}`),
-      Markup.button.callback(
-        'Редактировать превью бизнеса',
-        `selectBusiness__${businessId}`,
-      ),
-      Markup.button.callback('Открыть вебприложение', `web__${businessId}`),
+      [Markup.button.callback('Открыть вебприложение', `web__${businessId}`)],
+      [
+        Markup.button.callback(
+          'Редактировать превью бизнеса',
+          `preview__${businessId}`,
+        ),
+      ],
+      [Markup.button.callback('Назад', `selectBusiness__${businessId}`)],
     ]);
     await ctx.editMessageText(ctx.callbackQuery.message['text'], markup);
   }
@@ -158,8 +175,24 @@ export class PartnerScene {
     await this.botService.sendMessageWithWebApp(
       ctx.callbackQuery.message.chat.id,
       routeReplacer(WebAppRoutes.UPDATE_BUSINESS, [userId, business.id]),
-      'edit',
-      'edit',
+      'Редактировать бизнес',
+      'Открыть веб приложение',
+    );
+  }
+
+  @Action(/preview/)
+  async preview(@Ctx() ctx: SceneContext) {
+    const businessId = telegramDataHelper(ctx.callbackQuery['data'], '__');
+    ctx.session['data']['businessId'] = businessId;
+    await ctx.scene.enter('setImageScene');
+  }
+  @Action(/imageView/)
+  async imageView(@Ctx() ctx: SceneContext) {
+    const businessId = telegramDataHelper(ctx.callbackQuery['data'], '__');
+    const business = await this.businessService.findBusinessById(businessId);
+    await this.bot.telegram.sendPhoto(
+      ctx.callbackQuery.message.chat.id,
+      business.preview,
     );
   }
 }
