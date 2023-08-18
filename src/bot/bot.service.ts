@@ -93,6 +93,13 @@ export class BotService implements OnModuleInit {
     );
   }
 
+  getMarkupWebApp(webAppButtonText: string, route: string) {
+    return Markup.button.webApp(
+      webAppButtonText,
+      `https://${process.env.BASE_URL}/${route}`,
+    );
+  }
+
   async editMessageWithWebApp(
     chatId: number,
     messageId: number,

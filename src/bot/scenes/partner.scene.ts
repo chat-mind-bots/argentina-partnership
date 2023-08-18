@@ -47,7 +47,12 @@ export class PartnerScene {
     const markup = Markup.inlineKeyboard([
       [Markup.button.callback('Мои бизнесы', 'businessList')],
       [Markup.button.callback('Добавить бизнес', 'addBusiness')],
-      [Markup.button.callback('Проверка кода пользоватлея', 'checkCode')],
+      [
+        this.botService.getMarkupWebApp(
+          'Проверка кода пользоватлея',
+          WebAppRoutes.QR_CHECK,
+        ),
+      ],
     ]);
 
     if (mode === MessageMode.REPLY) {
@@ -139,15 +144,6 @@ export class PartnerScene {
 Категория: ${business.category.title}
     `,
       markup,
-    );
-  }
-  @Action('checkCode')
-  async checkCode(@Ctx() ctx: SceneContext) {
-    await this.botService.sendMessageWithWebApp(
-      ctx.callbackQuery.from.id,
-      WebAppRoutes.QR_CHECK,
-      'Проверить QR-код',
-      'Проверить QR-код',
     );
   }
 
