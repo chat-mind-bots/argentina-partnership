@@ -19,6 +19,7 @@ import { Chat } from 'typegram/manage';
 import { UserCodesService } from 'src/user-codes/user-codes.service';
 import { BotService } from 'src/bot/bot.service';
 import { WebAppRoutes } from 'src/bot/interfaces/webAppRoutes';
+import { FileService } from 'src/file/file.service';
 
 @Update()
 @UseFilters(TelegrafExceptionFilter)
@@ -30,6 +31,8 @@ export class BotUpdate {
     private readonly userCodeService: UserCodesService,
     @Inject(forwardRef(() => BotService))
     private readonly botService: BotService,
+    @Inject(forwardRef(() => FileService))
+    private readonly fileService: FileService,
   ) {}
 
   @Start()
@@ -60,6 +63,7 @@ export class BotUpdate {
   async adminScene(@Ctx() ctx: Context & SceneContext) {
     await ctx.scene.enter('adminScene');
   }
+
   @Action('reenter')
   async reenter(@Ctx() ctx: Context & SceneContext) {
     await ctx.scene.reenter();
@@ -83,6 +87,7 @@ export class BotUpdate {
   async menuCommand(@Ctx() ctx: Context & SceneContext, @Message('from') from) {
     await this.menu(ctx, from);
   }
+
   @Command('change_role')
   async changeRoleCommand(
     @Ctx() ctx: Context & SceneContext,
