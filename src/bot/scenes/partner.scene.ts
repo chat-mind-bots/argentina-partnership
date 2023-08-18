@@ -130,9 +130,9 @@ export class PartnerScene {
   async checkCode(@Ctx() ctx: SceneContext) {
     await this.botService.sendMessageWithWebApp(
       ctx.callbackQuery.from.id,
-      WebAppRoutes.ADD_BUSINESS,
-      'Добавить бизнес',
-      'Добавить бизнес',
+      WebAppRoutes.QR_CHECK,
+      'Проверить QR-код',
+      'Проверить QR-код',
     );
   }
 

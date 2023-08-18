@@ -114,16 +114,6 @@ export class BotUpdate {
     );
   }
 
-  @Command('open_partners')
-  async openPartners(@Ctx() ctx: Context, @Message('from') from) {
-    await this.botService.sendMessageWithWebApp(
-      from.id,
-      WebAppRoutes.PARTNERS,
-      'Открыть список партнеров',
-      'Открыть список партнеров',
-    );
-  }
-
   @Command('add_business')
   async openAddBusiness(@Ctx() ctx: Context, @Message('from') from) {
     await this.botService.sendMessageWithWebApp(
