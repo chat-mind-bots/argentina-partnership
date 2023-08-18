@@ -29,4 +29,4 @@ jobs:
       # Connect to the server and run the updateDev.sh script
       - name: Deploy to Server
         run: |
-          sshpass -p "bYNT149k2Zid" ssh -o StrictHostKeyChecking=no root@5.159.102.190 "cd ~/argentina-partnership-deploy && bash updateDev.sh"
+          sshpass -p "qG2aA3oB9xqK" ssh -o StrictHostKeyChecking=no root@109.248.42.19  "cd ~/argentina-partnership-deploy && bash updateDev.sh"
