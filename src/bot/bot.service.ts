@@ -21,7 +21,7 @@ export class BotService implements OnModuleInit {
         description: 'Начало работы бота/получения последних обновлений',
       },
       { command: 'menu', description: 'Меню' },
-      // { command: 'change_role', description: 'Сменить роль' },
+      { command: 'generate_code', description: 'Сгенерировать QR код' },
       { command: 'help', description: 'Получить подсказку' },
       // { command: 'open_partners', description: 'Получить список партнеров' },
       // { command: 'add_business', description: 'Добавить бизнес' },
