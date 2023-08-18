@@ -46,7 +46,12 @@ export class PartnerScene {
   async menu(@Ctx() ctx: Context & SceneContext, mode?: MessageMode) {
     const markup = Markup.inlineKeyboard([
       [Markup.button.callback('Мои бизнесы', 'businessList')],
-      [Markup.button.callback('Добавить бизнес', 'addBusiness')],
+      [
+        this.botService.getMarkupWebApp(
+          'Добавить бизнес',
+          WebAppRoutes.ADD_BUSINESS,
+        ),
+      ],
       [
         this.botService.getMarkupWebApp(
           'Проверка кода пользоватлея',
@@ -77,7 +82,10 @@ export class PartnerScene {
         'Пока что вы не добавили ни одного бизнеса',
         Markup.inlineKeyboard([
           Markup.button.callback('Назад', 'menu'),
-          Markup.button.callback('Добавить бизнес', 'addBusiness'),
+          this.botService.getMarkupWebApp(
+            'Добавить бизнес',
+            WebAppRoutes.ADD_BUSINESS,
+          ),
         ]),
       );
       return;
@@ -112,15 +120,6 @@ export class PartnerScene {
     );
   }
 
-  @Action('addBusiness')
-  async addBusiness(@Ctx() ctx: SceneContext) {
-    await this.botService.sendMessageWithWebApp(
-      ctx.callbackQuery.from.id,
-      WebAppRoutes.ADD_BUSINESS,
-      'Добавить бизнес',
-      'Добавить бизнес',
-    );
-  }
   @Action(/selectBusiness/)
   async selectBusiness(@Ctx() ctx: SceneContext) {
     const businessId = telegramDataHelper(ctx.callbackQuery['data'], '__');
