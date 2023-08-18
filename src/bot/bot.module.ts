@@ -16,6 +16,8 @@ import * as process from 'process';
 import { session } from 'telegraf';
 import { PartnerScene } from 'src/bot/scenes/partner.scene';
 import { BusinessModule } from 'src/business/business.module';
+import { FileModule } from 'src/file/file.module';
+import { SetImageScene } from 'src/bot/scenes/partner/set-image.scene';
 
 @Module({
   imports: [
@@ -41,6 +43,7 @@ import { BusinessModule } from 'src/business/business.module';
     forwardRef(() => CategoriesModule),
     forwardRef(() => BusinessModule),
     UserCodesModule,
+    FileModule,
   ],
   controllers: [BotController],
   providers: [
@@ -50,6 +53,7 @@ import { BusinessModule } from 'src/business/business.module';
     UserScene,
     AddCategoryScene,
     PartnerScene,
+    SetImageScene,
   ],
 })
 export class BotModule {}
