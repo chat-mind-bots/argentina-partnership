@@ -126,52 +126,53 @@ export class PartnerScene {
     const business = await this.businessService.findBusinessById(businessId);
     const markup = Markup.inlineKeyboard([
       [
-        business.preview
-          ? Markup.button.callback(
-              'Посмотреть превью',
-              `imageView__${businessId}`,
-            )
-          : null,
+        ...(business.preview
+          ? [
+              Markup.button.callback(
+                'Посмотреть превью',
+                `imageView__${businessId}`,
+              ),
+            ]
+          : []),
       ],
-      [Markup.button.callback('Редактировать', `editBusiness__${businessId}`)],
+      [
+        this.botService.getMarkupWebApp(
+          'Редактировать бизнес',
+          routeReplacer(WebAppRoutes.UPDATE_BUSINESS, [
+            String(ctx.from.id),
+            businessId,
+          ]),
+        ),
+      ],
       [Markup.button.callback('Назад', 'businessList')],
     ]);
     await ctx.editMessageText(
-      `Ваш бизнес:
-Название: ${business.title}
-Описание: ${business.description}
-Категория: ${business.category.title}
+      `<b>Ваш бизнес:</b>
+
+<b>Название:</b> ${business.title}
+
+<b>Описание:</b> ${business.description}
+
+<b>Категория:</b> ${business.category.title}
+
+<b>Контакты:</b> ${business.contacts.reduce(
+        (acc, contact) => `${acc}${contact.type}: ${contact.value}
+        `,
+        `
+        `,
+      )}
+<b>Адрес:</b> ${
+        business.address.isExist
+          ? `
+    <b>Полный адрес:</b> ${business.address.addressLine}
+    <b>Ссылка на google maps: </b> ${
+      business.address.googleMapsLink ?? 'Не указано'
+    }
+    <b>Комментарий: </b> ${business.address.comment ?? 'Не указано'}`
+          : 'Без адреса'
+      }
     `,
-      markup,
-    );
-  }
-
-  @Action(/editBusiness/)
-  async editBusiness(@Ctx() ctx: SceneContext) {
-    const businessId = telegramDataHelper(ctx.callbackQuery['data'], '__');
-    const markup = Markup.inlineKeyboard([
-      [Markup.button.callback('Открыть вебприложение', `web__${businessId}`)],
-      [
-        Markup.button.callback(
-          'Редактировать превью бизнеса',
-          `preview__${businessId}`,
-        ),
-      ],
-      [Markup.button.callback('Назад', `selectBusiness__${businessId}`)],
-    ]);
-    await ctx.editMessageText(ctx.callbackQuery.message['text'], markup);
-  }
-  @Action(/web/)
-  async webApp(@Ctx() ctx: SceneContext) {
-    const businessId = telegramDataHelper(ctx.callbackQuery['data'], '__');
-    const business = await this.businessService.findBusinessById(businessId);
-    const userId = String(ctx.callbackQuery.from.id);
-
-    await this.botService.sendMessageWithWebApp(
-      ctx.callbackQuery.message.chat.id,
-      routeReplacer(WebAppRoutes.UPDATE_BUSINESS, [userId, business.id]),
-      'Редактировать бизнес',
-      'Открыть веб приложение',
+      { ...markup, parse_mode: 'HTML' },
     );
   }
 
@@ -181,6 +182,7 @@ export class PartnerScene {
     ctx.session['data']['businessId'] = businessId;
     await ctx.scene.enter('setImageScene');
   }
+
   @Action(/imageView/)
   async imageView(@Ctx() ctx: SceneContext) {
     const businessId = telegramDataHelper(ctx.callbackQuery['data'], '__');

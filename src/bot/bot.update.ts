@@ -79,7 +79,10 @@ export class BotUpdate {
     await ctx.scene.enter('userScene');
   }
 
-  async menu(@Ctx() ctx: Context & SceneContext, @Message('from') from) {
+  private async menu(
+    @Ctx() ctx: Context & SceneContext,
+    @Message('from') from,
+  ) {
     await this.botService.menu(ctx, from);
   }
 

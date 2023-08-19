@@ -44,17 +44,13 @@ export class SetImageScene {
 
   @On('photo')
   async photo(@Ctx() ctx: SceneContext) {
-    // console.log(ctx.message['photo']);
     const { businessId } = ctx.session['data'];
-    console.log(businessId);
     const file = await this.bot.telegram.getFile(
       ctx.message['photo'][2]['file_id'],
     );
     const fileURL = await this.bot.telegram.getFileLink(
       ctx.message['photo'][2]['file_id'],
     );
-    console.log(file);
-    console.log('url', fileURL);
     await ctx.reply('123');
     const chunks: any[] = [];
     let download = 0;

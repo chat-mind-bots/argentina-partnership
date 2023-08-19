@@ -23,8 +23,6 @@ export class BotService implements OnModuleInit {
       { command: 'menu', description: 'Меню' },
       { command: 'generate_code', description: 'Сгенерировать QR код' },
       { command: 'help', description: 'Получить подсказку' },
-      // { command: 'open_partners', description: 'Получить список партнеров' },
-      // { command: 'add_business', description: 'Добавить бизнес' },
     ]);
   }
 
@@ -84,12 +82,7 @@ export class BotService implements OnModuleInit {
     await this.bot.telegram.sendMessage(
       chatId,
       mainText,
-      Markup.inlineKeyboard([
-        Markup.button.webApp(
-          webAppButtonText,
-          `https://${process.env.BASE_URL}/${route}`,
-        ),
-      ]),
+      Markup.inlineKeyboard([this.getMarkupWebApp(webAppButtonText, route)]),
     );
   }
 
