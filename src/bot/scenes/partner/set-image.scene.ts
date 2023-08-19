@@ -84,6 +84,7 @@ export class SetImageScene {
       });
 
       request.on('error', (error) => {
+        console.log('ошибка', error);
         reject(error);
       });
     });
