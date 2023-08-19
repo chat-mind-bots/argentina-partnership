@@ -88,20 +88,18 @@ export class SetImageScene {
       });
     });
     await ctx.reply('Загрузка завершена');
-    await ctx.scene.enter('partnerScene');
     const business = await this.businessService.findBusinessById(businessId);
     await ctx.sendPhoto(business.preview);
     await this.leaveScene(ctx);
   }
   @Action('leave')
   async leaveScene(@Ctx() ctx: SceneContext) {
-    const { businessId } = ctx.state['businessId'];
-    await ctx.scene.enter('partnerScene');
+    ctx.session['fromScene'] = true;
+    const businessId = ctx.session['businessId'];
     const markup = Markup.inlineKeyboard([
       Markup.button.callback('Назад', `selectBusiness__${businessId}`),
     ]);
-    delete ctx.state['businessId'];
+    await ctx.scene.enter('partnerScene');
     await ctx.reply('К бизнесу', markup);
-    ctx.state['fromScene'] = true;
   }
 }
