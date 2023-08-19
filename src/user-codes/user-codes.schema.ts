@@ -10,6 +10,9 @@ export class UserCodes {
   @Prop({ required: true, type: Types.ObjectId, ref: User.name })
   user: Types.ObjectId;
 
+  @Prop({ required: false, type: Types.ObjectId, ref: User.name })
+  activatedBy: Types.ObjectId;
+
   @Prop({ required: true, type: String })
   code: string;
 

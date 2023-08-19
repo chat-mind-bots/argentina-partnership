@@ -4,12 +4,14 @@ import { Model, now, Types } from 'mongoose';
 import { UserCodes, UserCodesDocument } from 'src/user-codes/user-codes.schema';
 import { UserCodeStatusEnum } from 'src/user-codes/enums/user-code-status.enum';
 import { QrcodeService } from 'src/qrcode/qrcode.service';
+import { UserService } from 'src/user/user.service';
 
 @Injectable()
 export class UserCodesService {
   constructor(
     @InjectModel(UserCodes.name)
     private readonly userCodesModel: Model<UserCodesDocument>,
+    private readonly userService: UserService,
     private readonly qrCodeService: QrcodeService,
   ) {}
 
@@ -49,7 +51,11 @@ export class UserCodesService {
     return { codeDocument: code, qrCode: qrCode };
   }
 
-  async checkCode(code: string): Promise<'authorized' | 'reject'> {
+  async checkCode(
+    code: string,
+    userId: number,
+  ): Promise<'authorized' | 'reject'> {
+    const { _id } = await this.userService.findByTgId(userId);
     const codeDB = await this.userCodesModel
       .findOne({
         code: code,
@@ -59,7 +65,10 @@ export class UserCodesService {
       .populate('user');
 
     if (codeDB) {
-      await codeDB.updateOne({ status: UserCodeStatusEnum.activated });
+      await codeDB.updateOne({
+        status: UserCodeStatusEnum.activated,
+        activatedBy: _id,
+      });
     }
     return codeDB ? 'authorized' : 'reject';
   }
