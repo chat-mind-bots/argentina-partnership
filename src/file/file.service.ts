@@ -76,10 +76,12 @@ export class FileService {
     };
 
     await this.createNewFile(dto, userId, businessId);
-    const business = await this.businessService.findBusinessById(businessId);
+    const business = await this.businessService.findBusinessByIdClear(
+      businessId,
+    );
     //TODO: добавить проверку на совпадение userID и businessOwnerID
     await this.businessService.updateBusiness(businessId, {
-      ...business,
+      ...business['_doc'],
       preview: url,
     });
     return {
@@ -102,7 +104,7 @@ export class FileService {
     const user = await this.userService.findByTgId(userId);
     await this.fileModel.create({
       ...dto,
-      owner: user._id,
+      owner: new Types.ObjectId(user.id),
       business: new Types.ObjectId(businessId),
     });
   }

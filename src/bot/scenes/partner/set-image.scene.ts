@@ -44,7 +44,7 @@ export class SetImageScene {
 
   @On('photo')
   async photo(@Ctx() ctx: SceneContext) {
-    const { businessId } = ctx.session['data'];
+    const businessId = ctx.session['businessId'];
     const file = await this.bot.telegram.getFile(
       ctx.message['photo'][2]['file_id'],
     );
@@ -84,23 +84,23 @@ export class SetImageScene {
       });
 
       request.on('error', (error) => {
+        console.log('ошибка', error);
         reject(error);
       });
     });
     await ctx.reply('Загрузка завершена');
-    await ctx.scene.enter('partnerScene');
     const business = await this.businessService.findBusinessById(businessId);
     await ctx.sendPhoto(business.preview);
     await this.leaveScene(ctx);
   }
   @Action('leave')
   async leaveScene(@Ctx() ctx: SceneContext) {
-    const { businessId } = ctx.session['data'];
-    await ctx.scene.enter('partnerScene');
+    ctx.session['fromScene'] = true;
+    const businessId = ctx.session['businessId'];
     const markup = Markup.inlineKeyboard([
       Markup.button.callback('Назад', `selectBusiness__${businessId}`),
     ]);
+    await ctx.scene.enter('partnerScene');
     await ctx.reply('К бизнесу', markup);
-    ctx.session['fromScene'] = true;
   }
 }

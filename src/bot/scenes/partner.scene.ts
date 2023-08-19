@@ -38,7 +38,6 @@ export class PartnerScene {
       [Markup.button.callback('Выйти', 'changeRole')],
     ]).resize();
     await ctx.reply('Вы вошли как партнер', keyboardMarkup);
-
     await this.menu(ctx, MessageMode.REPLY);
   }
 
@@ -109,6 +108,7 @@ export class PartnerScene {
     const markup = Markup.inlineKeyboard([
       ...actionButtons,
       [Markup.button.callback('Назад', 'menu')],
+      // [Markup.button.callback('добавить мок', 'mockData')],
     ]);
     await ctx.editMessageText(
       `Список бизнесов` +
@@ -119,6 +119,26 @@ export class PartnerScene {
       markup,
     );
   }
+
+  // @Action('mockData')
+  // async mockData(@Ctx() ctx: SceneContext) {
+  //   await this.businessService.create(
+  //     '64ce9d402b43c943b2215f11',
+  //     '64d3acf7ab4c5b7a49b0057d',
+  //     {
+  //       title: 'test',
+  //       description: 'test',
+  //       address: {
+  //         isExist: false,
+  //         comment: 'zxc',
+  //         addressLine: 'text',
+  //         googleMapsLink: 'asd',
+  //       },
+  //       contacts: [{ type: ContactsTypeEnum.TELEGRAM, value: 'asd' }],
+  //       categoryName: 'название',
+  //     },
+  //   );
+  // }
 
   @Action(/selectBusiness/)
   async selectBusiness(@Ctx() ctx: SceneContext) {
@@ -134,6 +154,12 @@ export class PartnerScene {
               ),
             ]
           : []),
+      ],
+      [
+        Markup.button.callback(
+          business.preview ? 'Изменить превью' : 'Добавить превью',
+          `preview__${businessId}`,
+        ),
       ],
       [
         this.botService.getMarkupWebApp(
@@ -179,7 +205,8 @@ export class PartnerScene {
   @Action(/preview/)
   async preview(@Ctx() ctx: SceneContext) {
     const businessId = telegramDataHelper(ctx.callbackQuery['data'], '__');
-    ctx.session['data']['businessId'] = businessId;
+    console.log(businessId);
+    ctx.session['businessId'] = businessId;
     await ctx.scene.enter('setImageScene');
   }
 
