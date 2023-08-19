@@ -81,7 +81,7 @@ export class FileService {
     );
     //TODO: добавить проверку на совпадение userID и businessOwnerID
     await this.businessService.updateBusiness(businessId, {
-      ...business,
+      ...business['_doc'],
       preview: url,
     });
     return {

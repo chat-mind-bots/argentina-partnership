@@ -1,4 +1,4 @@
-enum ContactsTypeEnum {
+export enum ContactsTypeEnum {
   TELEGRAM = 'tg_username',
   TELEGRAM_BOT = 'tg_bot',
   TELEGRAM_CHANNEL = 'tg_channel',
