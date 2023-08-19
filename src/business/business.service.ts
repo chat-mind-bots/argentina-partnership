@@ -71,4 +71,8 @@ export class BusinessService {
         select: 'title description',
       });
   }
+
+  async findBusinessByIdClear(id: string) {
+    return this.businessModel.findOne({ _id: id });
+  }
 }

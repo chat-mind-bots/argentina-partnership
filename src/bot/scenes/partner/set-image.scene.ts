@@ -44,7 +44,7 @@ export class SetImageScene {
 
   @On('photo')
   async photo(@Ctx() ctx: SceneContext) {
-    const { businessId } = ctx.session['data'];
+    const businessId = ctx.session['businessId'];
     const file = await this.bot.telegram.getFile(
       ctx.message['photo'][2]['file_id'],
     );
@@ -95,12 +95,13 @@ export class SetImageScene {
   }
   @Action('leave')
   async leaveScene(@Ctx() ctx: SceneContext) {
-    const { businessId } = ctx.session['data'];
+    const { businessId } = ctx.state['businessId'];
     await ctx.scene.enter('partnerScene');
     const markup = Markup.inlineKeyboard([
       Markup.button.callback('Назад', `selectBusiness__${businessId}`),
     ]);
+    delete ctx.state['businessId'];
     await ctx.reply('К бизнесу', markup);
-    ctx.session['fromScene'] = true;
+    ctx.state['fromScene'] = true;
   }
 }
