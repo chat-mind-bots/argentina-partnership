@@ -38,7 +38,6 @@ export class PartnerScene {
       [Markup.button.callback('Выйти', 'changeRole')],
     ]).resize();
     await ctx.reply('Вы вошли как партнер', keyboardMarkup);
-
     await this.menu(ctx, MessageMode.REPLY);
   }
 
@@ -136,6 +135,12 @@ export class PartnerScene {
           : []),
       ],
       [
+        Markup.button.callback(
+          business.preview ? 'Изменить превью' : 'Добавить превью',
+          `preview__${businessId}`,
+        ),
+      ],
+      [
         this.botService.getMarkupWebApp(
           'Редактировать бизнес',
           routeReplacer(WebAppRoutes.UPDATE_BUSINESS, [
@@ -179,8 +184,9 @@ export class PartnerScene {
   @Action(/preview/)
   async preview(@Ctx() ctx: SceneContext) {
     const businessId = telegramDataHelper(ctx.callbackQuery['data'], '__');
-    ctx.session['data']['businessId'] = businessId;
-    await ctx.scene.enter('setImageScene');
+    console.log(businessId);
+    ctx.session['businessId'] = businessId;
+    // await ctx.scene.enter('setImageScene');
   }
 
   @Action(/imageView/)
