@@ -24,8 +24,8 @@ export class BusinessService {
     const result = await this.businessModel.create({
       owner: new Types.ObjectId(ownerId),
       category: new Types.ObjectId(categoryId),
-      preview: new Types.ObjectId(dto.preview),
       ...dto,
+      preview: new Types.ObjectId(dto.preview),
     });
 
     return result;
