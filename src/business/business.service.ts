@@ -25,6 +25,7 @@ export class BusinessService {
       owner: new Types.ObjectId(ownerId),
       category: new Types.ObjectId(categoryId),
       ...dto,
+      preview: new Types.ObjectId(dto.preview),
     });
 
     return result;

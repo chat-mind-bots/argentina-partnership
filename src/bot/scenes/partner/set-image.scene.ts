@@ -73,7 +73,6 @@ export class SetImageScene {
             `${file.file_unique_id}.jpg`,
             file.file_size,
             ctx.from.id,
-            businessId,
           );
           resolve({});
         });
@@ -84,13 +83,12 @@ export class SetImageScene {
       });
 
       request.on('error', (error) => {
-        console.log('ошибка', error);
         reject(error);
       });
     });
     await ctx.reply('Загрузка завершена');
     const business = await this.businessService.findBusinessById(businessId);
-    await ctx.sendPhoto(business.preview);
+    // await ctx.sendPhoto(business.preview);
     await this.leaveScene(ctx);
   }
   @Action('leave')

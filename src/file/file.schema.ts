@@ -1,7 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, now, Types } from 'mongoose';
 import { User } from 'src/user/user.schema';
-import { Business } from 'src/business/business.schema';
 
 export type FileDocument = File & Document;
 
@@ -9,12 +8,6 @@ export type FileDocument = File & Document;
 export class File {
   @Prop({ required: true })
   e_tag: string;
-
-  @Prop({
-    required: true,
-    type: String,
-  })
-  url: string;
 
   @Prop({
     required: true,
@@ -42,9 +35,6 @@ export class File {
 
   @Prop({ required: true, type: Types.ObjectId, ref: User.name })
   owner: Types.ObjectId;
-
-  @Prop({ required: true, type: Types.ObjectId, ref: Business.name })
-  business: Types.ObjectId;
 
   @Prop({ default: now() })
   createdAt: Date;

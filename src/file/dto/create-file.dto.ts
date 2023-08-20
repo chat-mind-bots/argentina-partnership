@@ -11,9 +11,6 @@ export class CreateFileDto {
   bucket: string;
 
   @IsString()
-  url: string;
-
-  @IsString()
   domain: string;
 
   @IsNumber()
