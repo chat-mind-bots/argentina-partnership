@@ -73,7 +73,6 @@ export class SetImageScene {
             `${file.file_unique_id}.jpg`,
             file.file_size,
             ctx.from.id,
-            businessId,
           );
           resolve({});
         });
@@ -84,7 +83,6 @@ export class SetImageScene {
       });
 
       request.on('error', (error) => {
-        console.log('ошибка', error);
         reject(error);
       });
     });

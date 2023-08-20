@@ -36,14 +36,12 @@ export class FileService {
     filename: string,
     fileSize: number,
     userId: number,
-    businessId: string,
   ) {
     return this.uploadFile(
       dataBuffer,
       filename,
       fileSize,
       userId,
-      businessId,
       process.env.S3_IMAGE_BUCKET,
     );
   }
@@ -53,7 +51,6 @@ export class FileService {
     filename: string,
     fileSize: number,
     userId: number,
-    businessId: string,
     bucket: string,
   ) {
     const key = `${uuidv4()}_${extname(filename)}`;
@@ -72,20 +69,11 @@ export class FileService {
       bucket: bucket,
       domain: process.env.S3_DOMAIN,
       file_size: fileSize,
-      url,
     };
 
-    await this.createNewFile(dto, userId, businessId);
-    const business = await this.businessService.findBusinessByIdClear(
-      businessId,
-    );
-    //TODO: добавить проверку на совпадение userID и businessOwnerID
-    await this.businessService.updateBusiness(businessId, {
-      ...business['_doc'],
-      preview: url,
-    });
+    await this.createNewFile(dto, userId);
+
     return {
-      key: key,
       url,
     };
   }
@@ -100,12 +88,11 @@ export class FileService {
   //   return response.Body;
   // }
 
-  async createNewFile(dto: CreateFileDto, userId: number, businessId: string) {
+  async createNewFile(dto: CreateFileDto, userId: number) {
     const user = await this.userService.findByTgId(userId);
     await this.fileModel.create({
       ...dto,
       owner: new Types.ObjectId(user.id),
-      business: new Types.ObjectId(businessId),
     });
   }
 }
