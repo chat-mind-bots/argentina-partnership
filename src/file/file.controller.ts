@@ -2,6 +2,8 @@ import {
   BadRequestException,
   Body,
   Controller,
+  HttpException,
+  HttpStatus,
   Post,
   Req,
   UploadedFile,
@@ -32,8 +34,14 @@ export class FileController {
     @Req() req,
   ) {
     if (!file || req.fileValidationError) {
-      throw new BadRequestException(req.fileValidationError || 'Invalid file');
+      throw new HttpException('File not an image', HttpStatus.NOT_ACCEPTABLE);
+      // throw new HttpException('User not partner', HttpStatus.NOT_ACCEPTABLE);
     }
+
+    if (!body.userId) {
+      throw new HttpException('Invalid userId', HttpStatus.NOT_ACCEPTABLE);
+    }
+
     return this.fileService.uploadImage(
       file.buffer,
       file.originalname,
