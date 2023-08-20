@@ -18,7 +18,7 @@ export class BusinessController {
 
   @Post()
   async createBusiness(
-    @Query('useId') userId: number,
+    @Query('userId') userId: number,
     @Body() dto: CreateBusinessDto,
   ) {
     return await this.businessService.create(userId, dto);
