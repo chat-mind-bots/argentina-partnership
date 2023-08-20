@@ -6,6 +6,7 @@ import { UserRoleEnum } from 'src/user/enum/user-role.enum';
 import { UserService } from 'src/user/user.service';
 import * as process from 'process';
 import { WebAppRoutes } from 'src/bot/interfaces/webAppRoutes';
+import { UserCodesService } from 'src/user-codes/user-codes.service';
 
 @Injectable()
 export class BotService implements OnModuleInit {
@@ -13,6 +14,7 @@ export class BotService implements OnModuleInit {
     @InjectBot() private readonly bot: Telegraf<Context>,
     @Inject(forwardRef(() => UserService))
     private readonly userService: UserService,
+    private readonly userCodeService: UserCodesService,
   ) {}
   async onModuleInit() {
     await this.bot.telegram.setMyCommands([
@@ -21,7 +23,6 @@ export class BotService implements OnModuleInit {
         description: 'Начало работы бота/получения последних обновлений',
       },
       { command: 'menu', description: 'Меню' },
-      { command: 'generate_code', description: 'Сгенерировать QR код' },
       { command: 'help', description: 'Получить подсказку' },
     ]);
   }
@@ -112,6 +113,23 @@ export class BotService implements OnModuleInit {
           `https://${process.env.BASE_URL}/${route}`,
         ),
       ]),
+    );
+  }
+
+  async generateCode(ctx: Context, userId) {
+    const user = await this.userService.findByTgId(userId);
+
+    const { qrCode, codeDocument } =
+      await this.userCodeService.generateUniqCode(user._id);
+
+    await ctx.replyWithPhoto({ source: qrCode });
+    await ctx.replyWithHTML(`<b>${codeDocument.code}</b>`);
+    await ctx.replyWithHTML(
+      `Ваш уникальный код: <b>${codeDocument.code}</b>
+Покажите Qr-код, или код в текстовом формате во время расчета
+Код можно использовать только 1 раз\n
+<b>Внимание, код будет действителен в течении одного часа</b>\n
+Если вы не успеет активировать его в течении 1-го часа, то просто сгененрируйте новый`,
     );
   }
 }

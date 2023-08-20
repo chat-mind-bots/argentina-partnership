@@ -32,7 +32,7 @@ export class UserScene {
       [Markup.button.callback('Выйти', 'changeRole')],
     ]).resize();
 
-    await ctx.reply('Вы вошли как юзер', keyboardMarkup);
+    await ctx.reply('Вы вошли как пользователь', keyboardMarkup);
     await this.menu(ctx, MessageMode.REPLY);
   }
 
@@ -44,7 +44,8 @@ export class UserScene {
   @Action('menu')
   async menu(@Ctx() ctx: Context & SceneContext, mode: MessageMode) {
     const markup = Markup.inlineKeyboard([
-      Markup.button.callback('Сотрудничество', 'partnership'),
+      [Markup.button.callback('Сгенерировать QR-код', 'generate_qr_code')],
+      [Markup.button.callback('Сотрудничество', 'partnership')],
     ]);
     if (mode === MessageMode.REPLY) {
       await ctx.reply('Можете выбрать интересующие вас функции', markup);
@@ -167,5 +168,10 @@ export class UserScene {
       });
       await ctx.editMessageText('Ваша заявка была отправлена', markup);
     }
+  }
+
+  @Action('generate_qr_code')
+  async generateQqCode(@Ctx() ctx: SceneContext) {
+    return this.botService.generateCode(ctx, ctx.from.id);
   }
 }
