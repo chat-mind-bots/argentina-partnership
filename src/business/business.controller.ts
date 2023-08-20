@@ -10,7 +10,7 @@ import {
 } from '@nestjs/common';
 import { BusinessService } from 'src/business/business.service';
 import { CreateBusinessDto } from 'src/business/dto/create-business.dto';
-import { MongoIdPipe } from 'pipes/mongo-id.pipe';
+import { MongoIdPipe } from 'src/pipes/mongo-id.pipe';
 
 @Controller('business')
 export class BusinessController {
