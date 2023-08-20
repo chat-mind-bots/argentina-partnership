@@ -88,7 +88,7 @@ export class SetImageScene {
     });
     await ctx.reply('Загрузка завершена');
     const business = await this.businessService.findBusinessById(businessId);
-    await ctx.sendPhoto(business.preview);
+    // await ctx.sendPhoto(business.preview);
     await this.leaveScene(ctx);
   }
   @Action('leave')

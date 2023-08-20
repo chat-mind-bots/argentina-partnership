@@ -61,7 +61,7 @@ export class FileService {
     });
 
     const uploadResult = await this.s3.send(putObject);
-    const url = `${process.env.S3_DOMAIN}/${bucket}/${key}`;
+    // const url = `${process.env.S3_DOMAIN}/${bucket}/${key}`;
 
     const dto: CreateFileDto = {
       e_tag: uploadResult.ETag,
@@ -71,10 +71,10 @@ export class FileService {
       file_size: fileSize,
     };
 
-    await this.createNewFile(dto, userId);
+    const file = await this.createNewFile(dto, userId);
 
     return {
-      url,
+      file,
     };
   }
 
@@ -90,9 +90,10 @@ export class FileService {
 
   async createNewFile(dto: CreateFileDto, userId: number) {
     const user = await this.userService.findByTgId(userId);
-    await this.fileModel.create({
+    const file = await this.fileModel.create({
       ...dto,
       owner: new Types.ObjectId(user.id),
     });
+    return file;
   }
 }
