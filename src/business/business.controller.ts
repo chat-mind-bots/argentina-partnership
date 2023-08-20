@@ -2,37 +2,30 @@ import {
   Body,
   Controller,
   Get,
-  HttpException,
-  HttpStatus,
   Param,
   Patch,
   Post,
+  Query,
+  UsePipes,
 } from '@nestjs/common';
 import { BusinessService } from 'src/business/business.service';
-import { UserRoleEnum } from 'src/user/enum/user-role.enum';
 import { CreateBusinessDto } from 'src/business/dto/create-business.dto';
+import { MongoIdPipe } from 'pipes/mongo-id.pipe';
 
 @Controller('business')
 export class BusinessController {
   constructor(private readonly businessService: BusinessService) {}
 
-  @Post(':userId/create')
+  @Post()
   async createBusiness(
-    @Param('userId') userId: string,
+    @Query('useId') userId: number,
     @Body() dto: CreateBusinessDto,
   ) {
-    const user = await this.businessService.findPartnerByTgId(Number(userId));
-    const category = await this.businessService.findCategory(dto.categoryName);
-
-    if (!user.role.includes(UserRoleEnum.PARTNER)) {
-      throw new HttpException('User not partner', HttpStatus.NOT_ACCEPTABLE);
-    }
-    if (!!category) {
-      return await this.businessService.create(user.id, category.id, dto);
-    }
+    return await this.businessService.create(userId, dto);
   }
 
   @Get(':businessId')
+  @UsePipes(MongoIdPipe)
   async getBusiness(@Param('businessId') businessId: string) {
     return await this.businessService.findBusinessById(businessId);
   }
@@ -42,22 +35,23 @@ export class BusinessController {
   //   return await this.businessService.findBusinessById(businessId);
   // }
 
-  @Patch(':userId/business/:businessId')
+  @Patch(':businessId')
+  @UsePipes(MongoIdPipe)
   async updateBusiness(
-    @Param('userId') userId: number,
+    @Query('userId') userId: number,
     @Param('businessId') businessId: string,
     @Body() dto: CreateBusinessDto,
   ) {
-    const user = await this.businessService.findPartnerByTgId(userId);
-    const isCategoryExits = await this.businessService.findCategory(
-      dto.categoryName,
-    );
-
-    if (!user.role.includes(UserRoleEnum.PARTNER)) {
-      throw new HttpException('User not partner', HttpStatus.NOT_ACCEPTABLE);
-    }
-    if (!!isCategoryExits) {
-      return await this.businessService.updateBusiness(businessId, dto);
-    }
+    // const user = await this.businessService.findPartnerByTgId(userId);
+    // const isCategoryExits = await this.businessService.findCategory(
+    //   dto.categoryName,
+    // );
+    //
+    // if (!user.role.includes(UserRoleEnum.PARTNER)) {
+    //   throw new HttpException('User not partner', HttpStatus.NOT_ACCEPTABLE);
+    // }
+    // if (!!isCategoryExits) {
+    //   return await this.businessService.updateBusiness(businessId, dto);
+    // }
   }
 }

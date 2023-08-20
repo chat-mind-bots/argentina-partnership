@@ -1,4 +1,10 @@
-import { forwardRef, Inject, Injectable } from '@nestjs/common';
+import {
+  forwardRef,
+  HttpException,
+  HttpStatus,
+  Inject,
+  Injectable,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Business, BusinessDocument } from 'src/business/business.schema';
 import { Model, Types } from 'mongoose';
@@ -8,6 +14,7 @@ import { Category } from 'src/categories/ctegories.schema';
 import { UserService } from 'src/user/user.service';
 import { CategoriesService } from 'src/categories/categories.service';
 import { UpdateBusinessDto } from 'src/business/dto/update-business.dto';
+import { UserRoleEnum } from 'src/user/enum/user-role.enum';
 
 @Injectable()
 export class BusinessService {
@@ -20,15 +27,19 @@ export class BusinessService {
     private readonly categoryService: CategoriesService,
   ) {}
 
-  async create(ownerId: string, categoryId: string, dto: CreateBusinessDto) {
-    const result = await this.businessModel.create({
-      owner: new Types.ObjectId(ownerId),
-      category: new Types.ObjectId(categoryId),
+  async create(userId: number, dto: CreateBusinessDto) {
+    const user = await this.userService.findByTgId(userId);
+
+    if (!user.role.includes(UserRoleEnum.PARTNER)) {
+      throw new HttpException('User not partner', HttpStatus.NOT_ACCEPTABLE);
+    }
+
+    return this.businessModel.create({
+      owner: user._id,
+      category: new Types.ObjectId(dto.category),
       ...dto,
       preview: new Types.ObjectId(dto.preview),
     });
-
-    return result;
   }
 
   async findAllBusinessesByOwnerId(ownerId: Types.ObjectId) {
@@ -43,10 +54,6 @@ export class BusinessService {
         select: 'title description',
       }); //check this expression for the second condition
     return result;
-  }
-
-  async findPartnerByTgId(id: number) {
-    return await this.userService.findByTgId(id);
   }
 
   async findCategory(categoryName: string) {
