@@ -28,7 +28,6 @@ export class BotUpdate {
     @InjectBot() private readonly bot: Telegraf<Context>,
     @Inject(forwardRef(() => UserService))
     private readonly userService: UserService,
-    private readonly userCodeService: UserCodesService,
     @Inject(forwardRef(() => BotService))
     private readonly botService: BotService,
     @Inject(forwardRef(() => FileService))
@@ -105,21 +104,8 @@ export class BotUpdate {
   }
 
   @Command('generate_code')
-  async generateCode(@Ctx() ctx: Context, @Message('from') from) {
-    const user = await this.userService.findByTgId(from.id);
-
-    const { qrCode, codeDocument } =
-      await this.userCodeService.generateUniqCode(user._id);
-
-    await ctx.replyWithPhoto({ source: qrCode });
-    await ctx.replyWithHTML(`<b>${codeDocument.code}</b>`);
-    await ctx.replyWithHTML(
-      `Ваш уникальный код: <b>${codeDocument.code}</b>
-Покажите Qr-код, или код в текстовом формате во время расчета
-Код можно использовать только 1 раз\n
-<b>Внимание, код будет действителен в течении одного часа</b>\n
-Если вы не успеет активировать его в течении 1-го часа, то просто сгененрируйте новый, при помощи команды: /generate_code`,
-    );
+  generateCode(@Ctx() ctx: Context, @Message('from') from) {
+    return this.botService.generateCode(ctx, from.id);
   }
 
   @Command('add_business')
