@@ -8,6 +8,7 @@ import { Category } from 'src/categories/ctegories.schema';
 import { UserService } from 'src/user/user.service';
 import { CategoriesService } from 'src/categories/categories.service';
 import { UpdateBusinessDto } from 'src/business/dto/update-business.dto';
+import { File } from 'src/file/file.schema';
 
 @Injectable()
 export class BusinessService {
@@ -41,7 +42,7 @@ export class BusinessService {
       .populate<{ category: Pick<Category, 'title' | 'description'> }>({
         path: 'category',
         select: 'title description',
-      }); //check this expression for the second condition
+      });
     return result;
   }
 
@@ -70,6 +71,10 @@ export class BusinessService {
       .populate<{ category: Pick<Category, 'title' | 'description'> }>({
         path: 'category',
         select: 'title description',
+      })
+      .populate<{ preview: Pick<File, 'bucket' | 'key' | 'domain'> }>({
+        path: 'preview',
+        select: 'bucket key domain',
       });
   }
 
