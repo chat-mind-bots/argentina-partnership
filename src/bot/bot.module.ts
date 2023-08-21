@@ -6,18 +6,17 @@ import RedisSession from 'telegraf-session-redis';
 import { ConfigModule } from '@nestjs/config';
 import { UserModule } from 'src/user/user.module';
 import { BotUpdate } from 'src/bot/bot.update';
-import { AdminScene } from 'src/bot/scenes/admin.scene';
-import { UserScene } from 'src/bot/scenes/user.scene';
+import { AdminScene } from 'src/bot/scenes/admin/admin.scene';
+import { UserScene } from 'src/bot/scenes/user/user.scene';
 import { RightsChangeModule } from 'src/rights-change/rights-change.module';
 import { CategoriesModule } from 'src/categories/categories.module';
-import { AddCategoryScene } from 'src/bot/scenes/categories.scene';
+import { AddCategoryScene } from 'src/bot/scenes/admin/categories.scene';
 import { UserCodesModule } from 'src/user-codes/user-codes.module';
 import * as process from 'process';
 import { session } from 'telegraf';
-import { PartnerScene } from 'src/bot/scenes/partner.scene';
+import { PartnerScene } from 'src/bot/scenes/partner/partner.scene';
 import { BusinessModule } from 'src/business/business.module';
 import { FileModule } from 'src/file/file.module';
-import { SetImageScene } from 'src/bot/scenes/partner/set-image.scene';
 
 @Module({
   imports: [
@@ -53,7 +52,6 @@ import { SetImageScene } from 'src/bot/scenes/partner/set-image.scene';
     UserScene,
     AddCategoryScene,
     PartnerScene,
-    SetImageScene,
   ],
 })
 export class BotModule {}

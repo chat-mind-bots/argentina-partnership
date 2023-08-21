@@ -180,7 +180,7 @@ export class UserScene {
       ctx.callbackQuery.from.id,
     );
     const markup = Markup.inlineKeyboard([
-      [Markup.button.callback('Пополнить баланс', 'top_up_balance')],
+      [this.botService.getMarkupWebApp('Пополнить баланс', 'balance/top-up')],
       [Markup.button.callback('Назад', 'callMenu')],
     ]);
     await ctx.editMessageText(

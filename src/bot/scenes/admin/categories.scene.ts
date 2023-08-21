@@ -120,10 +120,6 @@ export class AddCategoryScene {
       }
     }
     try {
-      const category = await this.categoriesService.createCategory({
-        title: ctx.wizard.state['data'].title,
-        description: ctx.wizard.state['data'].description,
-      });
       await ctx.editMessageText(
         `Ваша категория была успешно сохранена`,
         markup,
