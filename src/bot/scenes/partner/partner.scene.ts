@@ -209,4 +209,12 @@ export class PartnerScene {
     ctx.session['businessId'] = businessId;
     await ctx.scene.enter('setImageScene');
   }
+
+  @Action(/imageView/)
+  async imageView(@Ctx() ctx: SceneContext) {
+    const businessId = telegramDataHelper(ctx.callbackQuery['data'], '__');
+    const { preview } = await this.businessService.findBusinessById(businessId);
+    const url = `https://${preview.domain}/${preview.bucket}/${preview.key}`;
+    await this.bot.telegram.sendPhoto(ctx.callbackQuery.message.chat.id, url);
+  }
 }

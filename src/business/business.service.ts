@@ -15,6 +15,7 @@ import { UserService } from 'src/user/user.service';
 import { CategoriesService } from 'src/categories/categories.service';
 import { UpdateBusinessDto } from 'src/business/dto/update-business.dto';
 import { UserRoleEnum } from 'src/user/enum/user-role.enum';
+import { File } from 'src/file/file.schema';
 
 @Injectable()
 export class BusinessService {
@@ -29,14 +30,13 @@ export class BusinessService {
 
   async create(userId: number, dto: CreateBusinessDto) {
     const user = await this.userService.findByTgId(userId);
-
     if (!user.role.includes(UserRoleEnum.PARTNER)) {
       throw new HttpException('User not partner', HttpStatus.NOT_ACCEPTABLE);
     }
 
     return this.businessModel.create({
       owner: user._id,
-      category: new Types.ObjectId(dto.category),
+      category: new Types.ObjectId(dto.categoryId),
       ...dto,
       preview: new Types.ObjectId(dto.preview),
     });
@@ -52,7 +52,7 @@ export class BusinessService {
       .populate<{ category: Pick<Category, 'title' | 'description'> }>({
         path: 'category',
         select: 'title description',
-      }); //check this expression for the second condition
+      });
     return result;
   }
 
@@ -63,8 +63,35 @@ export class BusinessService {
     return category;
   }
 
-  async updateBusiness(id: string, dto: UpdateBusinessDto) {
-    return this.businessModel.findOneAndUpdate({ _id: id }, dto, { new: true });
+  async updateBusiness(
+    userId: number,
+    businessId: string,
+    dto: UpdateBusinessDto,
+  ) {
+    const user = await this.userService.findByTgId(userId);
+    const business = await this.findBusinessById(businessId);
+
+    if (!user.role.includes(UserRoleEnum.PARTNER)) {
+      throw new HttpException(
+        "You're not allowed to use this method",
+        HttpStatus.FORBIDDEN,
+      );
+    }
+
+    if (business.owner.tg_id !== user.tg_id) {
+      throw new HttpException(
+        "You're not allowed to use this method",
+        HttpStatus.FORBIDDEN,
+      );
+    }
+
+    return this.businessModel.findOneAndUpdate(
+      { _id: businessId },
+      { ...dto, preview: new Types.ObjectId(dto.preview) },
+      {
+        new: true,
+      },
+    );
   }
 
   async findBusinessById(id: string) {
@@ -77,6 +104,10 @@ export class BusinessService {
       .populate<{ category: Pick<Category, 'title' | 'description'> }>({
         path: 'category',
         select: 'title description',
+      })
+      .populate<{ preview: Pick<File, 'bucket' | 'key' | 'domain'> }>({
+        path: 'preview',
+        select: 'bucket key domain',
       });
   }
 
