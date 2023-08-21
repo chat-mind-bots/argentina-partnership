@@ -49,7 +49,6 @@ export class BotUpdate {
           tg_id,
           username,
           first_name,
-          balance: 0,
           refCode: 'fixitsoon',
           role: [UserRoleEnum.USER],
         });

@@ -11,6 +11,7 @@ import { CryptomusModule } from './cryptomus/cryptomus.module';
 import { BusinessModule } from 'src/business/business.module';
 import { FileModule } from './file/file.module';
 import { S3Module } from 'nestjs-s3';
+import { BalanceModule } from './balance/balance.module';
 
 @Module({
   imports: [
@@ -39,6 +40,7 @@ import { S3Module } from 'nestjs-s3';
     CryptomusModule,
     BusinessModule,
     FileModule,
+    BalanceModule,
   ],
   controllers: [],
   providers: [],
