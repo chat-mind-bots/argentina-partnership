@@ -1,7 +1,7 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Balance, BalanceDocument } from 'src/balance/balance.schema';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 
 @Injectable()
 export class BalanceService {
@@ -12,5 +12,16 @@ export class BalanceService {
 
   async createBalance() {
     return this.balanceModel.create({});
+  }
+
+  async showAmountBalance(id: Types.ObjectId) {
+    const balance = await this.balanceModel.findById(id);
+    if (!balance) {
+      throw new HttpException(
+        'Document (Balance) not found',
+        HttpStatus.NOT_FOUND,
+      );
+    }
+    return balance.amount;
   }
 }

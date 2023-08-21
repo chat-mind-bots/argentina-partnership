@@ -34,9 +34,7 @@ export class UserService {
 
   async findByTgId(id: number, isShowBalance?: boolean) {
     return isShowBalance
-      ? this.userModel
-          .findOne({ tg_id: id })
-          .populate({ path: 'balance', select: 'amount' })
+      ? this.userModel.findOne({ tg_id: id })
       : this.userModel.findOne({ tg_id: id }).select('-balance');
   }
 
@@ -50,9 +48,12 @@ export class UserService {
 
   async findAllByRole(role: UserRoleEnum, isShowBalance?: boolean) {
     return isShowBalance
-      ? this.userModel
-          .find({ role })
-          .populate({ path: 'balance', select: 'amount' })
+      ? this.userModel.find({ role })
       : this.userModel.find({ role }).select('-balance');
+  }
+
+  async showUserBalance(tgId: number) {
+    const { balance } = await this.findByTgId(tgId, true);
+    return this.balanceService.showAmountBalance(balance);
   }
 }

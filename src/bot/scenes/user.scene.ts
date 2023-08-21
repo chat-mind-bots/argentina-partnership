@@ -45,6 +45,7 @@ export class UserScene {
   async menu(@Ctx() ctx: Context & SceneContext, mode: MessageMode) {
     const markup = Markup.inlineKeyboard([
       [Markup.button.callback('Сгенерировать QR-код', 'generate_qr_code')],
+      [Markup.button.callback('Проверить свой баланс', 'show_balance')],
       [Markup.button.callback('Сотрудничество', 'partnership')],
     ]);
     if (mode === MessageMode.REPLY) {
@@ -111,7 +112,6 @@ export class UserScene {
     const userData = ctx.callbackQuery['data'] as string;
     const userId = telegramDataHelper(userData, '__');
     const userObjectId = new Types.ObjectId(userId);
-    const user = await this.userService.findById(userId);
     const markup = Markup.inlineKeyboard([
       Markup.button.callback('Назад', 'partnership'),
     ]);
@@ -143,7 +143,6 @@ export class UserScene {
     const userData = ctx.callbackQuery['data'] as string;
     const userId = telegramDataHelper(userData, '__');
     const userObjectId = new Types.ObjectId(userId);
-    const user = await this.userService.findById(userId);
     const markup = Markup.inlineKeyboard([
       Markup.button.callback('Назад', 'partnership'),
     ]);
@@ -173,5 +172,20 @@ export class UserScene {
   @Action('generate_qr_code')
   async generateQqCode(@Ctx() ctx: SceneContext) {
     return this.botService.generateCode(ctx, ctx.from.id);
+  }
+
+  @Action('show_balance')
+  async showBalance(@Ctx() ctx: SceneContext) {
+    const balanceAmount = await this.userService.showUserBalance(
+      ctx.callbackQuery.from.id,
+    );
+    const markup = Markup.inlineKeyboard([
+      [Markup.button.callback('Пополнить баланс', 'top_up_balance')],
+      [Markup.button.callback('Назад', 'callMenu')],
+    ]);
+    await ctx.editMessageText(
+      `<b>Ваш актульный баланс: </b> ${balanceAmount} tokens`,
+      { ...markup, parse_mode: 'HTML' },
+    );
   }
 }
