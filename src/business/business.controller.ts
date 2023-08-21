@@ -27,7 +27,8 @@ export class BusinessController {
   @Get(':businessId')
   @UsePipes(MongoIdPipe)
   async getBusiness(@Param('businessId') businessId: string) {
-    return await this.businessService.findBusinessById(businessId);
+    const result = await this.businessService.findBusinessById(businessId);
+    return result;
   }
 
   // @Get('list')
@@ -42,16 +43,6 @@ export class BusinessController {
     @Param('businessId') businessId: string,
     @Body() dto: CreateBusinessDto,
   ) {
-    // const user = await this.businessService.findPartnerByTgId(userId);
-    // const isCategoryExits = await this.businessService.findCategory(
-    //   dto.categoryName,
-    // );
-    //
-    // if (!user.role.includes(UserRoleEnum.PARTNER)) {
-    //   throw new HttpException('User not partner', HttpStatus.NOT_ACCEPTABLE);
-    // }
-    // if (!!isCategoryExits) {
-    //   return await this.businessService.updateBusiness(businessId, dto);
-    // }
+    return await this.businessService.updateBusiness(userId, businessId, dto);
   }
 }

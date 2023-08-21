@@ -85,4 +85,8 @@ export class FileService {
     });
     return file;
   }
+
+  async findFile(fileId: string) {
+    return this.fileModel.findOne({ _id: fileId });
+  }
 }
