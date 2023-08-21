@@ -5,7 +5,7 @@ import { IAddress } from 'src/business/interfaces/address.interface';
 export class UpdateBusinessDto {
   @IsString()
   @IsOptional()
-  readonly categoryId?: string;
+  readonly category?: string;
 
   @IsString()
   @IsOptional()

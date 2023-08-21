@@ -4,7 +4,7 @@ import { IAddress } from 'src/business/interfaces/address.interface';
 
 export class CreateBusinessDto {
   @IsString()
-  readonly category: string;
+  readonly categoryId: string;
 
   @IsString()
   readonly title: string;

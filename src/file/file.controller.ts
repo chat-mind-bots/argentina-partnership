@@ -1,10 +1,11 @@
 import {
-  BadRequestException,
   Body,
   Controller,
+  Get,
   HttpException,
   HttpStatus,
   Post,
+  Query,
   Req,
   UploadedFile,
   UseInterceptors,
@@ -17,7 +18,10 @@ import { UploadBodyDto } from 'src/file/dto/upload-body.dto';
 @Controller('file')
 export class FileController {
   constructor(private readonly fileService: FileService) {}
-
+  @Get('image')
+  async getImage(@Query('imageId') imageId: string) {
+    return this.fileService.findFile(imageId);
+  }
   @Post('image')
   @UseInterceptors(
     FileInterceptor('file', {
@@ -41,7 +45,6 @@ export class FileController {
     if (!body.userId) {
       throw new HttpException('Invalid userId', HttpStatus.NOT_ACCEPTABLE);
     }
-
     return this.fileService.uploadImage(
       file.buffer,
       file.originalname,
