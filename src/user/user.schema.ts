@@ -1,6 +1,7 @@
 import { Document, now, Types } from 'mongoose';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { UserRoleEnum } from 'src/user/enum/user-role.enum';
+import { Balance } from 'src/balance/balance.schema';
 
 export type UserDocument = User & Document;
 
@@ -8,8 +9,10 @@ export type UserDocument = User & Document;
 export class User {
   @Prop({
     required: true,
+    type: Types.ObjectId,
+    ref: Balance.name,
   })
-  balance: number;
+  balance: Types.ObjectId;
 
   @Prop({
     required: true,

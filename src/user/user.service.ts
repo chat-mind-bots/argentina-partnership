@@ -4,16 +4,19 @@ import { User, UserDocument } from 'src/user/user.schema';
 import { Model } from 'mongoose';
 import { CreateUserDto } from 'src/user/dto/create-user.dto';
 import { UserRoleEnum } from 'src/user/enum/user-role.enum';
+import { BalanceService } from 'src/balance/balance.service';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectModel(User.name) private readonly userModel: Model<UserDocument>,
+    private readonly balanceService: BalanceService,
   ) {}
 
-  async createUser(dto: CreateUserDto) {
-    const user = await this.userModel.create(dto);
-    return user;
+  async createUser(dto: Omit<CreateUserDto, 'balance'>) {
+    const { _id } = await this.balanceService.createBalance();
+    const userDto: CreateUserDto = { ...dto, balance: _id };
+    return this.userModel.create(userDto);
   }
 
   async promoteUser(id: number, role: UserRoleEnum) {
@@ -29,15 +32,28 @@ export class UserService {
     return await this.findById(id);
   }
 
-  async findByTgId(id: number) {
-    return this.userModel.findOne({ tg_id: id });
+  async findByTgId(id: number, isShowBalance?: boolean) {
+    return isShowBalance
+      ? this.userModel.findOne({ tg_id: id })
+      : this.userModel.findOne({ tg_id: id }).select('-balance');
   }
 
-  async findById(id: string) {
-    return this.userModel.findOne({ _id: id });
+  async findById(id: string, isShowBalance?: boolean) {
+    return isShowBalance
+      ? this.userModel
+          .findById(id)
+          .populate({ path: 'balance', select: 'amount' })
+      : this.userModel.findById(id).select('-balance');
   }
 
-  async findAllByRole(role: UserRoleEnum) {
-    return this.userModel.find({ role });
+  async findAllByRole(role: UserRoleEnum, isShowBalance?: boolean) {
+    return isShowBalance
+      ? this.userModel.find({ role })
+      : this.userModel.find({ role }).select('-balance');
+  }
+
+  async showUserBalance(tgId: number) {
+    const { balance } = await this.findByTgId(tgId, true);
+    return this.balanceService.showAmountBalance(balance);
   }
 }

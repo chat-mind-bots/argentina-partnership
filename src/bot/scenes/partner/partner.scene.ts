@@ -205,7 +205,7 @@ export class PartnerScene {
   @Action(/preview/)
   async preview(@Ctx() ctx: SceneContext) {
     const businessId = telegramDataHelper(ctx.callbackQuery['data'], '__');
-    console.log(businessId);
+
     ctx.session['businessId'] = businessId;
     await ctx.scene.enter('setImageScene');
   }
