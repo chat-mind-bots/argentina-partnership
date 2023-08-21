@@ -22,6 +22,7 @@ import { FileModule } from 'src/file/file.module';
   imports: [
     ConfigModule.forRoot(),
     TelegrafModule.forRoot({
+      ...(process.env.TEST ? { options: { telegram: { testEnv: true } } } : {}),
       token: process.env.TELEGRAM_API_KEY,
       middlewares: [
         ...(process.env.MODE === 'LOCAL'

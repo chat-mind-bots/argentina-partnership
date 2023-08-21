@@ -90,7 +90,9 @@ export class BotService implements OnModuleInit {
   getMarkupWebApp(webAppButtonText: string, route: string) {
     return Markup.button.webApp(
       webAppButtonText,
-      `https://${process.env.BASE_URL}/${route}`,
+      process.env.TEST
+        ? `http://${process.env.BASE_URL}/${route}`
+        : `https://${process.env.BASE_URL}/${route}`,
     );
   }
 
@@ -107,12 +109,7 @@ export class BotService implements OnModuleInit {
       messageId,
       inlineId,
       mainText,
-      Markup.inlineKeyboard([
-        Markup.button.webApp(
-          webAppButtonText,
-          `https://${process.env.BASE_URL}/${route}`,
-        ),
-      ]),
+      Markup.inlineKeyboard([this.getMarkupWebApp(webAppButtonText, route)]),
     );
   }
 
