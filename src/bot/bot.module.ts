@@ -10,7 +10,7 @@ import { AdminScene } from 'src/bot/scenes/admin/admin.scene';
 import { UserScene } from 'src/bot/scenes/user/user.scene';
 import { RightsChangeModule } from 'src/rights-change/rights-change.module';
 import { CategoriesModule } from 'src/categories/categories.module';
-import { AddCategoryScene } from 'src/bot/scenes/admin/categories.scene';
+import { AddCategoryScene } from 'src/bot/scenes/admin/categories/categories.scene';
 import { UserCodesModule } from 'src/user-codes/user-codes.module';
 import * as process from 'process';
 import { session } from 'telegraf';
