@@ -13,7 +13,8 @@ export class CreateUserDto {
   readonly tg_id: number;
 
   @IsString()
-  readonly username: string;
+  @IsOptional()
+  readonly username?: string;
 
   @IsString()
   readonly first_name: string;
