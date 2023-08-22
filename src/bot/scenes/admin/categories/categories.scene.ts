@@ -22,6 +22,7 @@ export class AddCategoryScene {
     @Inject(forwardRef(() => BotService))
     private readonly botService: BotService,
   ) {}
+
   @WizardStep(0)
   async step0(
     @Message('text') msg: string,
@@ -36,6 +37,7 @@ export class AddCategoryScene {
     }
     ctx.wizard.next();
   }
+
   @WizardStep(1)
   async step1(
     @Message('text') msg: string,

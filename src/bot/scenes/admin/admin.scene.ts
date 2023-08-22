@@ -34,6 +34,10 @@ export class AdminScene {
         await this.category(ctx);
         return;
       }
+      if (ctx.session['fromScene']) {
+        delete ctx.session['fromScene'];
+        return;
+      }
     } catch (error) {}
 
     const keyboardMarkup = Markup.keyboard([
@@ -141,6 +145,12 @@ export class AdminScene {
     const markup = Markup.inlineKeyboard([
       [
         Markup.button.callback(
+          'Изменить категорию',
+          `editCategory__${categoryId}`,
+        ),
+      ],
+      [
+        Markup.button.callback(
           'Удалить категорию',
           `deleteCategory__${categoryId}`,
         ),
@@ -152,6 +162,35 @@ export class AdminScene {
       `Категория:` + '\n' + `${category.title}\n${category.description}`,
       markup,
     );
+  }
+  @Action(/editCategory/)
+  async editCategory(@Ctx() ctx: SceneContext) {
+    const categoryId = telegramDataHelper(ctx.callbackQuery['data'], '__');
+    const { title, description, id } = await this.categoriesService.findById(
+      categoryId,
+    );
+    const markup = Markup.inlineKeyboard([
+      [
+        Markup.button.callback('Изменить название', `changeCategoryTitle`),
+        Markup.button.callback('Изменить описание', `editCD`),
+      ],
+      [Markup.button.callback('Назад', `selectCategory${id}`)],
+    ]);
+    await ctx.editMessageText(
+      `Категория:` + '\n' + `${title}\n${description}`,
+      markup,
+    );
+    ctx.session['data'] = { title, description, id };
+  }
+
+  @Action('changeCategoryTitle')
+  async editCategoryTitle(@Ctx() ctx: SceneContext) {
+    await ctx.scene.enter('editCategoryTitleScene');
+  }
+
+  @Action(/editCD/)
+  async editCategoryDescription(@Ctx() ctx: SceneContext) {
+    await ctx.scene.enter('editCDScene');
   }
 
   @Action(/deleteCategory/)
