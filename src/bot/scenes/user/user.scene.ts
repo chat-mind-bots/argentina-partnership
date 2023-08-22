@@ -47,6 +47,7 @@ export class UserScene {
       [Markup.button.callback('Сгенерировать QR-код', 'generate_qr_code')],
       [Markup.button.callback('Проверить свой баланс', 'show_balance')],
       [Markup.button.callback('Сотрудничество', 'partnership')],
+      [this.botService.getMarkupWebApp('Личный кабинет', 'home')],
     ]);
     if (mode === MessageMode.REPLY) {
       await ctx.reply('Можете выбрать интересующие вас функции', markup);
@@ -180,7 +181,7 @@ export class UserScene {
       ctx.callbackQuery.from.id,
     );
     const markup = Markup.inlineKeyboard([
-      [this.botService.getMarkupWebApp('Пополнить баланс', 'balance/top-up')],
+      // [this.botService.getMarkupWebApp('Пополнить баланс', 'balance/top-up')],
       [Markup.button.callback('Назад', 'callMenu')],
     ]);
     await ctx.editMessageText(
