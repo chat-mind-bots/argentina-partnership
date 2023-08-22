@@ -146,22 +146,6 @@ export class PartnerScene {
     const business = await this.businessService.findBusinessById(businessId);
     const markup = Markup.inlineKeyboard([
       [
-        ...(business.preview
-          ? [
-              Markup.button.callback(
-                'Посмотреть превью',
-                `imageView__${businessId}`,
-              ),
-            ]
-          : []),
-      ],
-      [
-        Markup.button.callback(
-          business.preview ? 'Изменить превью' : 'Добавить превью',
-          `preview__${businessId}`,
-        ),
-      ],
-      [
         this.botService.getMarkupWebApp(
           'Редактировать бизнес',
           routeReplacer(WebAppRoutes.UPDATE_BUSINESS, [
@@ -200,21 +184,5 @@ export class PartnerScene {
     `,
       { ...markup, parse_mode: 'HTML' },
     );
-  }
-
-  @Action(/preview/)
-  async preview(@Ctx() ctx: SceneContext) {
-    const businessId = telegramDataHelper(ctx.callbackQuery['data'], '__');
-
-    ctx.session['businessId'] = businessId;
-    await ctx.scene.enter('setImageScene');
-  }
-
-  @Action(/imageView/)
-  async imageView(@Ctx() ctx: SceneContext) {
-    const businessId = telegramDataHelper(ctx.callbackQuery['data'], '__');
-    const { preview } = await this.businessService.findBusinessById(businessId);
-    const url = `https://${preview.domain}/${preview.bucket}/${preview.key}`;
-    await this.bot.telegram.sendPhoto(ctx.callbackQuery.message.chat.id, url);
   }
 }
