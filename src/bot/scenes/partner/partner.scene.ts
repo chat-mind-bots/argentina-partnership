@@ -154,6 +154,7 @@ export class PartnerScene {
           ]),
         ),
       ],
+      [Markup.button.callback('♻ Обновить', `selectBusiness__${businessId}`)],
       [Markup.button.callback('Назад', 'businessList')],
     ]);
     await ctx.editMessageText(
@@ -180,6 +181,12 @@ export class PartnerScene {
     }
     <b>Комментарий: </b> ${business.address.comment ?? 'Не указано'}`
           : 'Без адреса'
+      }
+<b>Превью:</b> ${
+        business.preview
+          ? `
+    <b>Ссылка на превью: </b> https://${business.preview.domain}/${business.preview.bucket}/${business.preview.key}`
+          : 'Без превью'
       }
     `,
       { ...markup, parse_mode: 'HTML' },
