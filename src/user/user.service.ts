@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { User, UserDocument } from 'src/user/user.schema';
 import { Model } from 'mongoose';
@@ -55,5 +55,20 @@ export class UserService {
   async showUserBalance(tgId: number) {
     const { balance } = await this.findByTgId(tgId, true);
     return this.balanceService.showAmountBalance(balance);
+  }
+
+  async getUserForWebApp(userId: number) {
+    const user = this.userModel
+      .findOne({ tg_id: userId })
+      .select('_id balance username refCode')
+      .populate({ path: 'balance', select: 'amount' });
+
+    if (!user) {
+      throw new HttpException(
+        'Document (User) not found',
+        HttpStatus.NOT_FOUND,
+      );
+    }
+    return user;
   }
 }
