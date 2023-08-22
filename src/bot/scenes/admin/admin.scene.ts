@@ -34,6 +34,10 @@ export class AdminScene {
         await this.category(ctx);
         return;
       }
+      if (ctx.session['fromScene']) {
+        delete ctx.session['fromScene'];
+        return;
+      }
     } catch (error) {}
 
     const keyboardMarkup = Markup.keyboard([
@@ -168,7 +172,7 @@ export class AdminScene {
     const markup = Markup.inlineKeyboard([
       [
         Markup.button.callback('Изменить название', `changeCategoryTitle`),
-        Markup.button.callback('Изменить описание', `editCategoryDescription`),
+        Markup.button.callback('Изменить описание', `editCD`),
       ],
       [Markup.button.callback('Назад', `selectCategory${id}`)],
     ]);
@@ -184,9 +188,9 @@ export class AdminScene {
     await ctx.scene.enter('editCategoryTitleScene');
   }
 
-  @Action(/editCategoryDescription/)
+  @Action(/editCD/)
   async editCategoryDescription(@Ctx() ctx: SceneContext) {
-    await ctx.scene.enter('editCategoryDescriptionScene');
+    await ctx.scene.enter('editCDScene');
   }
 
   @Action(/deleteCategory/)

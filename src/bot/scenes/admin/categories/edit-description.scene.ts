@@ -16,7 +16,7 @@ import { KeyboardMessageEnum } from 'src/bot/enums/keyboard-message.enum';
 import { isCommandString } from 'src/common/helpers/string.helper';
 import { Markup } from 'telegraf';
 
-@Scene('editCategoryDescriptionScene')
+@Scene('editCDScene')
 @UseFilters(TelegrafExceptionFilter)
 export class editCategoryDescriptionScene {
   constructor(

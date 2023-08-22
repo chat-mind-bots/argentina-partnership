@@ -17,6 +17,8 @@ import { session } from 'telegraf';
 import { PartnerScene } from 'src/bot/scenes/partner/partner.scene';
 import { BusinessModule } from 'src/business/business.module';
 import { FileModule } from 'src/file/file.module';
+import { editCategoryTitleScene } from 'src/bot/scenes/admin/categories/edit-title.scene';
+import { editCategoryDescriptionScene } from 'src/bot/scenes/admin/categories/edit-description.scene';
 
 @Module({
   imports: [
@@ -53,6 +55,8 @@ import { FileModule } from 'src/file/file.module';
     UserScene,
     AddCategoryScene,
     PartnerScene,
+    editCategoryTitleScene,
+    editCategoryDescriptionScene,
   ],
 })
 export class BotModule {}

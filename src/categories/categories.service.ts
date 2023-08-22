@@ -47,6 +47,6 @@ export class CategoriesService {
   }
 
   async updateCategory(id: string, dto: CreateCategoryDto) {
-    return this.categoryModel.findOneAndUpdate({ id }, dto, { new: true });
+    return this.categoryModel.findOneAndUpdate({ _id: id }, dto, { new: true });
   }
 }
