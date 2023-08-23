@@ -10,13 +10,15 @@ import { AdminScene } from 'src/bot/scenes/admin/admin.scene';
 import { UserScene } from 'src/bot/scenes/user/user.scene';
 import { RightsChangeModule } from 'src/rights-change/rights-change.module';
 import { CategoriesModule } from 'src/categories/categories.module';
-import { AddCategoryScene } from 'src/bot/scenes/admin/categories.scene';
+import { AddCategoryScene } from 'src/bot/scenes/admin/categories/categories.scene';
 import { UserCodesModule } from 'src/user-codes/user-codes.module';
 import * as process from 'process';
 import { session } from 'telegraf';
 import { PartnerScene } from 'src/bot/scenes/partner/partner.scene';
 import { BusinessModule } from 'src/business/business.module';
 import { FileModule } from 'src/file/file.module';
+import { editCategoryTitleScene } from 'src/bot/scenes/admin/categories/edit-title.scene';
+import { editCategoryDescriptionScene } from 'src/bot/scenes/admin/categories/edit-description.scene';
 
 @Module({
   imports: [
@@ -53,6 +55,8 @@ import { FileModule } from 'src/file/file.module';
     UserScene,
     AddCategoryScene,
     PartnerScene,
+    editCategoryTitleScene,
+    editCategoryDescriptionScene,
   ],
 })
 export class BotModule {}

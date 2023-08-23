@@ -20,7 +20,7 @@ export class User {
   tg_id: number;
 
   @Prop({
-    required: true,
+    required: false,
   })
   username: string;
 

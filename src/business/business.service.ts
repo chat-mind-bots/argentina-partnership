@@ -38,7 +38,7 @@ export class BusinessService {
       owner: user._id,
       category: new Types.ObjectId(dto.categoryId),
       ...dto,
-      preview: new Types.ObjectId(dto.preview),
+      preview: dto.preview ? new Types.ObjectId(dto.preview) : undefined,
     });
   }
 
