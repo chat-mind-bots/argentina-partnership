@@ -113,6 +113,19 @@ export class BotService implements OnModuleInit {
     );
   }
 
+  private getTimeDifference(date1: Date, date2: Date): string {
+    const differenceInMilliseconds = Math.abs(
+      date2.getTime() - date1.getTime(),
+    );
+
+    const hours = Math.floor(differenceInMilliseconds / (1000 * 60 * 60));
+    const minutes = Math.floor(
+      (differenceInMilliseconds % (1000 * 60 * 60)) / (1000 * 60),
+    );
+    const seconds = Math.floor((differenceInMilliseconds % (1000 * 60)) / 1000);
+    return `${hours} часов, ${minutes} минут, ${seconds} секунд`;
+  }
+
   async generateCode(ctx: Context, userId) {
     const user = await this.userService.findByTgId(userId);
 
@@ -123,10 +136,10 @@ export class BotService implements OnModuleInit {
     await ctx.replyWithHTML(`<b>${codeDocument.code}</b>`);
     await ctx.replyWithHTML(
       `Ваш уникальный код: <b>${codeDocument.code}</b>
-Покажите Qr-код, или код в текстовом формате во время расчета
-Код можно использовать только 1 раз\n
-<b>Внимание, код будет действителен в течении одного часа</b>\n
-Если вы не успеет активировать его в течении 1-го часа, то просто сгененрируйте новый`,
+Код будет активен еще ${this.getTimeDifference(
+        codeDocument.createdAt,
+        codeDocument.expiresAt,
+      )}`,
     );
   }
 }

@@ -1,10 +1,11 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, now, Types } from 'mongoose';
 import { UserCodes, UserCodesDocument } from 'src/user-codes/user-codes.schema';
 import { UserCodeStatusEnum } from 'src/user-codes/enums/user-code-status.enum';
 import { QrcodeService } from 'src/qrcode/qrcode.service';
 import { UserService } from 'src/user/user.service';
+import { CreateCodeQueryDto } from 'src/user-codes/dto/create-code-query.dto';
 
 @Injectable()
 export class UserCodesService {
@@ -29,12 +30,51 @@ export class UserCodesService {
 
   private getFutureDate() {
     const now = new Date();
-    return new Date(now.getTime() + 60 * 60 * 1000 + 60 * 1000);
+    return new Date(now.getTime() + 60 * 60 * 1000);
+  }
+
+  async getUserCodeForWeb(query: CreateCodeQueryDto) {
+    const { _id } = await this.userService.findByTgId(query.userId);
+
+    if (!_id) {
+      throw new HttpException(
+        'Document (User) not found',
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    return this.generateUniqCode(_id, { light: query.light, dark: query.dark });
+  }
+
+  private async codeToData(
+    code: UserCodesDocument,
+    colorSchema?: { dark: string; light: string },
+  ): Promise<{
+    codeDocument: UserCodesDocument;
+    qrCode: Buffer;
+  }> {
+    const qrCode = await this.qrCodeService.getQrCodeByParam(
+      `user-code-${code.code}`,
+      colorSchema,
+    );
+
+    return { codeDocument: code, qrCode: qrCode };
   }
 
   async generateUniqCode(
     userId: Types.ObjectId,
+    colorSchema?: { dark: string; light: string },
   ): Promise<{ codeDocument: UserCodesDocument; qrCode: Buffer }> {
+    const codeDB = await this.userCodesModel.findOne({
+      status: UserCodeStatusEnum.pending,
+      expiresAt: { $gt: now() },
+      user: userId,
+    });
+
+    if (codeDB) {
+      return this.codeToData(codeDB, colorSchema);
+    }
+
     const uniqCode: Partial<UserCodes> = {
       user: userId,
       code: this.generateRandomUserCode(6),
@@ -44,11 +84,7 @@ export class UserCodesService {
 
     const code = await this.userCodesModel.create(uniqCode);
 
-    const qrCode = await this.qrCodeService.getQrCodeByParam(
-      `user-code-${uniqCode.code}`,
-    );
-
-    return { codeDocument: code, qrCode: qrCode };
+    return this.codeToData(code, colorSchema);
   }
 
   async checkCode(
