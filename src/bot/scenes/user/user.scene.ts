@@ -44,17 +44,32 @@ export class UserScene {
   @Action('menu')
   async menu(@Ctx() ctx: Context & SceneContext, mode: MessageMode) {
     const markup = Markup.inlineKeyboard([
-      [Markup.button.callback('Сгенерировать QR-код', 'generate_qr_code')],
-      [Markup.button.callback('Проверить свой баланс', 'show_balance')],
-      [Markup.button.callback('Сотрудничество', 'partnership')],
-      [this.botService.getMarkupWebApp('Личный кабинет', 'home')],
+      [
+        Markup.button.callback('📲 Показать QR-код', 'generate_qr_code'),
+        Markup.button.callback('🛒 Магазины - партнеры', 'partners'),
+      ],
+      [
+        Markup.button.callback('💰 баланс', 'show_balance'),
+        Markup.button.callback('💲 Тарифы', 'tariffs'),
+      ],
+      [
+        Markup.button.callback('🤝 Сотрудничество', 'partnership'),
+        Markup.button.url(
+          '🆘 Поддержка',
+          `https://t.me/${process.env.SUPPORT_USERNAME}`,
+        ),
+      ],
+      [this.botService.getMarkupWebApp('🧑‍💼 Личный кабинет', 'home')],
     ]);
     if (mode === MessageMode.REPLY) {
-      await ctx.reply('Можете выбрать интересующие вас функции', markup);
+      await ctx.reply(
+        'Приобретайте товары и услуги в Аргентине со скидками, через Argentina Parrtnership прямо в Telegram!',
+        markup,
+      );
     }
     if (mode === MessageMode.EDIT) {
       await ctx.editMessageText(
-        'Можете выбрать интересующие вас функции',
+        `Приобретайте товары и услуги в Аргентине со скидками, через Argentina Parrtnership прямо в Telegram!`,
         markup,
       );
     }
