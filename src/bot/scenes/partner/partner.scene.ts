@@ -147,6 +147,15 @@ export class PartnerScene {
     const markup = Markup.inlineKeyboard([
       [
         this.botService.getMarkupWebApp(
+          'Открыть в приложении',
+          routeReplacer(WebAppRoutes.GET_BUSINESS, [
+            String(ctx.from.id),
+            businessId,
+          ]),
+        ),
+      ],
+      [
+        this.botService.getMarkupWebApp(
           'Редактировать бизнес',
           routeReplacer(WebAppRoutes.UPDATE_BUSINESS, [
             String(ctx.from.id),
