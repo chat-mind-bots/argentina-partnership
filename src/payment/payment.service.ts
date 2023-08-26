@@ -29,7 +29,7 @@ export class PaymentService {
       balance: user.balance._id,
       currency: dto.currency,
       amount: dto.amount,
-      network: dto.network,
+      method: dto.method,
     };
     const payment = await this.paymentModel.create({ ...paymentDto });
 

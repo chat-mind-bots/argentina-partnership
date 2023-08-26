@@ -7,6 +7,9 @@ export class UserController {
 
   @Get(':userId')
   async getUser(@Param('userId') userId: number) {
+    await new Promise((resolve) => {
+      setTimeout(resolve, 3000);
+    });
     return this.userService.getUserForWebApp(userId);
   }
 }

@@ -40,7 +40,7 @@ export class Payment {
     type: String,
     enum: NetworksEnum,
   })
-  network: NetworksEnum;
+  method: NetworksEnum;
 
   @Prop({ default: now() })
   createdAt: Date;

@@ -13,5 +13,5 @@ export class CreatePaymentDto {
   @IsString()
   @IsOptional()
   @IsEnum(NetworksEnum)
-  readonly network?: NetworksEnum;
+  readonly method?: NetworksEnum;
 }
