@@ -16,6 +16,7 @@ import { CategoriesService } from 'src/categories/categories.service';
 import { UpdateBusinessDto } from 'src/business/dto/update-business.dto';
 import { UserRoleEnum } from 'src/user/enum/user-role.enum';
 import { File } from 'src/file/file.schema';
+import { GetBusinessDto } from 'src/business/dto/query/get-business.dto';
 
 @Injectable()
 export class BusinessService {
@@ -113,5 +114,31 @@ export class BusinessService {
 
   async findBusinessByIdClear(id: string) {
     return this.businessModel.findOne({ _id: id });
+  }
+
+  async getBusinesses(params: GetBusinessDto) {
+    const filter = {};
+    if (params.q) {
+      filter['$or'] = [{ title: { $regex: params.q, $options: 'i' } }];
+    }
+    // if (params['has-owner']) {
+    //   filter['owner'] = params['has-owner'];
+    // }
+    // if (params.category) {
+    //   filter['category'] = new Types.ObjectId(params.category);
+    // }
+
+    const businesses = await this.businessModel
+      .find({ ...filter })
+      .limit(params.limit)
+      .skip(params.offset)
+      .lean()
+      .exec();
+    const total = await this.businessModel.countDocuments({ ...filter }).exec();
+
+    return {
+      data: businesses,
+      total,
+    };
   }
 }
