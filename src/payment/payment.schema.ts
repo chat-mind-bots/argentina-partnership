@@ -1,4 +1,5 @@
 import { Document, now, Types } from 'mongoose';
+import * as mongoose from 'mongoose';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { User } from 'src/user/user.schema';
 import { CurrenciesEnum } from 'src/payment/enums/currencies.enum';
@@ -40,7 +41,13 @@ export class Payment {
     type: String,
     enum: NetworksEnum,
   })
-  method: NetworksEnum;
+  method?: NetworksEnum;
+
+  @Prop({
+    required: false,
+    type: mongoose.Schema.Types.Mixed,
+  })
+  data?: any;
 
   @Prop({ default: now() })
   createdAt: Date;
