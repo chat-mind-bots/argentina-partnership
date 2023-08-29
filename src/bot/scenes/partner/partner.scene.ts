@@ -147,6 +147,15 @@ export class PartnerScene {
     const markup = Markup.inlineKeyboard([
       [
         this.botService.getMarkupWebApp(
+          'Открыть в приложении',
+          routeReplacer(WebAppRoutes.GET_BUSINESS, [
+            String(ctx.from.id),
+            businessId,
+          ]),
+        ),
+      ],
+      [
+        this.botService.getMarkupWebApp(
           'Редактировать бизнес',
           routeReplacer(WebAppRoutes.UPDATE_BUSINESS, [
             String(ctx.from.id),
@@ -182,11 +191,11 @@ export class PartnerScene {
     <b>Комментарий: </b> ${business.address.comment ?? 'Не указано'}`
           : 'Без адреса'
       }
-<b>Превью:</b> ${
+<b>Логотип:</b> ${
         business.preview
           ? `
-    <b>Ссылка на превью: </b> https://${business.preview.domain}/${business.preview.bucket}/${business.preview.key}`
-          : 'Без превью'
+    <b>Ссылка на логотип: </b> https://${business.preview.domain}/${business.preview.bucket}/${business.preview.key}`
+          : 'Без логотипа'
       }
     `,
       { ...markup, parse_mode: 'HTML' },

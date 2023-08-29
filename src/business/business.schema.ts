@@ -41,6 +41,9 @@ export class Business {
   @Prop({ required: true, type: AddressSchema })
   address: IAddress;
 
+  @Prop({ required: false })
+  avgCheck: number;
+
   @Prop({ required: false, type: Types.ObjectId, ref: File.name })
   preview: Types.ObjectId;
 
