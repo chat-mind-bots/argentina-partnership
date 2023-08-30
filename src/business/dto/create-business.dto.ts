@@ -1,5 +1,6 @@
 import {
   IsArray,
+  IsEnum,
   IsNumber,
   IsObject,
   IsOptional,
@@ -7,6 +8,8 @@ import {
 } from 'class-validator';
 import { IContacts } from 'src/business/interfaces/contacts.interface';
 import { IAddress } from 'src/business/interfaces/address.interface';
+import { AvgCheckEnum } from 'src/business/enum/avg-check.enum';
+import { CurrenciesEnum } from 'src/payment/enums/currencies.enum';
 
 export class CreateBusinessDto {
   @IsString()
@@ -22,9 +25,9 @@ export class CreateBusinessDto {
   @IsOptional()
   readonly description?: string;
 
-  @IsNumber()
+  @IsEnum(AvgCheckEnum)
   @IsOptional()
-  readonly avgCheck?: number;
+  readonly avgCheck?: AvgCheckEnum;
 
   @IsString()
   @IsOptional()

@@ -1,4 +1,10 @@
-import { IsBoolean, IsNumber, IsOptional, IsString } from 'class-validator';
+import {
+  IsBoolean,
+  IsEnum,
+  IsNumber,
+  IsOptional,
+  IsString,
+} from 'class-validator';
 import { Transform } from 'class-transformer';
 import {
   toBoolean,
@@ -6,6 +12,7 @@ import {
   toNumber,
   trim,
 } from 'src/common/helpers/query.helper';
+import { BusinessByEnum } from 'src/business/enum/sort-by.enum';
 
 export class GetBusinessDto {
   @Transform(({ value }) => toNumber(value, { default: 5, min: 1, max: 50 }))
@@ -34,4 +41,8 @@ export class GetBusinessDto {
   @IsString()
   @IsOptional()
   readonly 'sort-order'?: 'asc' | 'desc';
+
+  @IsEnum(BusinessByEnum)
+  @IsOptional()
+  readonly 'sort-by'?: BusinessByEnum;
 }

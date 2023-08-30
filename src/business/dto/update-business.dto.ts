@@ -1,5 +1,6 @@
 import {
   IsArray,
+  IsEnum,
   IsNumber,
   IsObject,
   IsOptional,
@@ -7,6 +8,7 @@ import {
 } from 'class-validator';
 import { IContacts } from 'src/business/interfaces/contacts.interface';
 import { IAddress } from 'src/business/interfaces/address.interface';
+import { AvgCheckEnum } from 'src/business/enum/avg-check.enum';
 
 export class UpdateBusinessDto {
   @IsString()
@@ -25,9 +27,9 @@ export class UpdateBusinessDto {
   @IsOptional()
   readonly description?: string;
 
-  @IsNumber()
+  @IsEnum(AvgCheckEnum)
   @IsOptional()
-  readonly avgCheck?: number;
+  readonly avgCheck?: AvgCheckEnum;
 
   @IsObject()
   readonly address: IAddress;

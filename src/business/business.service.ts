@@ -118,20 +118,38 @@ export class BusinessService {
 
   async getBusinesses(params: GetBusinessDto) {
     const filter = {};
+    const sort = {};
     if (params.q) {
       filter['$or'] = [{ title: { $regex: params.q, $options: 'i' } }];
     }
-    // if (params['has-owner']) {
-    //   filter['owner'] = params['has-owner'];
-    // }
-    // if (params.category) {
-    //   filter['category'] = new Types.ObjectId(params.category);
-    // }
+    if (params['has-owner']) {
+      console.log(params['has-owner']);
+      filter['owner'] = [{ owner: { role: { $in: [UserRoleEnum.PARTNER] } } }];
+    }
+    if (params.category) {
+      filter['category'] = new Types.ObjectId(params.category);
+    }
+    if (params['sort-by']) {
+      sort[params['sort-by']] = params['sort-order'] === 'asc' ? 1 : -1;
+    }
 
     const businesses = await this.businessModel
       .find({ ...filter })
       .limit(params.limit)
       .skip(params.offset)
+      .sort({ ...sort })
+      .populate<{ owner: Pick<User, 'role'> }>({
+        path: 'owner',
+        select: 'role',
+      })
+      .populate<{ category: Pick<Category, 'title' | 'description'> }>({
+        path: 'category',
+        select: 'title',
+      })
+      .populate<{ preview: Pick<File, 'bucket' | 'key' | 'domain'> }>({
+        path: 'preview',
+        select: 'bucket key domain',
+      })
       .lean()
       .exec();
     const total = await this.businessModel.countDocuments({ ...filter }).exec();
