@@ -7,6 +7,7 @@ import { UserService } from 'src/user/user.service';
 import * as process from 'process';
 import { WebAppRoutes } from 'src/bot/interfaces/webAppRoutes';
 import { UserCodesService } from 'src/user-codes/user-codes.service';
+import { PaymentService } from 'src/payment/payment.service';
 
 @Injectable()
 export class BotService implements OnModuleInit {
@@ -15,6 +16,7 @@ export class BotService implements OnModuleInit {
     @Inject(forwardRef(() => UserService))
     private readonly userService: UserService,
     private readonly userCodeService: UserCodesService,
+    private readonly paymentService: PaymentService,
   ) {}
   async onModuleInit() {
     await this.bot.telegram.setMyCommands([
@@ -141,5 +143,10 @@ export class BotService implements OnModuleInit {
         codeDocument.expiresAt,
       )}`,
     );
+  }
+
+  async getPaymentsForAdmin() {
+    const payments = await this.paymentService.getReviewPayments();
+    return payments;
   }
 }

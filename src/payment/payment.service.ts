@@ -7,6 +7,7 @@ import { CreatePaymentDto } from 'src/payment/dto/create-payment.dto';
 import { GetUserPaymentsQueryDto } from 'src/payment/dto/query/get-user-payments-query.dto';
 import { UpdatePaymentDto } from 'src/payment/dto/update-payment.dto';
 import { PaymentStatusEnum } from 'src/payment/enums/payment-status.enum';
+import { UserDocument } from 'src/user/user.schema';
 
 @Injectable()
 export class PaymentService {
@@ -105,5 +106,13 @@ export class PaymentService {
     await payment.updateOne({ ...dto, status: PaymentStatusEnum.REVIEW });
 
     return this.getPayment(paymentId);
+  }
+
+  async getReviewPayments(): Promise<
+    Array<PaymentDocument & { user: UserDocument }>
+  > {
+    return this.paymentModel
+      .find({ status: PaymentStatusEnum.REVIEW })
+      .populate('user');
   }
 }

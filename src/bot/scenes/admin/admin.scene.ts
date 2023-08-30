@@ -64,6 +64,7 @@ export class AdminScene {
   async menu(@Ctx() ctx: Context & SceneContext, mode: MessageMode) {
     const markup = Markup.inlineKeyboard([
       [Markup.button.callback('Категории', 'category')],
+      [Markup.button.callback('Заявки на пополнение баланса', 'topUp')],
       [Markup.button.callback('Администраторы', 'admin')],
       [Markup.button.callback('Партнеры', 'partner')],
     ]);
@@ -705,6 +706,66 @@ export class AdminScene {
     ]);
     await ctx.editMessageText(
       ctx.callbackQuery.message['text'] + '\n' + 'Эта заявка была отменена ⛔',
+      markup,
+    );
+  }
+
+  @Action('topUp')
+  async topUp(@Ctx() ctx: SceneContext) {
+    const markup = Markup.inlineKeyboard([
+      [Markup.button.callback('Список заявок', 'topUpList')],
+      [
+        // Markup.button.callback('Добавить категорию', 'addCategory'),
+        Markup.button.callback('Назад', 'callMenu'),
+      ],
+    ]);
+    await ctx.editMessageText(
+      'Можете выбрать интересующие вас функции',
+      markup,
+    );
+  }
+
+  @Action('topUpList')
+  async topUpList(@Ctx() ctx: SceneContext) {
+    const payments = (await this.botService.getPaymentsForAdmin()).reduce(
+      (acc, payment, index) => [
+        ...acc,
+        {
+          id: payment._id,
+          index: index + 1,
+          tittle: `${index + 1}. @${payment.user?.username}: ${
+            payment.amount
+          } ${payment.currency}`,
+        },
+      ],
+      [],
+    );
+
+    if (!payments.length) {
+      const markup = Markup.inlineKeyboard([
+        Markup.button.callback('Назад', 'admin'),
+      ]);
+      await ctx.editMessageText('Сейчас заявок нет', markup);
+      return;
+    }
+
+    const actions = buttonSplitterHelper(payments, 8).map((row) =>
+      row.map((element) =>
+        Markup.button.callback(`${element.index}`, `payment_${element.id}`),
+      ),
+    );
+
+    const markup = Markup.inlineKeyboard([
+      ...actions,
+      [Markup.button.callback('Назад', 'topUp')],
+    ]);
+    await ctx.editMessageText(
+      `Выберите заявку
+      ${payments.reduce(
+        (acc, element) => `${acc}${element.tittle}
+      `,
+        '',
+      )}`,
       markup,
     );
   }

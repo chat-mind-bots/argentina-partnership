@@ -19,6 +19,7 @@ import { BusinessModule } from 'src/business/business.module';
 import { FileModule } from 'src/file/file.module';
 import { editCategoryTitleScene } from 'src/bot/scenes/admin/categories/edit-title.scene';
 import { editCategoryDescriptionScene } from 'src/bot/scenes/admin/categories/edit-description.scene';
+import { PaymentModule } from 'src/payment/payment.module';
 
 @Module({
   imports: [
@@ -44,6 +45,7 @@ import { editCategoryDescriptionScene } from 'src/bot/scenes/admin/categories/ed
     forwardRef(() => RightsChangeModule),
     forwardRef(() => CategoriesModule),
     forwardRef(() => BusinessModule),
+    PaymentModule,
     UserCodesModule,
     FileModule,
   ],
