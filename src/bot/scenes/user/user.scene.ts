@@ -11,6 +11,7 @@ import { Types } from 'mongoose';
 import { TicketStatus } from 'src/rights-change/rights-change.schema';
 import { TelegrafExceptionFilter } from 'src/common/filtres/telegraf-exeption.filter';
 import { MessageMode } from 'src/bot/enums/message-mode.enum';
+import { WebAppRoutes } from 'src/bot/interfaces/webAppRoutes';
 
 @Scene('userScene')
 @UseFilters(TelegrafExceptionFilter)
@@ -47,6 +48,7 @@ export class UserScene {
       [
         Markup.button.callback('📲 Показать QR-код', 'generate_qr_code'),
         Markup.button.callback('🛒 Магазины - партнеры', 'partners'),
+        this.botService.getMarkupWebApp('Веб-партнеры', WebAppRoutes.PARTNERS),
       ],
       [
         Markup.button.callback('💰 баланс', 'show_balance'),
