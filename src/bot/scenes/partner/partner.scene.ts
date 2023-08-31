@@ -191,6 +191,9 @@ export class PartnerScene {
     <b>Комментарий: </b> ${business.address.comment ?? 'Не указано'}`
           : 'Без адреса'
       }
+
+<b>Средний чек:</b> ${'$'.repeat(business.avgCheck + 1)}
+
 <b>Логотип:</b> ${
         business.preview
           ? `
