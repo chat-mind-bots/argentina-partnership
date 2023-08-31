@@ -87,6 +87,6 @@ export class FileService {
   }
 
   async findFile(fileId: string) {
-    return this.fileModel.findOne({ _id: fileId });
+    return this.fileModel.findById(fileId);
   }
 }

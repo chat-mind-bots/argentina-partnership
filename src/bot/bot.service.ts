@@ -8,6 +8,7 @@ import * as process from 'process';
 import { WebAppRoutes } from 'src/bot/interfaces/webAppRoutes';
 import { UserCodesService } from 'src/user-codes/user-codes.service';
 import { PaymentService } from 'src/payment/payment.service';
+import { FileService } from 'src/file/file.service';
 
 @Injectable()
 export class BotService implements OnModuleInit {
@@ -17,6 +18,7 @@ export class BotService implements OnModuleInit {
     private readonly userService: UserService,
     private readonly userCodeService: UserCodesService,
     private readonly paymentService: PaymentService,
+    private readonly fileService: FileService,
   ) {}
   async onModuleInit() {
     await this.bot.telegram.setMyCommands([
@@ -148,5 +150,21 @@ export class BotService implements OnModuleInit {
   async getPaymentsForAdmin() {
     const payments = await this.paymentService.getReviewPayments();
     return payments;
+  }
+
+  async getPayment(id) {
+    return this.paymentService.getPaymentWithUser(id);
+  }
+
+  async getPhoto(id: string) {
+    return this.fileService.findFile(id);
+  }
+
+  async successPayment(id: string) {
+    return this.paymentService.movePaymentToSuccess(id);
+  }
+
+  async rejectPayment(id: string) {
+    return this.paymentService.movePaymentToReject(id);
   }
 }

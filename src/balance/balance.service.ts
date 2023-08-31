@@ -24,4 +24,15 @@ export class BalanceService {
     }
     return balance.amount;
   }
+
+  async topUpBalance(id: string, amount: number) {
+    return this.balanceModel.findByIdAndUpdate(
+      id,
+      {
+        $inc: { amount: amount },
+        updatedAt: new Date(),
+      },
+      { new: true },
+    );
+  }
 }

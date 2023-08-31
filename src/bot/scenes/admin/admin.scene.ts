@@ -12,6 +12,7 @@ import { TelegrafExceptionFilter } from 'src/common/filtres/telegraf-exeption.fi
 import { buttonSplitterHelper } from 'src/common/helpers/button-splitter.helper';
 import { CategoriesService } from 'src/categories/categories.service';
 import { MessageMode } from 'src/bot/enums/message-mode.enum';
+import * as process from 'process';
 
 @Scene('adminScene')
 @UseFilters(TelegrafExceptionFilter)
@@ -712,21 +713,6 @@ export class AdminScene {
 
   @Action('topUp')
   async topUp(@Ctx() ctx: SceneContext) {
-    const markup = Markup.inlineKeyboard([
-      [Markup.button.callback('Список заявок', 'topUpList')],
-      [
-        // Markup.button.callback('Добавить категорию', 'addCategory'),
-        Markup.button.callback('Назад', 'callMenu'),
-      ],
-    ]);
-    await ctx.editMessageText(
-      'Можете выбрать интересующие вас функции',
-      markup,
-    );
-  }
-
-  @Action('topUpList')
-  async topUpList(@Ctx() ctx: SceneContext) {
     const payments = (await this.botService.getPaymentsForAdmin()).reduce(
       (acc, payment, index) => [
         ...acc,
@@ -743,7 +729,7 @@ export class AdminScene {
 
     if (!payments.length) {
       const markup = Markup.inlineKeyboard([
-        Markup.button.callback('Назад', 'admin'),
+        Markup.button.callback('Назад', 'callMenu'),
       ]);
       await ctx.editMessageText('Сейчас заявок нет', markup);
       return;
@@ -751,13 +737,13 @@ export class AdminScene {
 
     const actions = buttonSplitterHelper(payments, 8).map((row) =>
       row.map((element) =>
-        Markup.button.callback(`${element.index}`, `payment_${element.id}`),
+        Markup.button.callback(`${element.index}`, `payment__${element.id}`),
       ),
     );
 
     const markup = Markup.inlineKeyboard([
       ...actions,
-      [Markup.button.callback('Назад', 'topUp')],
+      [Markup.button.callback('Назад', 'callMenu')],
     ]);
     await ctx.editMessageText(
       `Выберите заявку
@@ -766,6 +752,103 @@ export class AdminScene {
       `,
         '',
       )}`,
+      markup,
+    );
+  }
+
+  @Action(/payment/)
+  async payment(@Ctx() ctx: SceneContext) {
+    const id = telegramDataHelper(ctx.callbackQuery['data'], '__');
+    const payment = await this.botService.getPayment(id);
+
+    const markup = Markup.inlineKeyboard([
+      [Markup.button.callback('Подвердить платеж', `topUpAccess__${id}`)],
+      [Markup.button.callback('Отклонить платеж', `topUpDecline__${id}`)],
+      [Markup.button.callback('Назад', 'topUp')],
+    ]);
+
+    if (payment.data?.photo) {
+      payment.data.photo = await this.botService.getPhoto(payment.data?.photo);
+    }
+    await ctx.editMessageText(
+      `
+      Пополнение на ${payment.amount} ${payment.currency}
+      Сеть: ${payment.method}
+      Пользователь: @${payment.user.username}
+      Текущий баланс пользователя: ${payment.balance.amount}
+      Доказательства оплаты: 
+        TxId: ${
+          payment.data?.txId ? `${payment.data?.txId}` : 'txId не приложен'
+        }
+        Скриншот: ${
+          payment.data?.photo
+            ? `https://${process.env.S3_DOMAIN}/${process.env.S3_IMAGE_BUCKET}/${payment.data?.photo.key}`
+            : 'Фото не  приложено'
+        }
+        
+    <b>Если вы подтвеждаете, что средства зачислны, то нажмите на кнопку «Подвердить платеж»</b>`,
+      { ...markup, parse_mode: 'HTML' },
+    );
+  }
+
+  @Action(/topUpAccess__/)
+  async topUpAccess(@Ctx() ctx: SceneContext) {
+    const id = telegramDataHelper(ctx.callbackQuery['data'], '__');
+
+    const markup = Markup.inlineKeyboard([
+      [Markup.button.callback('Да', `topUpAccessSure__${id}`)],
+      [Markup.button.callback('Назад', `payment__${id}`)],
+    ]);
+
+    await ctx.editMessageText(
+      'Вы уверены, что хотите <b>подвердить</b> платеж?',
+      { ...markup, parse_mode: 'HTML' },
+    );
+  }
+
+  @Action(/topUpDecline__/)
+  async topUpDecline(@Ctx() ctx: SceneContext) {
+    const id = telegramDataHelper(ctx.callbackQuery['data'], '__');
+
+    const markup = Markup.inlineKeyboard([
+      [Markup.button.callback('Да', `topUpDeclineSure__${id}`)],
+      [Markup.button.callback('Назад', `payment__${id}`)],
+    ]);
+
+    await ctx.editMessageText(
+      'Вы уверены, что хотите <b>отклонить</b> платеж?',
+      { ...markup, parse_mode: 'HTML' },
+    );
+  }
+
+  @Action(/topUpAccessSure__/)
+  async topUpAccessSure(@Ctx() ctx: SceneContext) {
+    const id = telegramDataHelper(ctx.callbackQuery['data'], '__');
+
+    await this.botService.successPayment(id);
+
+    const markup = Markup.inlineKeyboard([
+      [Markup.button.callback('Назад', 'topUp')],
+    ]);
+
+    await ctx.editMessageText(
+      'Платеж успешно подтвержден! Средства зачислены на баланс пользователя!',
+      markup,
+    );
+  }
+
+  @Action(/topUpDeclineSure__/)
+  async topUpAccessDeclineSure(@Ctx() ctx: SceneContext) {
+    const id = telegramDataHelper(ctx.callbackQuery['data'], '__');
+
+    await this.botService.rejectPayment(id);
+
+    const markup = Markup.inlineKeyboard([
+      [Markup.button.callback('Назад', 'topUp')],
+    ]);
+
+    await ctx.editMessageText(
+      'Запрос на пополнение был успешно отклонен!',
       markup,
     );
   }

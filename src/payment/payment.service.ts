@@ -8,6 +8,8 @@ import { GetUserPaymentsQueryDto } from 'src/payment/dto/query/get-user-payments
 import { UpdatePaymentDto } from 'src/payment/dto/update-payment.dto';
 import { PaymentStatusEnum } from 'src/payment/enums/payment-status.enum';
 import { UserDocument } from 'src/user/user.schema';
+import { BalanceDocument } from 'src/balance/balance.schema';
+import { BalanceService } from 'src/balance/balance.service';
 
 @Injectable()
 export class PaymentService {
@@ -15,6 +17,7 @@ export class PaymentService {
     @InjectModel(Payment.name)
     private readonly paymentModel: Model<PaymentDocument>,
     private readonly userService: UserService,
+    private readonly balanceService: BalanceService,
   ) {}
 
   async createPayment(userId: string, dto: CreatePaymentDto) {
@@ -81,6 +84,26 @@ export class PaymentService {
 
     return payment;
   }
+
+  async getPaymentWithUser(
+    paymentId: string,
+  ): Promise<
+    PaymentDocument & { user: UserDocument; balance: BalanceDocument }
+  > {
+    const payment: PaymentDocument & {
+      user: UserDocument;
+      balance: BalanceDocument;
+    } = await this.paymentModel.findById(paymentId).populate('user balance');
+
+    if (!payment) {
+      throw new HttpException(
+        'Document (Payment) not found',
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    return payment;
+  }
   async movePaymentToReview(
     userId: string,
     paymentId: string,
@@ -106,6 +129,34 @@ export class PaymentService {
     await payment.updateOne({ ...dto, status: PaymentStatusEnum.REVIEW });
 
     return this.getPayment(paymentId);
+  }
+
+  async movePaymentToSuccess(id: string) {
+    // const payment = await this.paymentModel.findById(id).populate('balance');
+
+    const payment = await this.paymentModel.findByIdAndUpdate(
+      id,
+      { status: PaymentStatusEnum.SUCCESS, updatedAt: new Date() },
+      { new: true },
+    );
+
+    await this.balanceService.topUpBalance(
+      String(payment.balance),
+      payment.amount,
+    );
+
+    return payment;
+  }
+
+  async movePaymentToReject(id: string) {
+    return this.paymentModel.findByIdAndUpdate(
+      id,
+      {
+        status: PaymentStatusEnum.REJECTED,
+        updatedAt: new Date(),
+      },
+      { new: true },
+    );
   }
 
   async getReviewPayments(): Promise<
