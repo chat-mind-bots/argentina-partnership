@@ -47,8 +47,10 @@ export class UserScene {
     const markup = Markup.inlineKeyboard([
       [
         Markup.button.callback('📲 Показать QR-код', 'generate_qr_code'),
-        Markup.button.callback('🛒 Магазины - партнеры', 'partners'),
-        this.botService.getMarkupWebApp('Веб-партнеры', WebAppRoutes.PARTNERS),
+        this.botService.getMarkupWebApp(
+          '🛒 Магазины - партнеры',
+          WebAppRoutes.PARTNERS,
+        ),
       ],
       [
         Markup.button.callback('💰 баланс', 'show_balance'),
@@ -198,11 +200,10 @@ export class UserScene {
       ctx.callbackQuery.from.id,
     );
     const markup = Markup.inlineKeyboard([
-      // [this.botService.getMarkupWebApp('Пополнить баланс', 'balance/top-up')],
       [Markup.button.callback('Назад', 'callMenu')],
     ]);
     await ctx.editMessageText(
-      `<b>Ваш актульный баланс: </b> ${balanceAmount} tokens`,
+      `<b>Ваш актульный баланс: </b> ${balanceAmount} U$SD`,
       { ...markup, parse_mode: 'HTML' },
     );
   }
