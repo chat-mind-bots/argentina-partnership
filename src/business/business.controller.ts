@@ -11,6 +11,7 @@ import {
 import { BusinessService } from 'src/business/business.service';
 import { CreateBusinessDto } from 'src/business/dto/create-business.dto';
 import { MongoIdPipe } from 'src/pipes/mongo-id.pipe';
+import { GetBusinessDto } from 'src/business/dto/query/get-business.dto';
 
 @Controller('business')
 export class BusinessController {
@@ -31,10 +32,11 @@ export class BusinessController {
     return result;
   }
 
-  // @Get('list')
-  // async getBusinessList(@Param() businessId: string) {
-  //   return await this.businessService.findBusinessById(businessId);
-  // }
+  @Get()
+  async getBusinesses(@Query() query: GetBusinessDto) {
+    const businesses = this.businessService.getBusinesses(query);
+    return businesses;
+  }
 
   @Patch(':businessId')
   @UsePipes(MongoIdPipe)
