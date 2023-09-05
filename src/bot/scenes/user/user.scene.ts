@@ -103,7 +103,7 @@ export class UserScene {
     const markup = Markup.inlineKeyboard([
       [adminButton],
       [partnerButton],
-      [Markup.button.callback('Назад', 'callMenu')],
+      [Markup.button.callback('🔙 Назад', 'callMenu')],
     ]);
     await ctx.editMessageText(
       'Тут вы можете отправить свою заявку на сотрудничество',
@@ -114,7 +114,7 @@ export class UserScene {
   @Action('isAdmin')
   async isAdmin(@Ctx() ctx: SceneContext) {
     const markup = Markup.inlineKeyboard([
-      Markup.button.callback('Назад', 'partnership'),
+      Markup.button.callback('🔙 Назад', 'partnership'),
     ]);
     await ctx.editMessageText('Вы уже являетесь администратором ✅', markup);
   }
@@ -122,7 +122,7 @@ export class UserScene {
   @Action('isPartner')
   async isPartner(@Ctx() ctx: SceneContext) {
     const markup = Markup.inlineKeyboard([
-      Markup.button.callback('Назад', 'partnership'),
+      Markup.button.callback('🔙 Назад', 'partnership'),
     ]);
     await ctx.editMessageText('Вы уже являетесь партнером ✅', markup);
   }
@@ -133,7 +133,7 @@ export class UserScene {
     const userId = telegramDataHelper(userData, '__');
     const userObjectId = new Types.ObjectId(userId);
     const markup = Markup.inlineKeyboard([
-      Markup.button.callback('Назад', 'partnership'),
+      Markup.button.callback('🔙 Назад', 'partnership'),
     ]);
     try {
       const isTicketExist = await this.rightsChangeService.findTicket(
@@ -164,7 +164,7 @@ export class UserScene {
     const userId = telegramDataHelper(userData, '__');
     const userObjectId = new Types.ObjectId(userId);
     const markup = Markup.inlineKeyboard([
-      Markup.button.callback('Назад', 'partnership'),
+      Markup.button.callback('🔙 Назад', 'partnership'),
     ]);
     try {
       const isTicketExist = await this.rightsChangeService.findTicket(
@@ -200,10 +200,28 @@ export class UserScene {
       ctx.callbackQuery.from.id,
     );
     const markup = Markup.inlineKeyboard([
-      [Markup.button.callback('Назад', 'callMenu')],
+      [
+        this.botService.getMarkupWebApp(
+          '💳 Ожидает оплаты',
+          `${WebAppRoutes.USER_MY_PAYMENTS}?status=pending`,
+        ),
+      ],
+      [
+        this.botService.getMarkupWebApp(
+          '💰 Пополнить',
+          WebAppRoutes.USER_TOP_UP,
+        ),
+      ],
+      [
+        this.botService.getMarkupWebApp(
+          '📚 История поплнений',
+          WebAppRoutes.USER_MY_PAYMENTS,
+        ),
+      ],
+      [Markup.button.callback('🔙 Назад', 'callMenu')],
     ]);
     await ctx.editMessageText(
-      `<b>Ваш актульный баланс: </b> ${balanceAmount} U$SD`,
+      `<b>Ваш актульный баланс: </b> ${balanceAmount} USD $`,
       { ...markup, parse_mode: 'HTML' },
     );
   }

@@ -87,7 +87,7 @@ export class AdminScene {
       [Markup.button.callback('Список категорий', 'categoryList')],
       [
         Markup.button.callback('Добавить категорию', 'addCategory'),
-        Markup.button.callback('Назад', 'callMenu'),
+        Markup.button.callback('🔙 Назад', 'callMenu'),
       ],
     ]);
     await ctx.editMessageText(
@@ -103,7 +103,7 @@ export class AdminScene {
       await ctx.editMessageText(
         'Пока что вы не добавили ни одну категорию',
         Markup.inlineKeyboard([
-          Markup.button.callback('Назад', 'category'),
+          Markup.button.callback('🔙 Назад', 'category'),
           Markup.button.callback('Добавить категорию', 'addCategory'),
         ]),
       );
@@ -128,7 +128,7 @@ export class AdminScene {
     });
     const markup = Markup.inlineKeyboard([
       ...actionButtons,
-      [Markup.button.callback('Назад', 'category')],
+      [Markup.button.callback('🔙 Назад', 'category')],
     ]);
     await ctx.editMessageText(
       `Список категорий` +
@@ -157,7 +157,7 @@ export class AdminScene {
           `deleteCategory__${categoryId}`,
         ),
       ],
-      [Markup.button.callback('Назад', 'categoryList')],
+      [Markup.button.callback('🔙 Назад', 'categoryList')],
     ]);
 
     await ctx.editMessageText(
@@ -176,7 +176,7 @@ export class AdminScene {
         Markup.button.callback('Изменить название', `changeCategoryTitle`),
         Markup.button.callback('Изменить описание', `editCD`),
       ],
-      [Markup.button.callback('Назад', `selectCategory${id}`)],
+      [Markup.button.callback('🔙 Назад', `selectCategory${id}`)],
     ]);
     await ctx.editMessageText(
       `Категория:` + '\n' + `${title}\n${description}`,
@@ -199,7 +199,7 @@ export class AdminScene {
   async deleteCategory(@Ctx() ctx: SceneContext) {
     const categoryId = telegramDataHelper(ctx.callbackQuery['data'], '__');
     const markup = Markup.inlineKeyboard([
-      [Markup.button.callback('Назад', 'categoryList')],
+      [Markup.button.callback('🔙 Назад', 'categoryList')],
     ]);
     try {
       await this.categoriesService.removeCategory(categoryId);
@@ -222,8 +222,8 @@ export class AdminScene {
   @Action('addCategory')
   async addCategory(@Ctx() ctx: SceneContext) {
     // const markup = Markup.inlineKeyboard([
-    //   [Markup.button.callback('Назад', 'category')],
-    //   [Markup.button.callback('Назад', 'category')],
+    //   [Markup.button.callback('🔙 Назад', 'category')],
+    //   [Markup.button.callback('🔙 Назад', 'category')],
     // ]);
     // await ctx.editMessageText('Категория:\n', markup);
     await ctx.scene.enter('addCategory');
@@ -246,7 +246,7 @@ export class AdminScene {
         Markup.button.callback('Список администраторов', 'adminList'),
         Markup.button.callback('Заявки', 'adminTicket'),
       ],
-      [Markup.button.callback('Назад', 'callMenu')],
+      [Markup.button.callback('🔙 Назад', 'callMenu')],
     ]);
     await ctx.editMessageText(
       'Можете выбрать интересующие вас функции',
@@ -261,7 +261,7 @@ export class AdminScene {
         Markup.button.callback('Список пратнеров', 'partnerList'),
         Markup.button.callback('Заявки', 'partnerTicket'),
       ],
-      [Markup.button.callback('Назад', 'callMenu')],
+      [Markup.button.callback('🔙 Назад', 'callMenu')],
     ]);
     await ctx.editMessageText(
       'Можете выбрать интересующие вас функции',
@@ -274,7 +274,7 @@ export class AdminScene {
     const partners = await this.userService.findAllByRole(UserRoleEnum.PARTNER);
     if (!partners) {
       const markup = Markup.inlineKeyboard([
-        [Markup.button.callback('Назад', 'partner')],
+        [Markup.button.callback('🔙 Назад', 'partner')],
       ]);
       await ctx.editMessageText('Список партнеров пока что пуст 😢', markup);
       return;
@@ -297,7 +297,7 @@ export class AdminScene {
     });
     const markup = Markup.inlineKeyboard([
       ...actionButtons,
-      [Markup.button.callback('Назад', 'partner')],
+      [Markup.button.callback('🔙 Назад', 'partner')],
     ]);
     await ctx.editMessageText(
       `Список партнеров` +
@@ -320,7 +320,7 @@ export class AdminScene {
     await ctx.editMessageText(userText, {
       reply_markup: {
         inline_keyboard: [
-          [Markup.button.callback('Назад', 'partnerList')],
+          [Markup.button.callback('🔙 Назад', 'partnerList')],
           [
             Markup.button.callback(
               'Разжаловать',
@@ -341,7 +341,7 @@ export class AdminScene {
     );
     if (!tickets.length) {
       const markup = Markup.inlineKeyboard([
-        Markup.button.callback('Назад', 'partner'),
+        Markup.button.callback('🔙 Назад', 'partner'),
       ]);
       await ctx.editMessageText('Список заявок пока что пуст 😢', markup);
       return;
@@ -370,7 +370,7 @@ export class AdminScene {
 
     const markup = Markup.inlineKeyboard([
       ...actionButtons,
-      [Markup.button.callback('Назад', 'partner')],
+      [Markup.button.callback('🔙 Назад', 'partner')],
     ]);
 
     await ctx.editMessageText(
@@ -409,7 +409,7 @@ export class AdminScene {
     });
     const markup = Markup.inlineKeyboard([
       ...actionButtons,
-      [Markup.button.callback('Назад', 'admin')],
+      [Markup.button.callback('🔙 Назад', 'admin')],
     ]);
     await ctx.editMessageText(
       `Список администраторов` +
@@ -437,7 +437,7 @@ export class AdminScene {
     await ctx.editMessageText(userText, {
       reply_markup: {
         inline_keyboard: [
-          [Markup.button.callback('Назад', 'adminList')],
+          [Markup.button.callback('🔙 Назад', 'adminList')],
           showRestrictButton
             ? [
                 Markup.button.callback(
@@ -457,7 +457,7 @@ export class AdminScene {
     const userId = telegramDataHelper(ctx.callbackQuery['data'], '__');
     const markup = Markup.inlineKeyboard([
       [Markup.button.callback('Подтвердить', `restrictPartner__${userId}`)],
-      [Markup.button.callback('Назад', `selectPartner__${userId}`)],
+      [Markup.button.callback('🔙 Назад', `selectPartner__${userId}`)],
     ]);
     const oldText = ctx.callbackQuery.message['text'];
     await ctx.editMessageText(
@@ -471,7 +471,7 @@ export class AdminScene {
     const userId = telegramDataHelper(ctx.callbackQuery['data'], '__');
     const markup = Markup.inlineKeyboard([
       [Markup.button.callback('Подтвердить', `restrictAdmin__${userId}`)],
-      [Markup.button.callback('Назад', `selectAdmin__${userId}`)],
+      [Markup.button.callback('🔙 Назад', `selectAdmin__${userId}`)],
     ]);
     const oldText = ctx.callbackQuery.message['text'];
     await ctx.editMessageText(
@@ -522,7 +522,7 @@ export class AdminScene {
     );
     if (!tickets.length) {
       const markup = Markup.inlineKeyboard([
-        Markup.button.callback('Назад', 'admin'),
+        Markup.button.callback('🔙 Назад', 'admin'),
       ]);
       await ctx.editMessageText('Сейчас заявок нет', markup);
       return;
@@ -551,7 +551,7 @@ export class AdminScene {
 
     const markup = Markup.inlineKeyboard([
       ...actionButtons,
-      [Markup.button.callback('Назад', 'admin')],
+      [Markup.button.callback('🔙 Назад', 'admin')],
     ]);
 
     await ctx.editMessageText(
@@ -574,7 +574,7 @@ export class AdminScene {
         Markup.button.callback('Принять', `acceptPartner__${ticket.id}`),
         Markup.button.callback('Отклонить', `rejectPartner__${ticket.id}`),
       ],
-      [Markup.button.callback('Назад', `partnerTicket`)],
+      [Markup.button.callback('🔙 Назад', `partnerTicket`)],
     ];
     const userText = `Заявка на должность
 <b>Название должности</b>: Партнер
@@ -600,7 +600,7 @@ export class AdminScene {
         Markup.button.callback('Принять', `acceptAdmin__${ticket.id}`),
         Markup.button.callback('Отклонить', `rejectAdmin__${ticket.id}`),
       ],
-      [Markup.button.callback('Назад', `adminTicket`)],
+      [Markup.button.callback('🔙 Назад', `adminTicket`)],
     ];
 
     const userText = `Заявка на должность
@@ -634,7 +634,7 @@ export class AdminScene {
     );
 
     const markup = Markup.inlineKeyboard([
-      [Markup.button.callback('Назад', `partnerTicket`)],
+      [Markup.button.callback('🔙 Назад', `partnerTicket`)],
     ]);
     await ctx.editMessageText(
       ctx.callbackQuery.message['text'] +
@@ -661,7 +661,7 @@ export class AdminScene {
     );
 
     const markup = Markup.inlineKeyboard([
-      [Markup.button.callback('Назад', `adminTicket`)],
+      [Markup.button.callback('🔙 Назад', `adminTicket`)],
     ]);
     await ctx.editMessageText(
       ctx.callbackQuery.message['text'] +
@@ -683,7 +683,7 @@ export class AdminScene {
       'Администратор отклонил вашу заявку на роль партнера',
     );
     const markup = Markup.inlineKeyboard([
-      [Markup.button.callback('Назад', `partnerTicket`)],
+      [Markup.button.callback('🔙 Назад', `partnerTicket`)],
     ]);
     await ctx.editMessageText(
       ctx.callbackQuery.message['text'] + '\n' + 'Эта заявка была отменена ⛔',
@@ -703,7 +703,7 @@ export class AdminScene {
       'Администратор отклонил вашу заявку на роль администратора',
     );
     const markup = Markup.inlineKeyboard([
-      [Markup.button.callback('Назад', `adminTicket`)],
+      [Markup.button.callback('🔙 Назад', `adminTicket`)],
     ]);
     await ctx.editMessageText(
       ctx.callbackQuery.message['text'] + '\n' + 'Эта заявка была отменена ⛔',
@@ -729,7 +729,7 @@ export class AdminScene {
 
     if (!payments.length) {
       const markup = Markup.inlineKeyboard([
-        Markup.button.callback('Назад', 'callMenu'),
+        Markup.button.callback('🔙 Назад', 'callMenu'),
       ]);
       await ctx.editMessageText('Сейчас заявок нет', markup);
       return;
@@ -743,7 +743,7 @@ export class AdminScene {
 
     const markup = Markup.inlineKeyboard([
       ...actions,
-      [Markup.button.callback('Назад', 'callMenu')],
+      [Markup.button.callback('🔙 Назад', 'callMenu')],
     ]);
     await ctx.editMessageText(
       `Выберите заявку
@@ -764,7 +764,7 @@ export class AdminScene {
     const markup = Markup.inlineKeyboard([
       [Markup.button.callback('Подвердить платеж', `topUpAccess__${id}`)],
       [Markup.button.callback('Отклонить платеж', `topUpDecline__${id}`)],
-      [Markup.button.callback('Назад', 'topUp')],
+      [Markup.button.callback('🔙 Назад', 'topUp')],
     ]);
 
     if (payment.data?.photo) {
@@ -797,7 +797,7 @@ export class AdminScene {
 
     const markup = Markup.inlineKeyboard([
       [Markup.button.callback('Да', `topUpAccessSure__${id}`)],
-      [Markup.button.callback('Назад', `payment__${id}`)],
+      [Markup.button.callback('🔙 Назад', `payment__${id}`)],
     ]);
 
     await ctx.editMessageText(
@@ -812,7 +812,7 @@ export class AdminScene {
 
     const markup = Markup.inlineKeyboard([
       [Markup.button.callback('Да', `topUpDeclineSure__${id}`)],
-      [Markup.button.callback('Назад', `payment__${id}`)],
+      [Markup.button.callback('🔙 Назад', `payment__${id}`)],
     ]);
 
     await ctx.editMessageText(
@@ -828,7 +828,7 @@ export class AdminScene {
     await this.botService.successPayment(id);
 
     const markup = Markup.inlineKeyboard([
-      [Markup.button.callback('Назад', 'topUp')],
+      [Markup.button.callback('🔙 Назад', 'topUp')],
     ]);
 
     await ctx.editMessageText(
@@ -844,7 +844,7 @@ export class AdminScene {
     await this.botService.rejectPayment(id);
 
     const markup = Markup.inlineKeyboard([
-      [Markup.button.callback('Назад', 'topUp')],
+      [Markup.button.callback('🔙 Назад', 'topUp')],
     ]);
 
     await ctx.editMessageText(

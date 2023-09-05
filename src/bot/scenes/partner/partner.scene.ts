@@ -80,7 +80,7 @@ export class PartnerScene {
       await ctx.editMessageText(
         'Пока что вы не добавили ни одного бизнеса',
         Markup.inlineKeyboard([
-          Markup.button.callback('Назад', 'menu'),
+          Markup.button.callback('🔙 Назад', 'menu'),
           this.botService.getMarkupWebApp(
             'Добавить бизнес',
             WebAppRoutes.ADD_BUSINESS,
@@ -107,7 +107,7 @@ export class PartnerScene {
     });
     const markup = Markup.inlineKeyboard([
       ...actionButtons,
-      [Markup.button.callback('Назад', 'menu')],
+      [Markup.button.callback('🔙 Назад', 'menu')],
       // [Markup.button.callback('добавить мок', 'mockData')],
     ]);
     await ctx.editMessageText(
@@ -164,7 +164,7 @@ export class PartnerScene {
         ),
       ],
       [Markup.button.callback('♻ Обновить', `selectBusiness__${businessId}`)],
-      [Markup.button.callback('Назад', 'businessList')],
+      [Markup.button.callback('🔙 Назад', 'businessList')],
     ]);
     await ctx.editMessageText(
       `<b>Ваш бизнес:</b>
