@@ -32,6 +32,14 @@ export class PaymentController {
     return this.paymentService.getUserPayments(query.userId, query);
   }
 
+  @Get(':paymentId')
+  async getUserPayment(
+    @Param('paymentId') paymentId: string,
+    @Query() { userId }: CreatePaymentQueryDto,
+  ) {
+    return this.paymentService.getPaymentForWeb(userId, paymentId);
+  }
+
   @Patch('/to-review/:paymentId')
   @UsePipes(MongoIdPipe)
   async updatePayment(

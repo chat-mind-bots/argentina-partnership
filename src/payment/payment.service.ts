@@ -66,10 +66,24 @@ export class PaymentService {
 
     const rersult = await this.paymentModel
       .find({ ...filters })
+      .sort({ createdAt: -1 })
       .skip(query.offset)
       .limit(query.limit);
 
     return rersult;
+  }
+
+  async getPaymentForWeb(userId: string, paymentId: string) {
+    const payment = await this.getPayment(paymentId);
+
+    if (String(payment.user) !== String(userId)) {
+      throw new HttpException(
+        'You  are not  owner of this payment',
+        HttpStatus.FORBIDDEN,
+      );
+    }
+
+    return payment;
   }
 
   async getPayment(paymentId: string) {
