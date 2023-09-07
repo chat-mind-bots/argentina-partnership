@@ -64,13 +64,18 @@ export class PaymentService {
       filters['status'] = query.status;
     }
 
-    const rersult = await this.paymentModel
+    const total = await this.paymentModel.countDocuments({ ...filters }).exec();
+
+    const result = await this.paymentModel
       .find({ ...filters })
       .sort({ createdAt: -1 })
       .skip(query.offset)
       .limit(query.limit);
 
-    return rersult;
+    return {
+      data: result,
+      total,
+    };
   }
 
   async getPaymentForWeb(userId: string, paymentId: string) {
