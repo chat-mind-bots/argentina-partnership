@@ -61,7 +61,7 @@ export class UserScene {
       //   Markup.button.callback('💲 Тарифы', 'tariffs'),
       // ],
       [
-        Markup.button.callback('🤝 Сотрудничество', 'partnership'),
+        // Markup.button.callback('🤝 Сотрудничество', 'partnership'),
         // Markup.button.url(
         //   '🆘 Поддержка',
         //   `https://t.me/${process.env.SUPPORT_USERNAME}`,
