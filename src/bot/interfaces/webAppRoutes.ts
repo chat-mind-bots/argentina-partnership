@@ -7,4 +7,5 @@ export enum WebAppRoutes {
   USER_TOP_UP = 'top-up',
   TEST = 'test',
   QR_CHECK = 'qr-check',
+  QR_GENERATE = 'qr-generate',
 }

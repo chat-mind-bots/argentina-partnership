@@ -46,22 +46,26 @@ export class UserScene {
   async menu(@Ctx() ctx: Context & SceneContext, mode: MessageMode) {
     const markup = Markup.inlineKeyboard([
       [
-        Markup.button.callback('📲 Показать QR-код', 'generate_qr_code'),
+        // Markup.button.callback('📲 Показать QR-код', 'generate_qr_code'),
+        this.botService.getMarkupWebApp(
+          '📲 Показать QR-код',
+          WebAppRoutes.QR_GENERATE,
+        ),
         this.botService.getMarkupWebApp(
           '🛒 Магазины - партнеры',
           WebAppRoutes.PARTNERS,
         ),
       ],
-      [
-        Markup.button.callback('💰 баланс', 'show_balance'),
-        Markup.button.callback('💲 Тарифы', 'tariffs'),
-      ],
+      // [
+      //   Markup.button.callback('💰 баланс', 'show_balance'),
+      //   Markup.button.callback('💲 Тарифы', 'tariffs'),
+      // ],
       [
         Markup.button.callback('🤝 Сотрудничество', 'partnership'),
-        Markup.button.url(
-          '🆘 Поддержка',
-          `https://t.me/${process.env.SUPPORT_USERNAME}`,
-        ),
+        // Markup.button.url(
+        //   '🆘 Поддержка',
+        //   `https://t.me/${process.env.SUPPORT_USERNAME}`,
+        // ),
       ],
       [this.botService.getMarkupWebApp('🧑‍💼 Личный кабинет', 'home')],
     ]);
