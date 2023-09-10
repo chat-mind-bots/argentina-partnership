@@ -60,7 +60,7 @@ export class UserService {
   async getUserForWebApp(userId: number) {
     const user = this.userModel
       .findOne({ tg_id: userId })
-      .select('_id balance username refCode')
+      .select('_id balance username refCode role')
       .populate({ path: 'balance', select: 'amount' });
 
     if (!user) {
