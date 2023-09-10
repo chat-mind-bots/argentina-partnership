@@ -32,7 +32,7 @@ import rateLimit from 'telegraf-ratelimit';
         ...(process.env.MODE === 'LOCAL'
           ? [
               rateLimit({
-                window: 3000,
+                window: 200,
                 limit: 1,
                 onLimitExceeded: (ctx, next) =>
                   ctx.reply('Превышено кол-во запросов'),
@@ -41,7 +41,7 @@ import rateLimit from 'telegraf-ratelimit';
             ]
           : [
               rateLimit({
-                window: 3000,
+                window: 200,
                 limit: 1,
                 onLimitExceeded: (ctx, next) =>
                   ctx.reply('Превышено кол-во запросов'),
