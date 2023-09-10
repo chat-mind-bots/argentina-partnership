@@ -7,8 +7,9 @@ import {
   On,
   Start,
   Update,
+  Use,
 } from 'nestjs-telegraf';
-import { forwardRef, Inject, UseFilters } from '@nestjs/common';
+import { forwardRef, Inject, OnModuleInit, UseFilters } from '@nestjs/common';
 import { TelegrafExceptionFilter } from 'src/common/filtres/telegraf-exeption.filter';
 import { Context, Telegraf } from 'telegraf';
 import { isPrivate } from 'src/bot/bot.utils';
@@ -16,7 +17,6 @@ import { UserService } from 'src/user/user.service';
 import { UserRoleEnum } from 'src/user/enum/user-role.enum';
 import { SceneContext } from 'telegraf/typings/scenes';
 import { Chat } from 'typegram/manage';
-import { UserCodesService } from 'src/user-codes/user-codes.service';
 import { BotService } from 'src/bot/bot.service';
 import { WebAppRoutes } from 'src/bot/interfaces/webAppRoutes';
 import { FileService } from 'src/file/file.service';

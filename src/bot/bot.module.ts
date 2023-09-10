@@ -20,6 +20,7 @@ import { FileModule } from 'src/file/file.module';
 import { editCategoryTitleScene } from 'src/bot/scenes/admin/categories/edit-title.scene';
 import { editCategoryDescriptionScene } from 'src/bot/scenes/admin/categories/edit-description.scene';
 import { PaymentModule } from 'src/payment/payment.module';
+import rateLimit from 'telegraf-ratelimit';
 
 @Module({
   imports: [
@@ -29,8 +30,22 @@ import { PaymentModule } from 'src/payment/payment.module';
       token: process.env.TELEGRAM_API_KEY,
       middlewares: [
         ...(process.env.MODE === 'LOCAL'
-          ? [session()]
+          ? [
+              rateLimit({
+                window: 3000,
+                limit: 1,
+                onLimitExceeded: (ctx, next) =>
+                  ctx.reply('Превышено кол-во запросов'),
+              }),
+              session(),
+            ]
           : [
+              rateLimit({
+                window: 3000,
+                limit: 1,
+                onLimitExceeded: (ctx, next) =>
+                  ctx.reply('Превышено кол-во запросов'),
+              }),
               new RedisSession({
                 store: {
                   host: process.env.REDIS_HOST,
