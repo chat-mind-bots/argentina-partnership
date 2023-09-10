@@ -23,7 +23,6 @@ export class RightsChangeController {
 
   @Post()
   async createTicket(@Body() body: UserChangeCreateDto) {
-    console.log(body);
     return await this.rightsChangeService.create({
       ...body,
       user: new Types.ObjectId(body.user),
