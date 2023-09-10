@@ -13,6 +13,8 @@ import { buttonSplitterHelper } from 'src/common/helpers/button-splitter.helper'
 import { CategoriesService } from 'src/categories/categories.service';
 import { MessageMode } from 'src/bot/enums/message-mode.enum';
 import * as process from 'process';
+import { LIMITDOCUMENTS } from 'src/bot/constants/limit-documents';
+import { createPaginationTGButtons } from 'src/common/helpers/button-pagination';
 
 @Scene('adminScene')
 @UseFilters(TelegrafExceptionFilter)
@@ -97,8 +99,25 @@ export class AdminScene {
   }
 
   @Action('categoryList')
-  async categoryList(@Ctx() ctx: SceneContext) {
-    const categories = await this.categoriesService.findAllCategories();
+  async categoryList(@Ctx() ctx: SceneContext, currentPage = 1) {
+    const { data: categories, total } =
+      await this.categoriesService.findAllCategoriesWithTotal({
+        limit: LIMITDOCUMENTS,
+        offset: (currentPage - 1) * LIMITDOCUMENTS,
+      });
+
+    const maxPage =
+      Math.ceil(total / LIMITDOCUMENTS) > 0
+        ? Math.ceil(total / LIMITDOCUMENTS)
+        : 1;
+
+    const pages = {
+      first: 1,
+      prev: currentPage - 1 < 1 ? 1 : currentPage - 1,
+      next: currentPage + 1 > maxPage ? maxPage : currentPage + 1,
+      last: maxPage,
+    };
+
     if (!categories.length) {
       await ctx.editMessageText(
         'Пока что вы не добавили ни одну категорию',
@@ -109,6 +128,15 @@ export class AdminScene {
       );
       return;
     }
+
+    ctx.session['categoriesPagination'] = { ...pages, currentPage };
+
+    const paginationButtonsArray = createPaginationTGButtons(
+      currentPage,
+      pages,
+      'categorySelectPage__',
+      Markup.button.callback,
+    );
 
     const categoriesMas = [];
     categories.map((category, i) => {
@@ -127,17 +155,32 @@ export class AdminScene {
       });
     });
     const markup = Markup.inlineKeyboard([
-      ...actionButtons,
       [Markup.button.callback('🔙 Назад', 'category')],
+      ...actionButtons,
+      paginationButtonsArray,
     ]);
     await ctx.editMessageText(
       `Список категорий` +
+        '\n' +
+        `Страница: ${currentPage}/${maxPage} 📖` +
         '\n' +
         'Выберете категорию:' +
         '\n' +
         categoriesMas.map((category) => category[0]).join('\n'),
       markup,
     );
+  }
+
+  @Action(/categorySelectPage/)
+  async selectCategoryPage(@Ctx() ctx: SceneContext) {
+    const categoryPageType = telegramDataHelper(
+      ctx.callbackQuery['data'],
+      '__',
+    );
+    const page = ctx.session['categoriesPagination'][categoryPageType];
+    if (page) {
+      await this.categoryList(ctx, page);
+    }
   }
 
   @Action(/selectCategory/)
@@ -157,7 +200,7 @@ export class AdminScene {
           `deleteCategory__${categoryId}`,
         ),
       ],
-      [Markup.button.callback('🔙 Назад', 'categoryList')],
+      [Markup.button.callback('🔙 Назад', 'categorySelectPage__currentPage')],
     ]);
 
     await ctx.editMessageText(
@@ -165,6 +208,7 @@ export class AdminScene {
       markup,
     );
   }
+
   @Action(/editCategory/)
   async editCategory(@Ctx() ctx: SceneContext) {
     const categoryId = telegramDataHelper(ctx.callbackQuery['data'], '__');
