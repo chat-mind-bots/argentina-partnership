@@ -43,11 +43,13 @@ export class BotService implements OnModuleInit {
   async menu(@Ctx() ctx: Context & SceneContext, @Message('from') from) {
     const isOldUser = await this.userService.findByTgId(from.id);
     if (isOldUser.role.every((item) => item === UserRoleEnum.USER)) {
+      ctx.session['onlyUser'] = true;
       await ctx.scene.enter('userScene');
       return;
     }
     const markupButtons = [];
     if (isOldUser.role.includes(UserRoleEnum.USER)) {
+      delete ctx.session['onlyUser'];
       markupButtons.push([
         Markup.button.callback('войти как юзер', 'userScene'),
       ]);
