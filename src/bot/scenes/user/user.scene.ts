@@ -27,13 +27,16 @@ export class UserScene {
 
   @SceneEnter()
   async enter(@Ctx() ctx: Context & SceneContext) {
+    const isOnlyUser = ctx.session['onlyUser'];
     const keyboardMarkup = Markup.keyboard([
       [Markup.button.callback('Главное меню', 'menu')],
       [Markup.button.callback('Помощь', 'help')],
       [Markup.button.callback('Выйти', 'changeRole')],
     ]).resize();
 
-    await ctx.reply('Вы вошли как пользователь', keyboardMarkup);
+    isOnlyUser &&
+      (await ctx.reply('Вы вошли как пользователь', keyboardMarkup));
+
     await this.menu(ctx, MessageMode.REPLY);
   }
 

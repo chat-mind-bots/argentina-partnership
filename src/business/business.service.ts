@@ -123,7 +123,6 @@ export class BusinessService {
       filter['$or'] = [{ title: { $regex: params.q, $options: 'i' } }];
     }
     if (params['has-owner']) {
-      console.log(params['has-owner']);
       filter['owner'] = [{ owner: { role: { $in: [UserRoleEnum.PARTNER] } } }];
     }
     if (params.category) {

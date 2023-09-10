@@ -3,6 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Category, CategoryDocument } from 'src/categories/ctegories.schema';
 import { CreateCategoryDto } from 'src/categories/dto/create-category.dto';
+import { GetCategoryDto } from 'src/categories/dto/query/get-category.dto';
 
 @Injectable()
 export class CategoriesService {
@@ -36,6 +37,28 @@ export class CategoriesService {
   async findAllCategories() {
     const categories = await this.categoryModel.find();
     return categories;
+  }
+
+  async findAllCategoriesWithTotal(params: GetCategoryDto) {
+    const filter = {};
+    const sort = {};
+    if (params.q) {
+      filter['$or'] = [{ title: { $regex: params.q, $options: 'i' } }];
+    }
+    if (params['sort-by']) {
+      sort[params['sort-by']] = params['sort-order'] === 'asc' ? 1 : -1;
+    }
+    const categories = await this.categoryModel
+      .find({ ...filter })
+      .skip(params.offset)
+      .limit(params.limit);
+
+    const total = await this.categoryModel.countDocuments({ ...filter });
+
+    return {
+      data: categories,
+      total,
+    };
   }
 
   async createCategory(dto: CreateCategoryDto) {
