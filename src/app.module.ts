@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { BotModule } from './bot/bot.module';
 import { UserModule } from './user/user.module';
 import { MongooseModule } from '@nestjs/mongoose';
@@ -12,6 +12,7 @@ import { BusinessModule } from 'src/business/business.module';
 import { FileModule } from './file/file.module';
 import { S3Module } from 'nestjs-s3';
 import { BalanceModule } from './balance/balance.module';
+import { AuthMiddleware } from 'src/auth/auth.middleware';
 
 @Module({
   imports: [
@@ -45,4 +46,8 @@ import { BalanceModule } from './balance/balance.module';
   controllers: [],
   providers: [],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(AuthMiddleware).forRoutes('*');
+  }
+}
