@@ -17,6 +17,7 @@ import { UpdateBusinessDto } from 'src/business/dto/update-business.dto';
 import { UserRoleEnum } from 'src/user/enum/user-role.enum';
 import { File } from 'src/file/file.schema';
 import { GetBusinessDto } from 'src/business/dto/query/get-business.dto';
+import { StatusEnum } from 'src/business/enum/status.enum';
 
 @Injectable()
 export class BusinessService {
@@ -54,6 +55,22 @@ export class BusinessService {
         path: 'category',
         select: 'title description',
       });
+    return result;
+  }
+
+  async disableAllOwnerBusinesses(ownerId: string) {
+    const result = await this.businessModel.updateMany(
+      { owner: new Types.ObjectId(ownerId) },
+      { $set: { status: StatusEnum.DISABLED } },
+    );
+    return result;
+  }
+
+  async enableAllOwnerBusinesses(ownerId: string) {
+    const result = await this.businessModel.updateMany(
+      { owner: new Types.ObjectId(ownerId) },
+      { $set: { status: StatusEnum.ACTIVE } },
+    );
     return result;
   }
 
@@ -119,6 +136,7 @@ export class BusinessService {
   async getBusinesses(params: GetBusinessDto) {
     const filter = {};
     const sort = {};
+    console.log(params);
     if (params.q) {
       filter['$or'] = [{ title: { $regex: params.q, $options: 'i' } }];
     }
@@ -128,6 +146,10 @@ export class BusinessService {
     if (params.category) {
       filter['category'] = new Types.ObjectId(params.category);
     }
+    if (params.status) {
+      filter['status'] = params.status;
+    }
+
     if (params['sort-by']) {
       sort[params['sort-by']] = params['sort-order'] === 'asc' ? 1 : -1;
     }

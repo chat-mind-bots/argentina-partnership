@@ -5,6 +5,7 @@ import { Category } from 'src/categories/ctegories.schema';
 import { IContacts } from 'src/business/interfaces/contacts.interface';
 import { IAddress } from 'src/business/interfaces/address.interface';
 import { File } from 'src/file/file.schema';
+import { StatusEnum } from 'src/business/enum/status.enum';
 
 export type BusinessDocument = HydratedDocument<Business>;
 
@@ -40,6 +41,9 @@ export class Business {
 
   @Prop({ required: true, type: AddressSchema })
   address: IAddress;
+
+  @Prop({ required: true })
+  status: StatusEnum;
 
   @Prop({ required: false })
   avgCheck: number;

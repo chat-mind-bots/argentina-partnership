@@ -15,6 +15,7 @@ import { MessageMode } from 'src/bot/enums/message-mode.enum';
 import * as process from 'process';
 import { LIMITDOCUMENTS } from 'src/bot/constants/limit-documents';
 import { createPaginationTGButtons } from 'src/common/helpers/button-pagination';
+import { BusinessService } from 'src/business/business.service';
 
 @Scene('adminScene')
 @UseFilters(TelegrafExceptionFilter)
@@ -28,6 +29,8 @@ export class AdminScene {
     private readonly userService: UserService,
     @Inject(forwardRef(() => CategoriesService))
     private readonly categoriesService: CategoriesService,
+    @Inject(forwardRef(() => BusinessService))
+    private readonly businessService: BusinessService,
   ) {}
 
   @SceneEnter()
@@ -548,7 +551,11 @@ export class AdminScene {
       [Markup.button.callback('Список Партнеров', `partnerList`)],
     ]);
     try {
-      await this.userService.restrictUser(userId, UserRoleEnum.PARTNER);
+      const user = await this.userService.restrictUser(
+        userId,
+        UserRoleEnum.PARTNER,
+      );
+      await this.businessService.disableAllOwnerBusinesses(user.id);
       await ctx.editMessageText(`Пользователь был ограничен в правах`, markup);
     } catch (error) {
       await ctx.editMessageText(
@@ -672,6 +679,7 @@ export class AdminScene {
       ticket.user.tg_id,
       UserRoleEnum.PARTNER,
     );
+    await this.businessService.enableAllOwnerBusinesses(user.id);
     await this.botService.sendMessage(
       user.tg_id,
       'Вы были повышены до статуса партнера.\nиспользуйте команду: /start чтобы открыть новое меню',
