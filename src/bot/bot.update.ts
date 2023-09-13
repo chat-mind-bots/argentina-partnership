@@ -7,9 +7,8 @@ import {
   On,
   Start,
   Update,
-  Use,
 } from 'nestjs-telegraf';
-import { forwardRef, Inject, OnModuleInit, UseFilters } from '@nestjs/common';
+import { forwardRef, Inject, UseFilters } from '@nestjs/common';
 import { TelegrafExceptionFilter } from 'src/common/filtres/telegraf-exeption.filter';
 import { Context, Telegraf } from 'telegraf';
 import { isPrivate } from 'src/bot/bot.utils';
