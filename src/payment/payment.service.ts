@@ -20,8 +20,8 @@ export class PaymentService {
     private readonly balanceService: BalanceService,
   ) {}
 
-  async createPayment(userId: string, dto: CreatePaymentDto) {
-    const user = await this.userService.findById(userId, true);
+  async createPayment(userId: number, dto: CreatePaymentDto) {
+    const user = await this.userService.findByTgId(userId, true);
 
     if (!user) {
       throw new HttpException(
@@ -42,8 +42,8 @@ export class PaymentService {
     return 'success';
   }
 
-  async getUserPayments(userId: string, query: GetUserPaymentsQueryDto) {
-    const user = await this.userService.findById(userId, true);
+  async getUserPayments(userId: number, query: GetUserPaymentsQueryDto) {
+    const user = await this.userService.findByTgId(userId, true);
 
     if (!user) {
       throw new HttpException(
@@ -78,10 +78,33 @@ export class PaymentService {
     };
   }
 
-  async getPaymentForWeb(userId: string, paymentId: string) {
-    const payment = await this.getPayment(paymentId);
+  async getUserPaymentsCount(userId: number, query: GetUserPaymentsQueryDto) {
+    const user = await this.userService.findByTgId(userId, true);
 
-    if (String(payment.user) !== String(userId)) {
+    if (!user) {
+      throw new HttpException(
+        'Document (User) not found',
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    const filters = {
+      user: user._id,
+    };
+
+    if (query.status) {
+      filters['status'] = query.status;
+    }
+
+    const total = await this.paymentModel.countDocuments({ ...filters }).exec();
+
+    return total;
+  }
+  async getPaymentForWeb(userId: number, paymentId: string) {
+    const payment = await this.getPayment(paymentId);
+    const user = await this.userService.findByTgId(userId, true);
+
+    if (String(payment.user) !== String(user._id)) {
       throw new HttpException(
         'You  are not  owner of this payment',
         HttpStatus.FORBIDDEN,
@@ -124,12 +147,12 @@ export class PaymentService {
     return payment;
   }
   async movePaymentToReview(
-    userId: string,
+    userId: number,
     paymentId: string,
     dto: UpdatePaymentDto,
   ) {
     const payment = await this.getPayment(paymentId);
-    const user = await this.userService.findById(userId, true);
+    const user = await this.userService.findByTgId(userId, false);
 
     if (!user) {
       throw new HttpException(

@@ -136,7 +136,6 @@ export class BusinessService {
   async getBusinesses(params: GetBusinessDto) {
     const filter = {};
     const sort = {};
-    console.log(params);
     if (params.q) {
       filter['$or'] = [{ title: { $regex: params.q, $options: 'i' } }];
     }

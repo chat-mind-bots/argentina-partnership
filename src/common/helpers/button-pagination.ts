@@ -11,7 +11,6 @@ export function createPaginationTGButtons<T>(
 ) {
   const result = [];
   for (const name in data) {
-    console.log(name);
     if (name === 'first') {
       if (data.first !== currentPage) {
         result.push(callback('‹‹  ' + String(data.first), prefix + name));

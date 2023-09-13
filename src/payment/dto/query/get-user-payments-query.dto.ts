@@ -1,10 +1,4 @@
-import {
-  IsEnum,
-  IsMongoId,
-  IsNumber,
-  IsOptional,
-  IsString,
-} from 'class-validator';
+import { IsEnum, IsNumber, IsOptional, IsString } from 'class-validator';
 import { Transform } from 'class-transformer';
 import { toNumber } from 'src/common/helpers/query.helper';
 import { CurrenciesEnum } from 'src/payment/enums/currencies.enum';
@@ -27,7 +21,4 @@ export class GetUserPaymentsQueryDto {
   @IsOptional()
   @IsEnum(PaymentStatusEnum)
   readonly status?: PaymentStatusEnum;
-
-  @IsMongoId()
-  readonly userId: string;
 }
