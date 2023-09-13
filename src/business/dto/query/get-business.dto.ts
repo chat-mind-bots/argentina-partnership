@@ -13,6 +13,7 @@ import {
   trim,
 } from 'src/common/helpers/query.helper';
 import { BusinessByEnum } from 'src/business/enum/sort-by.enum';
+import { StatusEnum } from 'src/business/enum/status.enum';
 
 export class GetBusinessDto {
   @Transform(({ value }) => toNumber(value, { default: 5, min: 1, max: 50 }))
@@ -33,9 +34,12 @@ export class GetBusinessDto {
   @IsOptional()
   readonly 'has-owner'?: boolean;
 
-  @IsBoolean()
   @IsOptional()
   readonly category?: string;
+
+  @IsEnum(StatusEnum)
+  @IsOptional()
+  readonly status?: StatusEnum;
 
   @Transform(({ value }) => trim(toLowerCase(value)))
   @IsString()

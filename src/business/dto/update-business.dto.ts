@@ -9,6 +9,7 @@ import {
 import { IContacts } from 'src/business/interfaces/contacts.interface';
 import { IAddress } from 'src/business/interfaces/address.interface';
 import { AvgCheckEnum } from 'src/business/enum/avg-check.enum';
+import { StatusEnum } from 'src/business/enum/status.enum';
 
 export class UpdateBusinessDto {
   @IsString()
@@ -18,6 +19,10 @@ export class UpdateBusinessDto {
   @IsString()
   @IsOptional()
   readonly title?: string;
+
+  @IsEnum(StatusEnum)
+  @IsOptional()
+  readonly status?: StatusEnum;
 
   @IsArray()
   @IsOptional()
