@@ -1,5 +1,5 @@
 import { Controller } from '@nestjs/common';
-import { TariffService } from './tarif.service';
+import { TariffService } from 'src/tariff/tariff.service';
 
 @Controller('tariff')
 export class TariffController {

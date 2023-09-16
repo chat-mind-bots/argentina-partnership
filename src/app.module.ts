@@ -13,7 +13,9 @@ import { FileModule } from './file/file.module';
 import { S3Module } from 'nestjs-s3';
 import { BalanceModule } from './balance/balance.module';
 import { AuthMiddleware } from 'src/auth/auth.middleware';
-import { TariffModule } from './tariff/tarif.module';
+import { TariffModule } from 'src/tariff/tariff.module';
+import { PurchaseModule } from './purchase/purchase.module';
+import { SubscriptionModule } from './subscription/subscription.module';
 
 @Module({
   imports: [
@@ -44,6 +46,8 @@ import { TariffModule } from './tariff/tarif.module';
     FileModule,
     BalanceModule,
     TariffModule,
+    PurchaseModule,
+    SubscriptionModule,
   ],
   controllers: [],
   providers: [],

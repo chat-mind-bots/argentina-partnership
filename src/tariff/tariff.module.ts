@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
-import { TariffService } from './tarif.service';
-import { TariffController } from './tarif.controller';
+import { TariffService } from 'src/tariff/tariff.service';
+import { TariffController } from 'src/tariff/tariff.controller';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Tariff, TariffSchema } from 'src/tariff/tariff.schema';
 
