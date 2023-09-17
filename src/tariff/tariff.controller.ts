@@ -1,4 +1,4 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Get, Post } from '@nestjs/common';
 import { TariffService } from 'src/tariff/tariff.service';
 import { CreateTariffDto } from 'src/tariff/dto/create-tariff.interface';
 
@@ -8,5 +8,9 @@ export class TariffController {
   @Post()
   async createTariff(@Body() body: CreateTariffDto) {
     return this.tariffService.createTariff(body);
+  }
+  @Get()
+  async findAllTariffs() {
+    return this.tariffService.findAllTariffs();
   }
 }

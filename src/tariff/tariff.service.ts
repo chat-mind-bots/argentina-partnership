@@ -21,6 +21,9 @@ export class TariffService {
   }
 
   async findTariffByIds(ids: string[]) {
-    return await this.tariffModel.findOne({ _id: { $in: ids } }).exec();
+    return this.tariffModel.findOne({ _id: { $in: ids } });
+  }
+  async findAllTariffs() {
+    return this.tariffModel.find();
   }
 }
