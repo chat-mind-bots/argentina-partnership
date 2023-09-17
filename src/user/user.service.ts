@@ -5,6 +5,7 @@ import { Model } from 'mongoose';
 import { CreateUserDto } from 'src/user/dto/create-user.dto';
 import { UserRoleEnum } from 'src/user/enum/user-role.enum';
 import { BalanceService } from 'src/balance/balance.service';
+import { Balance } from 'src/balance/balance.schema';
 
 @Injectable()
 export class UserService {
@@ -36,6 +37,15 @@ export class UserService {
     return isShowBalance
       ? this.userModel.findOne({ tg_id: id })
       : this.userModel.findOne({ tg_id: id }).select('-balance');
+  }
+
+  async findWithBalanceByTgId(id: number) {
+    return this.userModel
+      .findOne({ tg_id: id })
+      .populate<{ balance: Pick<Balance, 'amount'> & { _id: string } }>({
+        path: 'balance',
+        select: 'amount _id',
+      });
   }
 
   async findById(id: string, isShowBalance?: boolean) {

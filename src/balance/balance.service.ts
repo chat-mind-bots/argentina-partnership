@@ -35,4 +35,15 @@ export class BalanceService {
       { new: true },
     );
   }
+
+  async reduceBalance(id: string, amount: number) {
+    return this.balanceModel.findByIdAndUpdate(
+      id,
+      {
+        $inc: { amount: -amount },
+        updatedAt: new Date(),
+      },
+      { new: true },
+    );
+  }
 }
