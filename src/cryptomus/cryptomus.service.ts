@@ -5,6 +5,9 @@ import { HttpService } from '@nestjs/axios';
 import { ConfigService } from '@nestjs/config';
 import * as crypto from 'crypto';
 import { CreatePaymentResult } from 'src/cryptomus/interfaces/create-payment-result.interface';
+import { InjectModel } from '@nestjs/mongoose';
+import { CategoryDocument, Cryptomus } from 'src/cryptomus/cryptomus.schema';
+import { Model } from 'mongoose';
 
 @Injectable()
 export class CryptomusService {
@@ -12,6 +15,8 @@ export class CryptomusService {
   private apiKey: string;
   private merchantId: string;
   constructor(
+    @InjectModel(Cryptomus.name)
+    private readonly cryptomusModel: Model<CategoryDocument>,
     private readonly httpService: HttpService,
     private readonly configService: ConfigService,
   ) {
@@ -56,7 +61,9 @@ export class CryptomusService {
     const url = 'v1/payment';
 
     const data = await this.cryptomusMain<CreatePaymentResult>(url, payload);
-    this.logger.log(data);
+    const cryptomus = await this.cryptomusModel.create(data);
+    return cryptomus;
+    // this.logger.log(data);
   }
 
   async checkPayment(uuid: string, orderId: number) {

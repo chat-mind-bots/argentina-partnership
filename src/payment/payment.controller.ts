@@ -22,7 +22,11 @@ export class PaymentController {
   constructor(private readonly paymentService: PaymentService) {}
 
   @Post()
-  async createPayment(@Body() body: CreatePaymentDto, @Req() req) {
+  async createPayment(
+    @Body() body: CreatePaymentDto,
+    @Query('cryptomus') cryptomus: boolean,
+    @Req() req,
+  ) {
     const token = req.headers.authorization;
     const userId = +getIdByToken(token);
     return this.paymentService.createPayment(userId, body);
