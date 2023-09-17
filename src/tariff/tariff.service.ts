@@ -15,4 +15,12 @@ export class TariffService {
     console.log(dto);
     return this.tariffModel.create({ ...dto });
   }
+
+  async findTariffById(id: string) {
+    return this.tariffModel.findById(id);
+  }
+
+  async findTariffByIds(ids: string[]) {
+    return await this.tariffModel.findOne({ _id: { $in: ids } }).exec();
+  }
 }

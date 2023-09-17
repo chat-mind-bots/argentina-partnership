@@ -10,5 +10,6 @@ import { Tariff, TariffSchema } from 'src/tariff/tariff.schema';
   ],
   controllers: [TariffController],
   providers: [TariffService],
+  exports: [TariffService],
 })
 export class TariffModule {}
