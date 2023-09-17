@@ -23,6 +23,6 @@ export class TariffService {
     return this.tariffModel.findOne({ _id: { $in: ids } });
   }
   async findAllTariffs() {
-    return this.tariffModel.find();
+    return this.tariffModel.find().sort({ price: 1 });
   }
 }

@@ -1,28 +1,31 @@
 import { Injectable } from '@nestjs/common';
 import { CreateSubscriptionDto } from 'src/subscription/dto/create-subscription.dto';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model, Types } from 'mongoose';
+import { Model } from 'mongoose';
 import {
   Subscription,
   SubscriptionDocument,
 } from 'src/subscription/subscription.schema';
+import { UserService } from 'src/user/user.service';
 
 @Injectable()
 export class SubscriptionService {
   constructor(
     @InjectModel(Subscription.name)
     private readonly subscriptionModel: Model<SubscriptionDocument>,
+    private readonly userService: UserService,
   ) {}
-  async findSubscription(userId: string, isActive: boolean) {
+  async findSubscription(userId: number, isActive: boolean) {
+    const { id } = await this.userService.findByTgId(userId);
     return isActive
       ? await this.subscriptionModel.find({
-          user: userId,
+          user: id,
           expiredDate: {
             $gte: new Date(),
           },
         })
       : await this.subscriptionModel.find({
-          user: new Types.ObjectId(userId),
+          user: id,
         });
   }
   async create(dto: CreateSubscriptionDto) {
