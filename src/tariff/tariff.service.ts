@@ -12,7 +12,6 @@ export class TariffService {
   ) {}
 
   async createTariff(dto: CreateTariffDto) {
-    console.log(dto);
     return this.tariffModel.create({ ...dto });
   }
 

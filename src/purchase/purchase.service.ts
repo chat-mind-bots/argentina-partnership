@@ -50,7 +50,6 @@ export class PurchaseService {
             userId: user.id,
             period: tariff.period,
           });
-          console.log(sub);
         }
         return purchase;
       }
