@@ -22,9 +22,6 @@ export class CreateUserDto {
   @IsNumber()
   readonly balance: number;
 
-  @IsString()
-  readonly refCode: string;
-
   @IsArray()
   readonly role: UserRoleEnum[];
 

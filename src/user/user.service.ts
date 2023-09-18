@@ -14,9 +14,14 @@ export class UserService {
     private readonly balanceService: BalanceService,
   ) {}
 
-  async createUser(dto: Omit<CreateUserDto, 'balance'>) {
+  async createUser(dto: Omit<CreateUserDto, 'balance'>, refUserId?: number) {
     const { _id } = await this.balanceService.createBalance();
-    const userDto: CreateUserDto = { ...dto, balance: _id };
+    const refUser = await this.findByTgId(refUserId);
+    const userDto: CreateUserDto = {
+      ...dto,
+      balance: _id,
+      refId: refUser ? refUser._id : undefined,
+    };
     return this.userModel.create(userDto);
   }
 
