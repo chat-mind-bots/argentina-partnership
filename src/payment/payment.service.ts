@@ -194,9 +194,8 @@ export class PaymentService {
         String(payment.user.refId),
         true,
       );
-
       await this.balanceService.topUpBalance(
-        String(userReferrer.balance),
+        String(userReferrer.balance._id),
         Math.round(payment.amount * 0.05 * 100) / 100,
       );
     }
