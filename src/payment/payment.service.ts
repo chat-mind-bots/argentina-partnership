@@ -176,16 +176,30 @@ export class PaymentService {
   async movePaymentToSuccess(id: string) {
     // const payment = await this.paymentModel.findById(id).populate('balance');
 
-    const payment = await this.paymentModel.findByIdAndUpdate(
-      id,
-      { status: PaymentStatusEnum.SUCCESS, updatedAt: new Date() },
-      { new: true },
-    );
+    const payment = await this.paymentModel
+      .findByIdAndUpdate(
+        id,
+        { status: PaymentStatusEnum.SUCCESS, updatedAt: new Date() },
+        { new: true },
+      )
+      .populate<{ user: Pick<UserDocument, 'refId'> }>('user', 'refId');
 
     await this.balanceService.topUpBalance(
       String(payment.balance),
       payment.amount,
     );
+
+    if (payment.user.refId) {
+      const userReferrer = await this.userService.findById(
+        String(payment.user.refId),
+        true,
+      );
+
+      await this.balanceService.topUpBalance(
+        String(userReferrer.balance),
+        Math.round(payment.amount * 0.05 * 100) / 100,
+      );
+    }
 
     return payment;
   }

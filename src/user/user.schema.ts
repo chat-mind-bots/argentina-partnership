@@ -29,10 +29,10 @@ export class User {
   })
   first_name: string;
 
-  @Prop({
-    required: true,
-  })
-  refCode: string;
+  // @Prop({
+  //   required: true,
+  // })
+  // refCode: string;
 
   @Prop({
     required: false,

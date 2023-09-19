@@ -7,9 +7,8 @@ import {
   On,
   Start,
   Update,
-  Use,
 } from 'nestjs-telegraf';
-import { forwardRef, Inject, OnModuleInit, UseFilters } from '@nestjs/common';
+import { forwardRef, Inject, UseFilters } from '@nestjs/common';
 import { TelegrafExceptionFilter } from 'src/common/filtres/telegraf-exeption.filter';
 import { Context, Telegraf } from 'telegraf';
 import { isPrivate } from 'src/bot/bot.utils';
@@ -20,6 +19,7 @@ import { Chat } from 'typegram/manage';
 import { BotService } from 'src/bot/bot.service';
 import { WebAppRoutes } from 'src/bot/interfaces/webAppRoutes';
 import { FileService } from 'src/file/file.service';
+import { telegramDataHelper } from 'src/common/helpers/telegram-data.helper';
 
 @Update()
 @UseFilters(TelegrafExceptionFilter)
@@ -45,13 +45,16 @@ export class BotUpdate {
       if (!isOldUser) {
         const info = (await ctx.getChat()) as Chat.PrivateChat;
         const { id: tg_id, username, first_name } = info;
-        await this.userService.createUser({
-          tg_id,
-          username,
-          first_name,
-          refCode: 'fixitsoon',
-          role: [UserRoleEnum.USER],
-        });
+        const refId = telegramDataHelper(ctx['startPayload'], 'refId=');
+        await this.userService.createUser(
+          {
+            tg_id,
+            username,
+            first_name,
+            role: [UserRoleEnum.USER],
+          },
+          +refId,
+        );
       }
       await this.menuCommand(ctx, from);
     }
