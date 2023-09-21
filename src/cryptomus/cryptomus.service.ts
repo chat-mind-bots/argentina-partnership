@@ -28,7 +28,7 @@ export class CryptomusService {
   }
 
   private getHeaders(payload: string): { merchant: string; sign: string } {
-    const sign = createSignService(JSON.stringify(payload));
+    const sign = createSignService(payload);
     return { merchant: this.merchantId, sign };
   }
   private async cryptomusMain<T>(
