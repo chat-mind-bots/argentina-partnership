@@ -8,6 +8,7 @@ import { CreatePaymentResult } from 'src/cryptomus/interfaces/create-payment-res
 import { InjectModel } from '@nestjs/mongoose';
 import { CategoryDocument, Cryptomus } from 'src/cryptomus/cryptomus.schema';
 import { Model } from 'mongoose';
+import { WebAppRoutes } from 'src/bot/interfaces/webAppRoutes';
 
 @Injectable()
 export class CryptomusService {
@@ -26,7 +27,6 @@ export class CryptomusService {
   }
 
   private getHeaders(payload: string): { merchant: string; sign: string } {
-    console.log('payload', payload);
     const sign = crypto
       .createHash('md5')
       .update(Buffer.from(payload).toString('base64') + this.apiKey)
@@ -37,7 +37,6 @@ export class CryptomusService {
     url: string,
     payload: Record<string, any>,
   ): Promise<T> {
-    console.log(this.getHeaders(JSON.stringify(payload)));
     const cryptoHeader = this.getHeaders(JSON.stringify(payload));
     const { data } = await firstValueFrom(
       this.httpService
@@ -51,12 +50,10 @@ export class CryptomusService {
         .pipe(
           catchError((err: AxiosError) => {
             this.logger.error(err.message);
-            console.log(JSON.stringify(err));
             throw 'Some cryptomus error';
           }),
         ),
     );
-    console.log('main', data);
     return data;
   }
 
@@ -66,15 +63,14 @@ export class CryptomusService {
       currency: 'USDT',
       order_id: orderId,
       lifetime: 300,
-      url_return: 'https://google.com',
-      url_success: 'https://vk.com',
+      url_return: `https://${process.env.BASE_URL}${WebAppRoutes.USER_MY_PAYMENTS}`,
+      url_success: `https://${process.env.BASE_URL}${WebAppRoutes.USER_HOME}`,
       url_callback: `https://${process.env.BASE_URL}/api/payment/check-payment/${orderId}`,
     };
 
     const url = 'v1/payment';
 
     const data = await this.cryptomusMain<CreatePaymentResult>(url, payload);
-    console.log('payment', data);
     const cryptomus = await this.cryptomusModel.create(data);
     return cryptomus;
     // this.logger.log(data);

@@ -75,7 +75,6 @@ export class PaymentController {
     @Param('paymentId') paymentId: string,
     @Body() body: CryptomusPaymentCallbackDto,
   ) {
-    console.log('paymentCallback', body);
     return this.paymentService.paymentCheck(body);
   }
 }

@@ -43,7 +43,7 @@ export class PaymentService {
       method: dto.method,
       paymentType: dto.paymentType,
     };
-    const payment = await this.paymentModel.create({ ...paymentDto });
+    let payment = await this.paymentModel.create({ ...paymentDto });
     //в зависимости от типа если криптомус то криптомус сервис createPayment и если криптомус то нужно payment обновить
     if (payment.paymentType === PaymentTypeEnum.CRYPTOMUS) {
       const cryptomus = await this.cryptomusService.createPayment(
@@ -51,13 +51,19 @@ export class PaymentService {
         String(payment._id),
       );
       if (cryptomus) {
-        payment.updateOne({
-          $set: { data: { ...payment.data, uuid: cryptomus.result.uuid } },
+        await payment.updateOne({
+          $set: {
+            data: {
+              ...payment.data,
+              uuid: cryptomus.result.uuid,
+              payment_link: cryptomus.result.url,
+            },
+          },
         });
+        payment = await this.paymentModel.findById(payment.id);
       }
     }
-
-    return payment._id;
+    return payment;
   }
 
   async getUserPayments(userId: number, query: GetUserPaymentsQueryDto) {
