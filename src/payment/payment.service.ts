@@ -12,6 +12,8 @@ import { BalanceDocument } from 'src/balance/balance.schema';
 import { BalanceService } from 'src/balance/balance.service';
 import { PaymentTypeEnum } from 'src/payment/enums/payment-type.enum';
 import { CryptomusService } from 'src/cryptomus/cryptomus.service';
+import { CryptomusPaymentCallbackDto } from 'src/cryptomus/dto/cryptomus-payment-callback.dto';
+import { StatusEnum } from 'src/cryptomus/interfaces/status.enum';
 
 @Injectable()
 export class PaymentService {
@@ -236,5 +238,19 @@ export class PaymentService {
     return this.paymentModel
       .find({ status: PaymentStatusEnum.REVIEW })
       .populate('user');
+  }
+
+  async paymentCheck(dto: CryptomusPaymentCallbackDto) {
+    const { status } = dto;
+    if (
+      status === StatusEnum.CANCEL ||
+      status === StatusEnum.SYSTEM_FAIL ||
+      StatusEnum.FAIL
+    ) {
+      this.movePaymentToReject(dto.order_id);
+    }
+    if (status === StatusEnum.PAID || status === StatusEnum.PAID_OVER) {
+      this.movePaymentToSuccess(dto.order_id);
+    }
   }
 }

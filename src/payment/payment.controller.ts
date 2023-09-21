@@ -1,21 +1,22 @@
 import {
   Body,
   Controller,
+  Get,
+  Param,
+  Patch,
   Post,
   Query,
-  Get,
-  Patch,
-  UsePipes,
-  Param,
   Req,
+  UsePipes,
 } from '@nestjs/common';
 import { PaymentService } from 'src/payment/payment.service';
 import { CreatePaymentDto } from 'src/payment/dto/create-payment.dto';
 import { GetUserPaymentsQueryDto } from 'src/payment/dto/query/get-user-payments-query.dto';
-import { CreatePaymentQueryDto } from 'src/payment/dto/query/create-payment-query.dto';
 import { MongoIdPipe } from 'src/pipes/mongo-id.pipe';
 import { UpdatePaymentDto } from 'src/payment/dto/update-payment.dto';
-import { getIdByToken, parseService } from 'src/auth/auth.service';
+import { getIdByToken } from 'src/auth/auth.service';
+import { CryptomusPaymentCallbackDto } from 'src/cryptomus/dto/cryptomus-payment-callback.dto';
+import { StatusEnum } from 'src/cryptomus/interfaces/status.enum';
 
 @Controller('payment')
 export class PaymentController {
@@ -70,9 +71,11 @@ export class PaymentController {
   }
 
   @Post('/check-payment/:paymentId')
-  async checkPayment(@Param('paymentId') paymentId: string, @Body() body: any) {
-    console.log('webhook callback');
-    console.log(paymentId);
-    console.log(body);
+  async checkPayment(
+    @Param('paymentId') paymentId: string,
+    @Body() body: CryptomusPaymentCallbackDto,
+  ) {
+    console.log('paymentCallback', body);
+    return this.paymentService.paymentCheck(body);
   }
 }
