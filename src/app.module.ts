@@ -18,6 +18,7 @@ import { FileModule } from './file/file.module';
 import { S3Module } from 'nestjs-s3';
 import { BalanceModule } from './balance/balance.module';
 import { AuthMiddleware } from 'src/auth/auth.middleware';
+import { AuthMiddleware as CryptomusAuthMiddleware } from 'src/cryptomus/middlewares/auth.middleware';
 import { TariffModule } from 'src/tariff/tariff.module';
 import { PurchaseModule } from './purchase/purchase.module';
 import { SubscriptionModule } from './subscription/subscription.module';
@@ -66,6 +67,10 @@ export class AppModule implements NestModule {
         method: RequestMethod.ALL,
       })
       .forRoutes('*');
+    consumer.apply(CryptomusAuthMiddleware).forRoutes({
+      path: 'payment/check-payment/:paymentId',
+      method: RequestMethod.ALL,
+    });
     // consumer.apply(AuthMiddleware).forRoutes('*');
   }
 }
