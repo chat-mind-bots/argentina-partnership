@@ -9,6 +9,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { CategoryDocument, Cryptomus } from 'src/cryptomus/cryptomus.schema';
 import { Model } from 'mongoose';
 import { WebAppRoutes } from 'src/bot/interfaces/webAppRoutes';
+import { createSignService } from 'src/cryptomus/services/create-sign.service';
 
 @Injectable()
 export class CryptomusService {
@@ -27,10 +28,7 @@ export class CryptomusService {
   }
 
   private getHeaders(payload: string): { merchant: string; sign: string } {
-    const sign = crypto
-      .createHash('md5')
-      .update(Buffer.from(payload).toString('base64') + this.apiKey)
-      .digest('hex');
+    const sign = createSignService(JSON.stringify(payload));
     return { merchant: this.merchantId, sign };
   }
   private async cryptomusMain<T>(
@@ -38,7 +36,6 @@ export class CryptomusService {
     payload: Record<string, any>,
   ): Promise<T> {
     const cryptoHeader = this.getHeaders(JSON.stringify(payload));
-    console.log('cryptoHeader ', cryptoHeader);
     const { data } = await firstValueFrom(
       this.httpService
         .post(`https://api.cryptomus.com/${url}`, payload, {
@@ -64,8 +61,8 @@ export class CryptomusService {
       currency: 'USDT',
       order_id: orderId,
       lifetime: 300,
-      url_return: `https://${process.env.BASE_URL}/${WebAppRoutes.USER_MY_PAYMENTS}`,
-      url_success: `https://${process.env.BASE_URL}/${WebAppRoutes.USER_HOME}`,
+      url_return: `https://t.me/argentina_partnership_dev_bot`,
+      url_success: `https://t.me/argentina_partnership_dev_bot`,
       url_callback: `https://${process.env.BASE_URL}/api/payment/check-payment/${orderId}`,
     };
 
