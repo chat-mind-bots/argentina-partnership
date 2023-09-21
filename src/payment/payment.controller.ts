@@ -74,7 +74,10 @@ export class PaymentController {
   async checkPayment(
     @Param('paymentId') paymentId: string,
     @Body() body: CryptomusPaymentCallbackDto,
+    @Req() req,
   ) {
+    console.log('headers ', JSON.stringify(req.headers));
+    console.log('body ', body);
     return this.paymentService.paymentCheck(body);
   }
 }
