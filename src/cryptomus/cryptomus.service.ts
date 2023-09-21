@@ -38,6 +38,7 @@ export class CryptomusService {
     payload: Record<string, any>,
   ): Promise<T> {
     const cryptoHeader = this.getHeaders(JSON.stringify(payload));
+    console.log('cryptoHeader ', cryptoHeader);
     const { data } = await firstValueFrom(
       this.httpService
         .post(`https://api.cryptomus.com/${url}`, payload, {
