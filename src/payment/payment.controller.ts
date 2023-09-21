@@ -69,8 +69,9 @@ export class PaymentController {
     return this.paymentService.movePaymentToReview(userId, paymentId, body);
   }
 
-  @Get('/check-payment/:paymentId')
+  @Post('/check-payment/:paymentId')
   async checkPayment(@Param('paymentId') paymentId: string, @Body() body: any) {
+    console.log('webhook callback');
     console.log(paymentId);
     console.log(body);
   }
