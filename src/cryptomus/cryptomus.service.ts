@@ -68,7 +68,7 @@ export class CryptomusService {
       lifetime: 300,
       url_return: 'https://google.com',
       url_success: 'https://vk.com',
-      url_callback: `https://${process.env.BASE_URL}/${orderId}`,
+      url_callback: `https://${process.env.BASE_URL}/api/payment/check-payment/${orderId}`,
     };
 
     const url = 'v1/payment';
