@@ -10,6 +10,8 @@ import { PaymentStatusEnum } from 'src/payment/enums/payment-status.enum';
 import { UserDocument } from 'src/user/user.schema';
 import { BalanceDocument } from 'src/balance/balance.schema';
 import { BalanceService } from 'src/balance/balance.service';
+import { PaymentTypeEnum } from 'src/payment/enums/payment-type.enum';
+import { CryptomusService } from 'src/cryptomus/cryptomus.service';
 
 @Injectable()
 export class PaymentService {
@@ -18,6 +20,7 @@ export class PaymentService {
     private readonly paymentModel: Model<PaymentDocument>,
     private readonly userService: UserService,
     private readonly balanceService: BalanceService,
+    private readonly cryptomusService: CryptomusService,
   ) {}
 
   async createPayment(userId: number, dto: CreatePaymentDto) {
@@ -36,10 +39,23 @@ export class PaymentService {
       currency: dto.currency,
       amount: dto.amount,
       method: dto.method,
+      paymentType: dto.paymentType,
     };
     const payment = await this.paymentModel.create({ ...paymentDto });
+    //в зависимости от типа если криптомус то криптомус сервис createPayment и если криптомус то нужно payment обновить
+    if (payment.paymentType === PaymentTypeEnum.CRYPTOMUS) {
+      const cryptomus = await this.cryptomusService.createPayment(
+        dto.amount,
+        String(payment._id),
+      );
+      if (cryptomus) {
+        payment.updateOne({
+          $set: { data: { ...payment.data, uuid: cryptomus.result.uuid } },
+        });
+      }
+    }
 
-    return 'success';
+    return payment._id;
   }
 
   async getUserPayments(userId: number, query: GetUserPaymentsQueryDto) {

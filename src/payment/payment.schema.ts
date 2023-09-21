@@ -6,6 +6,7 @@ import { CurrenciesEnum } from 'src/payment/enums/currencies.enum';
 import { PaymentStatusEnum } from 'src/payment/enums/payment-status.enum';
 import { Balance } from 'src/balance/balance.schema';
 import { NetworksEnum } from 'src/payment/enums/networks.enum';
+import { PaymentTypeEnum } from 'src/payment/enums/payment-type.enum';
 
 export type PaymentDocument = Payment & Document;
 
@@ -48,6 +49,13 @@ export class Payment {
     type: mongoose.Schema.Types.Mixed,
   })
   data?: any;
+
+  @Prop({
+    required: false,
+    type: String,
+    enum: PaymentTypeEnum,
+  })
+  paymentType: PaymentTypeEnum;
 
   @Prop({ default: now() })
   createdAt: Date;

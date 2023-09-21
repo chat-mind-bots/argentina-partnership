@@ -17,5 +17,6 @@ import { Cryptomus, CryptomusSchema } from 'src/cryptomus/cryptomus.schema';
     ConfigModule.forRoot(),
   ],
   providers: [CryptomusService],
+  exports: [CryptomusService],
 })
 export class CryptomusModule {}
