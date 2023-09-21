@@ -63,8 +63,8 @@ export class CryptomusService {
       currency: 'USDT',
       order_id: orderId,
       lifetime: 300,
-      url_return: `https://${process.env.BASE_URL}${WebAppRoutes.USER_MY_PAYMENTS}`,
-      url_success: `https://${process.env.BASE_URL}${WebAppRoutes.USER_HOME}`,
+      url_return: `https://${process.env.BASE_URL}/${WebAppRoutes.USER_MY_PAYMENTS}`,
+      url_success: `https://${process.env.BASE_URL}/${WebAppRoutes.USER_HOME}`,
       url_callback: `https://${process.env.BASE_URL}/api/payment/check-payment/${orderId}`,
     };
 
