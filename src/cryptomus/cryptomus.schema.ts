@@ -1,6 +1,5 @@
 import { now, Document, Types } from 'mongoose';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Category } from 'src/categories/ctegories.schema';
 import { Payment } from 'src/payment/payment.schema';
 import { StatusEnum } from 'src/cryptomus/interfaces/status.enum';
 import { Result } from 'src/cryptomus/interfaces/create-payment-result.interface';
