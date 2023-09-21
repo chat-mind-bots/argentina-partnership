@@ -1,4 +1,9 @@
-import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
+import {
+  MiddlewareConsumer,
+  Module,
+  NestModule,
+  RequestMethod,
+} from '@nestjs/common';
 import { BotModule } from './bot/bot.module';
 import { UserModule } from './user/user.module';
 import { MongooseModule } from '@nestjs/mongoose';
@@ -54,6 +59,13 @@ import { SubscriptionModule } from './subscription/subscription.module';
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer.apply(AuthMiddleware).forRoutes('*');
+    consumer
+      .apply(AuthMiddleware)
+      .exclude({
+        path: 'payment/check-payment/:paymentId',
+        method: RequestMethod.ALL,
+      })
+      .forRoutes('*');
+    // consumer.apply(AuthMiddleware).forRoutes('*');
   }
 }

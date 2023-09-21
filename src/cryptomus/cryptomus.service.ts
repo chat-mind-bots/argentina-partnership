@@ -26,6 +26,7 @@ export class CryptomusService {
   }
 
   private getHeaders(payload: string): { merchant: string; sign: string } {
+    console.log('payload', payload);
     const sign = crypto
       .createHash('md5')
       .update(Buffer.from(payload).toString('base64') + this.apiKey)
@@ -36,37 +37,50 @@ export class CryptomusService {
     url: string,
     payload: Record<string, any>,
   ): Promise<T> {
+    console.log(this.getHeaders(JSON.stringify(payload)));
+    const cryptoHeader = this.getHeaders(JSON.stringify(payload));
     const { data } = await firstValueFrom(
       this.httpService
         .post(`https://api.cryptomus.com/${url}`, payload, {
-          headers: this.getHeaders(JSON.stringify(payload)),
+          headers: {
+            'Content-Type': 'application/json',
+            merchant: cryptoHeader.merchant,
+            sign: cryptoHeader.sign,
+          },
         })
         .pipe(
           catchError((err: AxiosError) => {
             this.logger.error(err.message);
+            console.log(JSON.stringify(err));
             throw 'Some cryptomus error';
           }),
         ),
     );
+    console.log('main', data);
     return data;
   }
 
-  async createPayment(amount: number, orderId: number) {
+  async createPayment(amount: number, orderId: string) {
     const payload = {
-      amount,
+      amount: amount.toString(),
       currency: 'USDT',
       order_id: orderId,
+      lifetime: 300,
+      url_return: 'https://google.com',
+      url_success: 'https://vk.com',
+      url_callback: `https://${process.env.BASE_URL}/${orderId}`,
     };
 
     const url = 'v1/payment';
 
     const data = await this.cryptomusMain<CreatePaymentResult>(url, payload);
+    console.log('payment', data);
     const cryptomus = await this.cryptomusModel.create(data);
     return cryptomus;
     // this.logger.log(data);
   }
 
-  async checkPayment(uuid: string, orderId: number) {
+  async checkPayment(uuid: string, orderId: string) {
     const payload = {
       uuid,
       order_id: orderId,
