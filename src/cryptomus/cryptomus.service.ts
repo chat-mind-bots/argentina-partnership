@@ -68,7 +68,6 @@ export class CryptomusService {
     const data = await this.cryptomusMain<CreatePaymentResult>(url, payload);
     const cryptomus = await this.cryptomusModel.create(data);
     return cryptomus;
-    // this.logger.log(data);
   }
 
   async checkPayment(uuid: string, orderId: string) {
