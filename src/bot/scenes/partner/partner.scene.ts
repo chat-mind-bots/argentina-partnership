@@ -11,6 +11,8 @@ import { BusinessService } from 'src/business/business.service';
 import { buttonSplitterHelper } from 'src/common/helpers/button-splitter.helper';
 import { telegramDataHelper } from 'src/common/helpers/telegram-data.helper';
 import { routeReplacer } from 'src/common/helpers/route.helper';
+import { LIMITDOCUMENTS } from 'src/bot/constants/limit-documents';
+import { createPaginationTGButtons } from 'src/common/helpers/button-pagination';
 
 @Scene('partnerScene')
 @UseFilters(TelegrafExceptionFilter)
@@ -71,11 +73,26 @@ export class PartnerScene {
   }
 
   @Action('businessList')
-  async businessList(@Ctx() ctx: SceneContext) {
+  async businessList(@Ctx() ctx: SceneContext, currentPage = 1) {
     const user = await this.userService.findByTgId(ctx.callbackQuery.from.id);
-    const businesses = await this.businessService.findAllBusinessesByOwnerId(
-      user._id,
-    );
+    const { data: businesses, total } =
+      await this.businessService.findAllBusinessesByOwnerId(user._id, {
+        limit: LIMITDOCUMENTS,
+        offset: (currentPage - 1) * LIMITDOCUMENTS,
+      });
+
+    const maxPage =
+      Math.ceil(total / LIMITDOCUMENTS) > 0
+        ? Math.ceil(total / LIMITDOCUMENTS)
+        : 1;
+
+    const pages = {
+      first: 1,
+      prev: currentPage - 1 < 1 ? 1 : currentPage - 1,
+      next: currentPage + 1 > maxPage ? maxPage : currentPage + 1,
+      last: maxPage,
+    };
+
     if (!businesses.length) {
       await ctx.editMessageText(
         'Пока что вы не добавили ни одного бизнеса',
@@ -89,6 +106,16 @@ export class PartnerScene {
       );
       return;
     }
+
+    ctx.session['businessListPagination'] = { ...pages, currentPage };
+
+    const paginationButtonsArray = createPaginationTGButtons(
+      currentPage,
+      pages,
+      'businessListSelectPage__',
+      Markup.button.callback,
+    );
+
     const categoriesMas = [];
     businesses.map((business, i) => {
       categoriesMas.push([`${i + 1}. ${business.title}`, business.id]);
@@ -106,18 +133,32 @@ export class PartnerScene {
       });
     });
     const markup = Markup.inlineKeyboard([
-      ...actionButtons,
       [Markup.button.callback('🔙 Назад', 'menu')],
-      // [Markup.button.callback('добавить мок', 'mockData')],
+      ...actionButtons,
+      paginationButtonsArray,
     ]);
     await ctx.editMessageText(
       `Список бизнесов` +
+        '\n' +
+        `Страница: ${currentPage}/${maxPage} 📖` +
         '\n' +
         'Выберете бизнес:' +
         '\n' +
         categoriesMas.map((business) => business[0]).join('\n'),
       markup,
     );
+  }
+
+  @Action(/businessListSelectPage/)
+  async businessListSelectPage(@Ctx() ctx: SceneContext) {
+    const businessListPageType = telegramDataHelper(
+      ctx.callbackQuery['data'],
+      '__',
+    );
+    const page = ctx.session['businessListPagination'][businessListPageType];
+    if (page) {
+      await this.businessList(ctx, page);
+    }
   }
 
   // @Action('mockData')
