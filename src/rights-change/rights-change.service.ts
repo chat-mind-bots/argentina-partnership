@@ -8,8 +8,8 @@ import {
   TicketStatus,
 } from 'src/rights-change/rights-change.schema';
 import { ChangeRoles } from 'src/rights-change/types';
-import { UserRoleEnum } from 'src/user/enum/user-role.enum';
 import { User } from 'src/user/user.schema';
+import { FindTicketsByStatusDto } from 'src/rights-change/dto/query/find-tickets-by-status.dto';
 
 @Injectable()
 export class RightsChangeService {
@@ -59,13 +59,26 @@ export class RightsChangeService {
     return ticket;
   }
 
-  async findTicketsByStatus(role: UserRoleEnum, status: TicketStatus) {
+  async findTicketsByStatus({
+    role,
+    status,
+    offset,
+    limit,
+  }: FindTicketsByStatusDto) {
     const tickets = await this.rightsChangeModel
       .find({ status, role })
       .populate<{ user: Pick<User, 'username' | 'first_name' | 'tg_id'> }>({
         path: 'user',
         select: 'username first_name tg_id',
-      });
-    return tickets;
+      })
+      .skip(offset)
+      .limit(limit);
+
+    const total = await this.rightsChangeModel.countDocuments({
+      status,
+      role,
+    });
+
+    return { data: tickets, total };
   }
 }

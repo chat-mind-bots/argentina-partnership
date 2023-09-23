@@ -6,6 +6,7 @@ import { CreateUserDto } from 'src/user/dto/create-user.dto';
 import { UserRoleEnum } from 'src/user/enum/user-role.enum';
 import { BalanceService } from 'src/balance/balance.service';
 import { Balance } from 'src/balance/balance.schema';
+import { GetUserDto } from 'src/user/dto/query/get-user.dto';
 
 @Injectable()
 export class UserService {
@@ -61,10 +62,22 @@ export class UserService {
       : this.userModel.findById(id).select('-balance');
   }
 
-  async findAllByRole(role: UserRoleEnum, isShowBalance?: boolean) {
-    return isShowBalance
-      ? this.userModel.find({ role })
-      : this.userModel.find({ role }).select('-balance');
+  async findAllByRole(
+    // role: UserRoleEnum,
+    // isShowBalance?: boolean,
+    params?: GetUserDto,
+  ) {
+    const { isShowBalance, role, offset, limit } = params;
+
+    const data = isShowBalance
+      ? await this.userModel.find({ role }).skip(offset).limit(limit)
+      : await this.userModel
+          .find({ role })
+          .select('-balance')
+          .skip(offset)
+          .limit(limit);
+    const total = await this.userModel.countDocuments({ role });
+    return { data, total };
   }
 
   async showUserBalance(tgId: number) {
