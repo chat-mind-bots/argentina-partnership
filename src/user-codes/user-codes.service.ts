@@ -6,6 +6,7 @@ import { UserCodeStatusEnum } from 'src/user-codes/enums/user-code-status.enum';
 import { QrcodeService } from 'src/qrcode/qrcode.service';
 import { UserService } from 'src/user/user.service';
 import { CreateCodeQueryDto } from 'src/user-codes/dto/create-code-query.dto';
+import { SubscriptionService } from 'src/subscription/subscription.service';
 
 @Injectable()
 export class UserCodesService {
@@ -14,6 +15,7 @@ export class UserCodesService {
     private readonly userCodesModel: Model<UserCodesDocument>,
     private readonly userService: UserService,
     private readonly qrCodeService: QrcodeService,
+    private readonly subscriptionService: SubscriptionService,
   ) {}
 
   private generateRandomUserCode(length): string {
@@ -35,10 +37,19 @@ export class UserCodesService {
 
   async getUserCodeForWeb(query: CreateCodeQueryDto) {
     const { _id } = await this.userService.findByTgId(query.userId);
+    const data = !!(
+      await this.subscriptionService.findSubscription(query.userId, true)
+    ).length;
 
     if (!_id) {
       throw new HttpException(
         'Document (User) not found',
+        HttpStatus.NOT_FOUND,
+      );
+    }
+    if (!data) {
+      throw new HttpException(
+        'Document (Subscription) not found',
         HttpStatus.NOT_FOUND,
       );
     }
