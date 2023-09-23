@@ -238,12 +238,16 @@ export class PaymentService {
     );
   }
 
-  async getReviewPayments(): Promise<
-    Array<PaymentDocument & { user: UserDocument }>
-  > {
-    return this.paymentModel
+  async getReviewPayments(limit?: number, offset?: number) {
+    const data = await this.paymentModel
       .find({ status: PaymentStatusEnum.REVIEW })
-      .populate('user');
+      .populate<{ user: UserDocument }>('user')
+      .limit(limit)
+      .skip(offset);
+    const total = await this.paymentModel.countDocuments({
+      status: PaymentStatusEnum.REVIEW,
+    });
+    return { data, total };
   }
 
   async paymentCheck(dto: CryptomusPaymentCallbackDto) {

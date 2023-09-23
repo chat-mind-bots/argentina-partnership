@@ -149,8 +149,8 @@ export class BotService implements OnModuleInit {
     );
   }
 
-  async getPaymentsForAdmin() {
-    const payments = await this.paymentService.getReviewPayments();
+  async getPaymentsForAdmin(limit?: number, offset?: number) {
+    const payments = await this.paymentService.getReviewPayments(limit, offset);
     return payments;
   }
 

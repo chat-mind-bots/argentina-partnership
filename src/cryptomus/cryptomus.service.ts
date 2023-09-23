@@ -1,14 +1,12 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { catchError, firstValueFrom, map, Observable } from 'rxjs';
-import { AxiosError, AxiosResponse } from 'axios';
+import { catchError, firstValueFrom } from 'rxjs';
+import { AxiosError } from 'axios';
 import { HttpService } from '@nestjs/axios';
 import { ConfigService } from '@nestjs/config';
-import * as crypto from 'crypto';
 import { CreatePaymentResult } from 'src/cryptomus/interfaces/create-payment-result.interface';
 import { InjectModel } from '@nestjs/mongoose';
 import { CategoryDocument, Cryptomus } from 'src/cryptomus/cryptomus.schema';
 import { Model } from 'mongoose';
-import { WebAppRoutes } from 'src/bot/interfaces/webAppRoutes';
 import { createSignService } from 'src/cryptomus/services/create-sign.service';
 
 @Injectable()
@@ -24,7 +22,6 @@ export class CryptomusService {
   ) {
     this.apiKey = configService.get('CRYPTOMUS_API_KEY');
     this.merchantId = configService.get('CRYPTOMUS_MERCHANT_ID');
-    // this.createPayment(10, 1);
   }
 
   private getHeaders(payload: string): { merchant: string; sign: string } {
@@ -60,8 +57,9 @@ export class CryptomusService {
       amount: amount.toString(),
       currency: 'USDT',
       order_id: orderId,
-      url_return: `https://t.me/argentina_partnership_dev_bot`,
-      url_success: `https://t.me/argentina_partnership_dev_bot`,
+      lifetime: 300,
+      url_return: `https://t.me/argentina_partnership_dev_bot/ArgentinaPartnershipApp`,
+      url_success: `https://t.me/argentina_partnership_dev_bot/ArgentinaPartnershipApp`,
       url_callback: `https://${process.env.BASE_URL}/api/payment/check-payment/${orderId}`,
     };
 
@@ -70,7 +68,6 @@ export class CryptomusService {
     const data = await this.cryptomusMain<CreatePaymentResult>(url, payload);
     const cryptomus = await this.cryptomusModel.create(data);
     return cryptomus;
-    // this.logger.log(data);
   }
 
   async checkPayment(uuid: string, orderId: string) {

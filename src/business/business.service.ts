@@ -44,8 +44,11 @@ export class BusinessService {
     });
   }
 
-  async findAllBusinessesByOwnerId(ownerId: Types.ObjectId) {
-    const result = await this.businessModel
+  async findAllBusinessesByOwnerId(
+    ownerId: Types.ObjectId,
+    params: GetBusinessDto,
+  ) {
+    const data = await this.businessModel
       .find({ owner: ownerId })
       .populate<{ owner: Pick<User, 'username' | 'first_name' | 'tg_id'> }>({
         path: 'owner',
@@ -54,8 +57,12 @@ export class BusinessService {
       .populate<{ category: Pick<Category, 'title' | 'description'> }>({
         path: 'category',
         select: 'title description',
-      });
-    return result;
+      })
+      .limit(params.limit)
+      .skip(params.offset);
+
+    const total = await this.businessModel.countDocuments({ owner: ownerId });
+    return { data, total };
   }
 
   async disableAllOwnerBusinesses(ownerId: string) {

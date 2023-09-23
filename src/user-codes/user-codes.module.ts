@@ -5,6 +5,7 @@ import { UserCodesSchema, UserCodes } from 'src/user-codes/user-codes.schema';
 import { QrcodeModule } from 'src/qrcode/qrcode.module';
 import { UserCodesController } from './user-codes.controller';
 import { UserModule } from 'src/user/user.module';
+import { SubscriptionModule } from 'src/subscription/subscription.module';
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { UserModule } from 'src/user/user.module';
     ]),
     UserModule,
     QrcodeModule,
+    SubscriptionModule,
   ],
   providers: [UserCodesService],
   exports: [UserCodesService],

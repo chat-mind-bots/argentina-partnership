@@ -140,6 +140,7 @@ export class AdminScene {
       'categorySelectPage__',
       Markup.button.callback,
     );
+    //
 
     const categoriesMas = [];
     categories.map((category, i) => {
@@ -317,8 +318,34 @@ export class AdminScene {
   }
 
   @Action('partnerList')
-  async partnerList(@Ctx() ctx: SceneContext) {
-    const partners = await this.userService.findAllByRole(UserRoleEnum.PARTNER);
+  async partnerList(@Ctx() ctx: SceneContext, currentPage = 1) {
+    const { data: partners, total } = await this.userService.findAllByRole({
+      role: UserRoleEnum.PARTNER,
+      limit: LIMITDOCUMENTS,
+      offset: (currentPage - 1) * LIMITDOCUMENTS,
+    });
+
+    const maxPage =
+      Math.ceil(total / LIMITDOCUMENTS) > 0
+        ? Math.ceil(total / LIMITDOCUMENTS)
+        : 1;
+
+    const pages = {
+      first: 1,
+      prev: currentPage - 1 < 1 ? 1 : currentPage - 1,
+      next: currentPage + 1 > maxPage ? maxPage : currentPage + 1,
+      last: maxPage,
+    };
+
+    ctx.session['partnerListPagination'] = { ...pages, currentPage };
+
+    const paginationButtonsArray = createPaginationTGButtons(
+      currentPage,
+      pages,
+      'partnerListSelectPage__',
+      Markup.button.callback,
+    );
+
     if (!partners) {
       const markup = Markup.inlineKeyboard([
         [Markup.button.callback('🔙 Назад', 'partner')],
@@ -343,17 +370,32 @@ export class AdminScene {
       });
     });
     const markup = Markup.inlineKeyboard([
-      ...actionButtons,
       [Markup.button.callback('🔙 Назад', 'partner')],
+      ...actionButtons,
+      paginationButtonsArray,
     ]);
     await ctx.editMessageText(
       `Список партнеров` +
+        '\n' +
+        `Страница: ${currentPage}/${maxPage} 📖` +
         '\n' +
         'Выберете партнера:' +
         '\n' +
         partnersMas.map((partner) => partner[0]).join('\n'),
       markup,
     );
+  }
+
+  @Action(/partnerListSelectPage/)
+  async partnerListSelectPage(@Ctx() ctx: SceneContext) {
+    const adminListPageType = telegramDataHelper(
+      ctx.callbackQuery['data'],
+      '__',
+    );
+    const page = ctx.session['partnerListPagination'][adminListPageType];
+    if (page) {
+      await this.adminList(ctx, page);
+    }
   }
 
   @Action(/selectPartner/)
@@ -367,7 +409,12 @@ export class AdminScene {
     await ctx.editMessageText(userText, {
       reply_markup: {
         inline_keyboard: [
-          [Markup.button.callback('🔙 Назад', 'partnerList')],
+          [
+            Markup.button.callback(
+              '🔙 Назад',
+              'partnerListSelectPage__currentPage',
+            ),
+          ],
           [
             Markup.button.callback(
               'Разжаловать',
@@ -381,11 +428,36 @@ export class AdminScene {
   }
 
   @Action('partnerTicket')
-  async partnerTicket(@Ctx() ctx: SceneContext) {
-    const tickets = await this.rightsChangeService.findTicketsByStatus(
-      UserRoleEnum.PARTNER,
-      TicketStatus.PENDING,
+  async partnerTicket(@Ctx() ctx: SceneContext, currentPage = 1) {
+    const { data: tickets, total } =
+      await this.rightsChangeService.findTicketsByStatus({
+        status: TicketStatus.PENDING,
+        role: UserRoleEnum.PARTNER,
+        limit: LIMITDOCUMENTS,
+        offset: (currentPage - 1) * LIMITDOCUMENTS,
+      });
+
+    const maxPage =
+      Math.ceil(total / LIMITDOCUMENTS) > 0
+        ? Math.ceil(total / LIMITDOCUMENTS)
+        : 1;
+
+    const pages = {
+      first: 1,
+      prev: currentPage - 1 < 1 ? 1 : currentPage - 1,
+      next: currentPage + 1 > maxPage ? maxPage : currentPage + 1,
+      last: maxPage,
+    };
+
+    ctx.session['partnerTicketPagination'] = { ...pages, currentPage };
+
+    const paginationButtonsArray = createPaginationTGButtons(
+      currentPage,
+      pages,
+      'partnerTicketSelectPage__',
+      Markup.button.callback,
     );
+
     if (!tickets.length) {
       const markup = Markup.inlineKeyboard([
         Markup.button.callback('🔙 Назад', 'partner'),
@@ -416,13 +488,16 @@ export class AdminScene {
     });
 
     const markup = Markup.inlineKeyboard([
-      ...actionButtons,
       [Markup.button.callback('🔙 Назад', 'partner')],
+      ...actionButtons,
+      paginationButtonsArray,
     ]);
 
     await ctx.editMessageText(
       `Список заявок` +
-        '\n\n' +
+        '\n' +
+        `Страница: ${currentPage}/${maxPage} 📖` +
+        '\n' +
         'Выберите заявку:' +
         '\n' +
         partnerTickets.map((partner) => partner[0]).join('\n'),
@@ -436,8 +511,36 @@ export class AdminScene {
   }
 
   @Action('adminList')
-  async adminList(@Ctx() ctx: SceneContext) {
-    const admins = await this.userService.findAllByRole(UserRoleEnum.ADMIN);
+  async adminList(@Ctx() ctx: SceneContext, currentPage = 1) {
+    //
+
+    const { data: admins, total } = await this.userService.findAllByRole({
+      role: UserRoleEnum.ADMIN,
+      limit: LIMITDOCUMENTS,
+      offset: (currentPage - 1) * LIMITDOCUMENTS,
+    });
+
+    const maxPage =
+      Math.ceil(total / LIMITDOCUMENTS) > 0
+        ? Math.ceil(total / LIMITDOCUMENTS)
+        : 1;
+
+    const pages = {
+      first: 1,
+      prev: currentPage - 1 < 1 ? 1 : currentPage - 1,
+      next: currentPage + 1 > maxPage ? maxPage : currentPage + 1,
+      last: maxPage,
+    };
+
+    ctx.session['adminListPagination'] = { ...pages, currentPage };
+
+    const paginationButtonsArray = createPaginationTGButtons(
+      currentPage,
+      pages,
+      'adminListSelectPage__',
+      Markup.button.callback,
+    );
+
     const adminsMas = [];
     admins.map((admin, i) => {
       adminsMas.push([`${i + 1}. @${admin.username}`, admin.id]);
@@ -455,17 +558,32 @@ export class AdminScene {
       });
     });
     const markup = Markup.inlineKeyboard([
-      ...actionButtons,
       [Markup.button.callback('🔙 Назад', 'admin')],
+      ...actionButtons,
+      paginationButtonsArray,
     ]);
     await ctx.editMessageText(
       `Список администраторов` +
+        '\n' +
+        `Страница: ${currentPage}/${maxPage} 📖` +
         '\n' +
         'Выберете администратора:' +
         '\n' +
         adminsMas.map((admin) => admin[0]).join('\n'),
       markup,
     );
+  }
+
+  @Action(/adminListSelectPage/)
+  async adminListSelectPage(@Ctx() ctx: SceneContext) {
+    const adminListPageType = telegramDataHelper(
+      ctx.callbackQuery['data'],
+      '__',
+    );
+    const page = ctx.session['adminListPagination'][adminListPageType];
+    if (page) {
+      await this.adminList(ctx, page);
+    }
   }
 
   @Action(/selectAdmin/)
@@ -484,7 +602,12 @@ export class AdminScene {
     await ctx.editMessageText(userText, {
       reply_markup: {
         inline_keyboard: [
-          [Markup.button.callback('🔙 Назад', 'adminList')],
+          [
+            Markup.button.callback(
+              '🔙 Назад',
+              'adminListSelectPage__currentPage',
+            ),
+          ],
           showRestrictButton
             ? [
                 Markup.button.callback(
@@ -566,11 +689,36 @@ export class AdminScene {
   }
 
   @Action('adminTicket')
-  async adminTicket(@Ctx() ctx: SceneContext) {
-    const tickets = await this.rightsChangeService.findTicketsByStatus(
-      UserRoleEnum.ADMIN,
-      TicketStatus.PENDING,
+  async adminTicket(@Ctx() ctx: SceneContext, currentPage = 1) {
+    const { data: tickets, total } =
+      await this.rightsChangeService.findTicketsByStatus({
+        status: TicketStatus.PENDING,
+        role: UserRoleEnum.ADMIN,
+        limit: LIMITDOCUMENTS,
+        offset: (currentPage - 1) * LIMITDOCUMENTS,
+      });
+
+    const maxPage =
+      Math.ceil(total / LIMITDOCUMENTS) > 0
+        ? Math.ceil(total / LIMITDOCUMENTS)
+        : 1;
+
+    const pages = {
+      first: 1,
+      prev: currentPage - 1 < 1 ? 1 : currentPage - 1,
+      next: currentPage + 1 > maxPage ? maxPage : currentPage + 1,
+      last: maxPage,
+    };
+
+    ctx.session['adminTicketPagination'] = { ...pages, currentPage };
+
+    const paginationButtonsArray = createPaginationTGButtons(
+      currentPage,
+      pages,
+      'adminTicketSelectPage__',
+      Markup.button.callback,
     );
+
     if (!tickets.length) {
       const markup = Markup.inlineKeyboard([
         Markup.button.callback('🔙 Назад', 'admin'),
@@ -601,18 +749,47 @@ export class AdminScene {
     });
 
     const markup = Markup.inlineKeyboard([
-      ...actionButtons,
       [Markup.button.callback('🔙 Назад', 'admin')],
+      ...actionButtons,
+      paginationButtonsArray,
     ]);
 
     await ctx.editMessageText(
       `Список заявок` +
-        '\n\n' +
+        '\n' +
+        `Страница: ${currentPage}/${maxPage} 📖` +
+        '\n' +
         'Выберите заявку:' +
         '\n' +
         adminTickets.map((admin) => admin[0]).join('\n'),
       markup,
     );
+  }
+
+  @Action(/partnerTicketSelectPage/)
+  async partnerTicketSelectPage(@Ctx() ctx: SceneContext) {
+    const partnerTicketSelectPageType = telegramDataHelper(
+      ctx.callbackQuery['data'],
+      '__',
+    );
+    const page =
+      ctx.session['partnerTicketPagination'][partnerTicketSelectPageType];
+    if (page) {
+      await this.partnerTicket(ctx, page);
+    }
+  }
+
+  @Action(/adminTicketSelectPage/)
+  async adminTicketSelectPage(@Ctx() ctx: SceneContext) {
+    const adminTicketSelectPageType = telegramDataHelper(
+      ctx.callbackQuery['data'],
+      '__',
+    );
+    const page =
+      ctx.session['adminTicketPagination'][adminTicketSelectPageType];
+    if (page) {
+      await this.adminTicket(ctx, page);
+    }
   }
 
   @Action(/selectPartTicket/)
@@ -625,7 +802,12 @@ export class AdminScene {
         Markup.button.callback('Принять', `acceptPartner__${ticket.id}`),
         Markup.button.callback('Отклонить', `rejectPartner__${ticket.id}`),
       ],
-      [Markup.button.callback('🔙 Назад', `partnerTicket`)],
+      [
+        Markup.button.callback(
+          '🔙 Назад',
+          'partnerTicketSelectPage__currentPage',
+        ),
+      ],
     ];
     const userText = `Заявка на должность
 <b>Название должности</b>: Партнер
@@ -651,7 +833,12 @@ export class AdminScene {
         Markup.button.callback('Принять', `acceptAdmin__${ticket.id}`),
         Markup.button.callback('Отклонить', `rejectAdmin__${ticket.id}`),
       ],
-      [Markup.button.callback('🔙 Назад', `adminTicket`)],
+      [
+        Markup.button.callback(
+          '🔙 Назад',
+          'adminTicketSelectPage__currentPage',
+        ),
+      ],
     ];
 
     const userText = `Заявка на должность
@@ -764,8 +951,32 @@ export class AdminScene {
   }
 
   @Action('topUp')
-  async topUp(@Ctx() ctx: SceneContext) {
-    const payments = (await this.botService.getPaymentsForAdmin()).reduce(
+  async topUp(@Ctx() ctx: SceneContext, currentPage = 1) {
+    const { data, total } = await this.botService.getPaymentsForAdmin(
+      LIMITDOCUMENTS,
+      (currentPage - 1) * LIMITDOCUMENTS,
+    );
+    const maxPage =
+      Math.ceil(total / LIMITDOCUMENTS) > 0
+        ? Math.ceil(total / LIMITDOCUMENTS)
+        : 1;
+
+    const pages = {
+      first: 1,
+      prev: currentPage - 1 < 1 ? 1 : currentPage - 1,
+      next: currentPage + 1 > maxPage ? maxPage : currentPage + 1,
+      last: maxPage,
+    };
+
+    ctx.session['topUpPagination'] = { ...pages, currentPage };
+    const paginationButtonsArray = createPaginationTGButtons(
+      currentPage,
+      pages,
+      'topUpSelectPage__',
+      Markup.button.callback,
+    );
+
+    const payments = data.reduce(
       (acc, payment, index) => [
         ...acc,
         {
@@ -794,18 +1005,29 @@ export class AdminScene {
     );
 
     const markup = Markup.inlineKeyboard([
-      ...actions,
       [Markup.button.callback('🔙 Назад', 'callMenu')],
+      ...actions,
+      paginationButtonsArray,
     ]);
     await ctx.editMessageText(
-      `Выберите заявку
-      ${payments.reduce(
-        (acc, element) => `${acc}${element.tittle}
-      `,
+      `Выберите заявку\nСтраница: ${currentPage}/${maxPage} 📖\n${payments.reduce(
+        (acc, element) => `${acc}${element.tittle}`,
         '',
       )}`,
       markup,
     );
+  }
+
+  @Action(/topUpSelectPage/)
+  async topUpSelectPage(@Ctx() ctx: SceneContext) {
+    const topUpSelectPageType = telegramDataHelper(
+      ctx.callbackQuery['data'],
+      '__',
+    );
+    const page = ctx.session['topUpPagination'][topUpSelectPageType];
+    if (page) {
+      await this.topUp(ctx, page);
+    }
   }
 
   @Action(/payment/)
@@ -816,7 +1038,7 @@ export class AdminScene {
     const markup = Markup.inlineKeyboard([
       [Markup.button.callback('Подвердить платеж', `topUpAccess__${id}`)],
       [Markup.button.callback('Отклонить платеж', `topUpDecline__${id}`)],
-      [Markup.button.callback('🔙 Назад', 'topUp')],
+      [Markup.button.callback('🔙 Назад', 'topUpSelectPage__currentPage')],
     ]);
 
     if (payment.data?.photo) {
