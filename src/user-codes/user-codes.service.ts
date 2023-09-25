@@ -78,7 +78,7 @@ export class UserCodesService {
   ): Promise<{ codeDocument: UserCodesDocument; qrCode: Buffer }> {
     const codeDB = await this.userCodesModel.findOne({
       status: UserCodeStatusEnum.pending,
-      expiresAt: { $gt: Date.now },
+      expiresAt: { $gt: new Date() },
       user: userId,
     });
 
