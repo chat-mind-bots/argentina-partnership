@@ -18,7 +18,7 @@ export class Subscription {
   @Prop({ required: false, type: Date })
   expiredDate: Date;
 
-  @Prop({ default: now() })
+  @Prop({ default: Date.now })
   createdAt: Date;
 }
 
