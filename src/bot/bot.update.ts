@@ -43,7 +43,6 @@ export class BotUpdate {
     if (isPrivate(chat.type)) {
       const isOldUser = await this.userService.findByTgId(from.id);
       if (!isOldUser) {
-        ctx.session['onlyUser'] = true;
         const info = (await ctx.getChat()) as Chat.PrivateChat;
         const { id: tg_id, username, first_name } = info;
         const refId = telegramDataHelper(ctx['startPayload'], 'refId=');
