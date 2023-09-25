@@ -16,10 +16,10 @@ export class Tariff {
   @Prop({ required: false, type: String })
   description?: string;
 
-  @Prop({ default: now() })
+  @Prop({ default: Date.now })
   createdAt: Date;
 
-  @Prop({ default: now() })
+  @Prop({ default: Date.now })
   updatedAt: Date;
 }
 

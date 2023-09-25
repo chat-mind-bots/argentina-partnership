@@ -22,10 +22,10 @@ export class RightsChange {
   @Prop({ required: true })
   status: TicketStatus;
 
-  @Prop({ default: now() })
+  @Prop({ default: Date.now })
   createdAt: Date;
 
-  @Prop({ default: now() })
+  @Prop({ default: Date.now })
   updatedAt: Date;
 }
 
