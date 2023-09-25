@@ -32,7 +32,7 @@ export class Purchase {
   })
   items: Array<PurchaseItem>;
 
-  @Prop({ default: now() })
+  @Prop({ default: Date.now })
   createdAt: Date;
 }
 

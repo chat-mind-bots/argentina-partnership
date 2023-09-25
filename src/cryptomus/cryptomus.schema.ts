@@ -46,10 +46,10 @@ export class Cryptomus {
   @Prop({ required: true, type: CryptomusResult })
   result: Result;
 
-  @Prop({ default: now() })
+  @Prop({ default: Date.now })
   createdAt: Date;
 
-  @Prop({ default: now() })
+  @Prop({ default: Date.now })
   updatedAt: Date;
 }
 

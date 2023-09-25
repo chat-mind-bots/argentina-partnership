@@ -57,10 +57,10 @@ export class Payment {
   })
   paymentType: PaymentTypeEnum;
 
-  @Prop({ default: now() })
+  @Prop({ default: Date.now })
   createdAt: Date;
 
-  @Prop({ default: now() })
+  @Prop({ default: Date.now })
   updatedAt: Date;
 }
 

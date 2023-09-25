@@ -11,10 +11,10 @@ export class Category {
   @Prop({ required: false })
   description: string;
 
-  @Prop({ default: now() })
+  @Prop({ default: Date.now })
   createdAt: Date;
 
-  @Prop({ default: now() })
+  @Prop({ default: Date.now })
   updatedAt: Date;
 }
 

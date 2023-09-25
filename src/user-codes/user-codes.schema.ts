@@ -22,10 +22,10 @@ export class UserCodes {
   @Prop({ required: true, type: Date })
   expiresAt: Date;
 
-  @Prop({ default: now() })
+  @Prop({ default: Date.now })
   createdAt: Date;
 
-  @Prop({ default: now() })
+  @Prop({ default: Date.now })
   updatedAt: Date;
 }
 

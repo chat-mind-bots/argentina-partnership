@@ -36,10 +36,10 @@ export class File {
   @Prop({ required: true, type: Types.ObjectId, ref: User.name })
   owner: Types.ObjectId;
 
-  @Prop({ default: now() })
+  @Prop({ default: Date.now })
   createdAt: Date;
 
-  @Prop({ default: now() })
+  @Prop({ default: Date.now })
   updatedAt: Date;
 }
 

@@ -51,10 +51,10 @@ export class Business {
   @Prop({ required: false, type: Types.ObjectId, ref: File.name })
   preview: Types.ObjectId;
 
-  @Prop({ default: now() })
+  @Prop({ default: Date.now })
   createdAt: Date;
 
-  @Prop({ default: now() })
+  @Prop({ default: Date.now })
   updatedAt: Date;
 }
 
