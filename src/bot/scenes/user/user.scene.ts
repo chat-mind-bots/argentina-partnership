@@ -34,7 +34,7 @@ export class UserScene {
       [Markup.button.callback('Выйти', 'changeRole')],
     ]).resize();
 
-    isOnlyUser &&
+    !isOnlyUser &&
       (await ctx.reply('Вы вошли как пользователь', keyboardMarkup));
 
     await this.menu(ctx, MessageMode.REPLY);
