@@ -982,9 +982,9 @@ export class AdminScene {
         {
           id: payment._id,
           index: index + 1,
-          tittle: `${index + 1}. @${payment.user?.username}: ${
-            payment.amount
-          } ${payment.currency}`,
+          tittle: `${index + 1}. ${
+            payment.user?.username ? `@${payment.user?.username}` : `Аноним`
+          }: ${payment.amount} ${payment.currency}`,
         },
       ],
       [],
@@ -1011,7 +1011,7 @@ export class AdminScene {
     ]);
     await ctx.editMessageText(
       `Выберите заявку\nСтраница: ${currentPage}/${maxPage} 📖\n${payments.reduce(
-        (acc, element) => `${acc}${element.tittle}`,
+        (acc, element) => `${acc}${element.tittle}\n`,
         '',
       )}`,
       markup,

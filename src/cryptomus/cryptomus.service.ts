@@ -57,7 +57,6 @@ export class CryptomusService {
       amount: amount.toString(),
       currency: 'USDT',
       order_id: orderId,
-      lifetime: 300,
       url_return: `https://t.me/argentina_partnership_dev_bot/ArgentinaPartnershipApp`,
       url_success: `https://t.me/argentina_partnership_dev_bot/ArgentinaPartnershipApp`,
       url_callback: `https://${process.env.BASE_URL}/api/payment/check-payment/${orderId}`,
