@@ -165,6 +165,7 @@ export class UserScene {
       await ctx.editMessageText('Ваша заявка была отправлена', markup);
     }
   }
+
   @Action('referral')
   async referral(@Ctx() ctx: SceneContext) {
     const markup = Markup.inlineKeyboard([
@@ -172,10 +173,11 @@ export class UserScene {
     ]);
 
     await ctx.editMessageText(
-      `Приглашайте друзей и получайте 5% от их суммы пополнения на баланс.\nВаша реферальная ссылка:\nhttps://t.me/argentina_bot?start=refId=${ctx.from.id}`,
+      `Приглашайте друзей и получайте 5% от их суммы пополнения на баланс.\nВаша реферальная ссылка:\nhttps://t.me/${ctx.botInfo.username}?start=refId=${ctx.from.id}`,
       markup,
     );
   }
+
   @Action(/createAdmin/)
   async createAdminTicket(@Ctx() ctx: SceneContext) {
     const userData = ctx.callbackQuery['data'] as string;
