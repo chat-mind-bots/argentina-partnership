@@ -355,7 +355,10 @@ export class AdminScene {
     }
     const partnersMas = [];
     partners.map((partner, i) => {
-      partnersMas.push([`${i + 1}. @${partner.username}`, partner.id]);
+      partnersMas.push([
+        `${i + 1}. @${partner?.username || 'Аноним'}`,
+        partner.id,
+      ]);
     });
     const lines = buttonSplitterHelper(
       partnersMas.map((partner) => partner[1]),
@@ -404,7 +407,7 @@ export class AdminScene {
     const user = await this.userService.findById(userId);
     const userText = `Партнер
 <b>Логин пользователя</b>: ${user.first_name}
-<b>Профиль пользователя</b>: @${user.username}
+<b>Профиль пользователя</b>: @${user?.username || 'Аноним'}
 <b>ID пользователя</b>: ${user.tg_id}`;
     await ctx.editMessageText(userText, {
       reply_markup: {
@@ -468,7 +471,9 @@ export class AdminScene {
     const partnerTickets = [];
     tickets.map((ticket, i) => {
       partnerTickets.push([
-        `${i + 1}. @${ticket.user.username} ${ticket.user.first_name}`,
+        `${i + 1}. @${ticket.user?.username || 'Аноним'} ${
+          ticket.user.first_name
+        }`,
         ticket.id,
       ]);
     });
@@ -543,7 +548,7 @@ export class AdminScene {
 
     const adminsMas = [];
     admins.map((admin, i) => {
-      adminsMas.push([`${i + 1}. @${admin.username}`, admin.id]);
+      adminsMas.push([`${i + 1}. @${admin?.username || 'Аноним'}`, admin.id]);
     });
     const lines = buttonSplitterHelper(
       adminsMas.map((admin) => admin[1]),
@@ -595,7 +600,7 @@ export class AdminScene {
     );
     const userText = `Администратор
 <b>Логин пользователя</b>: ${user.first_name}
-<b>Профиль пользователя</b>: @${user.username}
+<b>Профиль пользователя</b>: @${user?.username || 'Аноним'}
 <b>ID пользователя</b>: ${user.tg_id}`;
     const isSuperAdmin = ownProfile.role.includes(UserRoleEnum.SUPER_ADMIN);
     const showRestrictButton = isSuperAdmin && user.tg_id !== ownProfile.tg_id;
@@ -729,7 +734,9 @@ export class AdminScene {
     const adminTickets = [];
     tickets.map((ticket, i) => {
       adminTickets.push([
-        `${i + 1}. @${ticket.user.username} ${ticket.user.first_name}`,
+        `${i + 1}. @${ticket.user?.username || 'Аноним'} ${
+          ticket.user.first_name
+        }`,
         ticket.id,
       ]);
     });
@@ -812,7 +819,7 @@ export class AdminScene {
     const userText = `Заявка на должность
 <b>Название должности</b>: Партнер
 <b>Логин пользователя</b>: ${ticket.user.first_name}
-<b>Профиль пользователя</b>: @${ticket.user.username}
+<b>Профиль пользователя</b>: @${ticket.user?.username || 'Аноним'}
 <b>ID пользователя</b>: ${ticket.user.tg_id}`;
 
     await ctx.editMessageText(userText, {
@@ -844,7 +851,7 @@ export class AdminScene {
     const userText = `Заявка на должность
 <b>Название должности</b>: Администратор
 <b>Логин пользователя</b>: ${ticket.user.first_name}
-<b>Профиль пользователя</b>: @${ticket.user.username}
+<b>Профиль пользователя</b>: @${ticket.user?.username || 'Аноним'}
 <b>ID пользователя</b>: ${ticket.user.tg_id}`;
 
     await ctx.editMessageText(userText, {
@@ -1048,7 +1055,7 @@ export class AdminScene {
       `
       Пополнение на ${payment.amount} ${payment.currency}
       Сеть: ${payment.method}
-      Пользователь: @${payment.user.username}
+      Пользователь: @${payment.user?.username || 'Аноним'}
       Текущий баланс пользователя: ${payment.balance.amount}
       Доказательства оплаты: 
         TxId: ${
