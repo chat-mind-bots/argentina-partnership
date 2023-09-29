@@ -50,7 +50,7 @@ export class PartnerScene {
       [
         this.botService.getMarkupWebApp(
           'Добавить бизнес',
-          WebAppRoutes.ADD_BUSINESS,
+          WebAppRoutes.BUSINESS_CREATE,
         ),
       ],
       [
@@ -100,7 +100,7 @@ export class PartnerScene {
           Markup.button.callback('🔙 Назад', 'menu'),
           this.botService.getMarkupWebApp(
             'Добавить бизнес',
-            WebAppRoutes.ADD_BUSINESS,
+            WebAppRoutes.BUSINESS_CREATE,
           ),
         ]),
       );
@@ -189,19 +189,13 @@ export class PartnerScene {
       [
         this.botService.getMarkupWebApp(
           'Открыть в приложении',
-          routeReplacer(WebAppRoutes.GET_BUSINESS, [
-            String(ctx.from.id),
-            businessId,
-          ]),
+          routeReplacer(WebAppRoutes.BUSINESS, [businessId]),
         ),
       ],
       [
         this.botService.getMarkupWebApp(
           'Редактировать бизнес',
-          routeReplacer(WebAppRoutes.UPDATE_BUSINESS, [
-            String(ctx.from.id),
-            businessId,
-          ]),
+          routeReplacer(WebAppRoutes.BUSINESS_UPDATE, [businessId]),
         ),
       ],
       [Markup.button.callback('♻ Обновить', `selectBusiness__${businessId}`)],

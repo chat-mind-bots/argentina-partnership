@@ -903,7 +903,9 @@ export class AdminScene {
     );
     await this.botService.sendMessage(
       user.tg_id,
-      'Вы были повышены до статуса администратора',
+      'Вы были повышены до статуса администратора' +
+        '/n' +
+        'используйте команду: /start чтобы открыть новое меню',
     );
 
     const markup = Markup.inlineKeyboard([

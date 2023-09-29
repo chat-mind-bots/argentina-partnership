@@ -76,7 +76,7 @@ export class BotService implements OnModuleInit {
   }
   async helpCommand(@Ctx() ctx: Context & SceneContext) {
     await ctx.reply(
-      'Если что-то пошло не так обратитесь за помощью в канал @canal_name',
+      'Если что-то пошло не так обратитесь за помощью в канал @kurkul608',
     );
   }
 
