@@ -114,7 +114,7 @@ export class BotUpdate {
   async openAddBusiness(@Ctx() ctx: Context, @Message('from') from) {
     await this.botService.sendMessageWithWebApp(
       from.id,
-      WebAppRoutes.ADD_BUSINESS,
+      WebAppRoutes.BUSINESS_CREATE,
       'Добавить бизнес',
       'Добавить бизнес',
     );

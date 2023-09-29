@@ -56,7 +56,7 @@ export class UserScene {
         ),
         this.botService.getMarkupWebApp(
           '🛒 Магазины - партнеры',
-          WebAppRoutes.PARTNERS,
+          WebAppRoutes.BUSINESS_LIST,
         ),
       ],
       // [
