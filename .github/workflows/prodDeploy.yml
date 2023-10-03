@@ -1,0 +1,32 @@
+name: Prod Deployment
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  deploy:
+    name: Deploy to Server
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checkout the code from the 'master' branch
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          ref: master
+
+
+      # Set up SSH key for authentication
+#      - name: Set up SSH key
+#        run: echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa && chmod 600 ~/.ssh/id_rsa
+
+      # Install SSH client
+      - name: Install SSH client
+        run: sudo apt-get install -y openssh-client
+
+      # Connect to the server and run the updateDev.sh script
+      - name: Deploy to Server
+        run: |
+          sshpass -p "x1qP7nMg9nyQ" ssh -o StrictHostKeyChecking=no root@109.248.42.28  "cd ~/argentina-partnership-deploy && bash updateDev.sh"
