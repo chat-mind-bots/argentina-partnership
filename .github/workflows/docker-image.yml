@@ -1,0 +1,24 @@
+name: Docker Image CI
+
+on:
+  push:
+    branches: [ "dev" ]
+  pull_request:
+    branches: [ "dev" ]
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+    env:
+      DOCKER_BUILDKIT: '1'
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Build the Docker image
+      run: docker build . --file Dockerfile --tag kurkul608/argentina-partnership-dev:latest --label "runnumber=${GITHUB_RUN_ID}"
+    - name: Push Image
+      run: |
+        echo "${{ secrets.DOCKERPW }}" | docker login -u "kurkul608" --password-stdin
+        docker push kurkul608/argentina-partnership-dev:latest
