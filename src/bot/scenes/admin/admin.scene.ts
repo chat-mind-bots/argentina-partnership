@@ -666,7 +666,7 @@ export class AdminScene {
       await ctx.editMessageText(`Пользователь был ограничен в правах`, markup);
     } catch (error) {
       await ctx.editMessageText(
-        `Что-то пошло не так. Попробуйте снова или обратитесь за помощью`,
+        `Что-то пошло не так. Попробуйте снова или обратитесь за помощью в канал @${process.env.SUPPORT_USERNAME}`,
         markup,
       );
     }
@@ -687,7 +687,7 @@ export class AdminScene {
       await ctx.editMessageText(`Пользователь был ограничен в правах`, markup);
     } catch (error) {
       await ctx.editMessageText(
-        `Что-то пошло не так. Попробуйте снова или обратитесь за помощью`,
+        `Что-то пошло не так. Попробуйте снова или обратитесь за помощью в канал @${process.env.SUPPORT_USERNAME}`,
         markup,
       );
     }
