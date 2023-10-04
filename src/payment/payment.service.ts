@@ -253,7 +253,6 @@ export class PaymentService {
   async paymentCheck(dto: CryptomusPaymentCallbackDto) {
     const payment = await this.paymentModel.findById(dto.order_id);
     const { status } = dto;
-    console.log(status);
     if (payment.status === PaymentStatusEnum.PENDING) {
       if (
         status === StatusEnum.CANCEL ||
