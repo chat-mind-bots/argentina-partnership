@@ -1065,7 +1065,7 @@ export class AdminScene {
         }
         Скриншот: ${
           payment.data?.photo
-            ? `https://${process.env.S3_DOMAIN}/${process.env.S3_IMAGE_BUCKET}/${payment.data?.photo.key}`
+            ? `https://${process.env.S3_DOMAIN}/${payment.data?.photo.key}`
             : 'Фото не  приложено'
         }
         
