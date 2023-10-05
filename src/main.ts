@@ -26,6 +26,7 @@ async function bootstrap() {
   app.use(xss());
   app.use(hpp());
   app.use(mongoSanitize());
+  app.use(Sentry.Handlers.errorHandler());
 
   const limiter = rateLimit({
     windowMs: 10 * 60 * 1000,
