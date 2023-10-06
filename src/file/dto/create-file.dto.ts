@@ -1,4 +1,4 @@
-import { IsNumber, IsString } from 'class-validator';
+import { IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class CreateFileDto {
   @IsString()
@@ -8,7 +8,8 @@ export class CreateFileDto {
   key: string;
 
   @IsString()
-  bucket: string;
+  @IsOptional()
+  bucket?: string;
 
   @IsString()
   domain: string;

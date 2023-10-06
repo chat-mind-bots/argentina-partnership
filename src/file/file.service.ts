@@ -51,7 +51,7 @@ export class FileService {
     filename: string,
     fileSize: number,
     userId: number,
-    bucket: string,
+    bucket?: string,
   ) {
     const key = `${uuidv4()}_${extname(filename)}`;
     const putObject = new PutObjectCommand({
@@ -61,7 +61,6 @@ export class FileService {
     });
 
     const uploadResult = await this.s3.send(putObject);
-
     const dto: CreateFileDto = {
       e_tag: uploadResult.ETag,
       key: key,
