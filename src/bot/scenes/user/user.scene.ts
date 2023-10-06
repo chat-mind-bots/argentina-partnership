@@ -75,13 +75,13 @@ export class UserScene {
     ]);
     if (mode === MessageMode.REPLY) {
       await ctx.reply(
-        'Приобретайте товары и услуги в Аргентине со скидками, через Argentina Parrtnership прямо в Telegram!',
+        'Приобретайте товары и услуги в Аргентине со скидками, через Club de Amigos прямо в Telegram!',
         markup,
       );
     }
     if (mode === MessageMode.EDIT) {
       await ctx.editMessageText(
-        `Приобретайте товары и услуги в Аргентине со скидками, через Argentina Parrtnership прямо в Telegram!`,
+        `Приобретайте товары и услуги в Аргентине со скидками, через Club de Amigos прямо в Telegram!`,
         markup,
       );
     }
