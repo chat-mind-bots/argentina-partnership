@@ -224,7 +224,7 @@ export class AdminScene {
         Markup.button.callback('Изменить название', `changeCategoryTitle`),
         Markup.button.callback('Изменить описание', `editCD`),
       ],
-      [Markup.button.callback('🔙 Назад', `selectCategory${id}`)],
+      [Markup.button.callback('🔙 Назад', `selectCategory__${id}`)],
     ]);
     await ctx.editMessageText(
       `Категория:` + '\n' + `${title}\n${description}`,
