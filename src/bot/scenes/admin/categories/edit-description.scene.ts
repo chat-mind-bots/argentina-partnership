@@ -114,7 +114,7 @@ export class editCategoryDescriptionScene {
     @Ctx()
     ctx: SceneContext,
   ) {
-    await ctx.scene.reenter();
+    await this.sceneEnter(ctx);
   }
 
   @Action('leave')
