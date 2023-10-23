@@ -1,12 +1,4 @@
-import {
-  Action,
-  Ctx,
-  Message,
-  On,
-  Scene,
-  SceneEnter,
-  SceneLeave,
-} from 'nestjs-telegraf';
+import { Action, Ctx, Message, On, Scene, SceneEnter } from 'nestjs-telegraf';
 import { forwardRef, Inject, UseFilters } from '@nestjs/common';
 import { TelegrafExceptionFilter } from 'src/common/filtres/telegraf-exeption.filter';
 import { CategoriesService } from 'src/categories/categories.service';
@@ -123,15 +115,8 @@ export class editCategoryDescriptionScene {
     ctx: SceneContext,
   ) {
     ctx.session['fromScene'] = true;
-    await ctx.scene.enter('adminScene');
-  }
-
-  @SceneLeave()
-  async sceneLeave(
-    @Ctx()
-    ctx: SceneContext,
-  ) {
     delete ctx.session['data'];
     delete ctx.session['tempData'];
+    await ctx.scene.enter('adminScene');
   }
 }
