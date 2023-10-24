@@ -46,6 +46,9 @@ export class editCategoryTitleScene {
     @Ctx()
     ctx: SceneContext,
   ) {
+    if (msg === '/start') {
+      await this.leave(ctx);
+    }
     const isAllowedMessage =
       !valueInEnum(msg, KeyboardMessageEnum) && !isCommandString(msg);
     if (isAllowedMessage) {
