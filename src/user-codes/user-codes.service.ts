@@ -1,6 +1,6 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model, now, Types } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { UserCodes, UserCodesDocument } from 'src/user-codes/user-codes.schema';
 import { UserCodeStatusEnum } from 'src/user-codes/enums/user-code-status.enum';
 import { QrcodeService } from 'src/qrcode/qrcode.service';
@@ -107,7 +107,7 @@ export class UserCodesService {
       .findOne({
         code: code,
         status: UserCodeStatusEnum.pending,
-        expiresAt: { $gt: Date.now },
+        expiresAt: { $gt: Date.now() },
       })
       .populate('user');
 
