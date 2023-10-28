@@ -15,7 +15,7 @@ async function bootstrap() {
     cors: true,
   });
   Sentry.init({
-    dsn: process.env.SENTRY_AUTH_TOKEN,
+    dsn: process.env.SENTRY_DSN,
   });
   app.useStaticAssets(join(__dirname, '..', 'public'));
   app.setBaseViewsDir(join(__dirname, '..', 'views'));
