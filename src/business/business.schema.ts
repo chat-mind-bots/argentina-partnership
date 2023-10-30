@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { HydratedDocument, now, Types, Document } from 'mongoose';
+import { HydratedDocument, Types, Document } from 'mongoose';
 import { User } from 'src/user/user.schema';
 import { Category } from 'src/categories/ctegories.schema';
 import { IContacts } from 'src/business/interfaces/contacts.interface';
