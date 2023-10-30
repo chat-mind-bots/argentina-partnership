@@ -115,6 +115,7 @@ export class BusinessService {
         ...dto,
         preview: new Types.ObjectId(dto.preview),
         category: new Types.ObjectId(dto.categoryId),
+        updatedAt: new Date(),
       },
       {
         new: true,
