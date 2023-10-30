@@ -1,7 +1,6 @@
 import {
   IsArray,
   IsEnum,
-  IsNumber,
   IsObject,
   IsOptional,
   IsString,
@@ -14,7 +13,7 @@ import { StatusEnum } from 'src/business/enum/status.enum';
 export class UpdateBusinessDto {
   @IsString()
   @IsOptional()
-  readonly category?: string;
+  readonly categoryId?: string;
 
   @IsString()
   @IsOptional()

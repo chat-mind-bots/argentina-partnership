@@ -109,10 +109,13 @@ export class BusinessService {
         HttpStatus.FORBIDDEN,
       );
     }
-
     return this.businessModel.findOneAndUpdate(
       { _id: businessId },
-      { ...dto, preview: new Types.ObjectId(dto.preview) },
+      {
+        ...dto,
+        preview: new Types.ObjectId(dto.preview),
+        category: new Types.ObjectId(dto.categoryId),
+      },
       {
         new: true,
       },
