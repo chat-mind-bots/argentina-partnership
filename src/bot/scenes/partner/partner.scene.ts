@@ -24,7 +24,7 @@ export class PartnerScene {
     private readonly userService: UserService,
     @Inject(forwardRef(() => BusinessService))
     private readonly businessService: BusinessService,
-    @InjectBot() private readonly bot: Telegraf<Context>,
+    @InjectBot('bot') private readonly bot: Telegraf<Context>,
   ) {}
   @SceneEnter()
   async enter(@Ctx() ctx: Context & SceneContext) {
