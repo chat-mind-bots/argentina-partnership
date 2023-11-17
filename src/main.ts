@@ -9,11 +9,18 @@ import rateLimit from 'express-rate-limit';
 import mongoSanitize from 'express-mongo-sanitize';
 import * as Sentry from '@sentry/node';
 import { SentryFilter } from 'src/common/filtres/sentry-exeption.filter';
+import process from 'process';
+import { BotLogger } from 'src/bot/bot.logger';
+import { getBotToken } from 'nestjs-telegraf';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {
     cors: true,
+    // logger: new BotLogger(),
   });
+  // app.useLogger(BotLogger);
+  const bot = app.get(getBotToken('logger'));
+  app.useLogger(new BotLogger(bot));
   Sentry.init({
     dsn: process.env.SENTRY_DSN,
   });

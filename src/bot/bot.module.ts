@@ -3,7 +3,7 @@ import { BotService } from './bot.service';
 import { BotController } from './bot.controller';
 import { TelegrafModule } from 'nestjs-telegraf';
 import RedisSession from 'telegraf-session-redis';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { UserModule } from 'src/user/user.module';
 import { BotUpdate } from 'src/bot/bot.update';
 import { AdminScene } from 'src/bot/scenes/admin/admin.scene';
@@ -21,40 +21,59 @@ import { editCategoryTitleScene } from 'src/bot/scenes/admin/categories/edit-tit
 import { editCategoryDescriptionScene } from 'src/bot/scenes/admin/categories/edit-description.scene';
 import { PaymentModule } from 'src/payment/payment.module';
 import rateLimit from 'telegraf-ratelimit';
+import { BotLogger } from 'src/bot/bot.logger';
 
 @Module({
   imports: [
     ConfigModule.forRoot(),
-    TelegrafModule.forRoot({
-      ...(process.env.TEST ? { options: { telegram: { testEnv: true } } } : {}),
-      token: process.env.TELEGRAM_API_KEY,
-      middlewares: [
-        ...(process.env.MODE === 'LOCAL'
-          ? [
-              rateLimit({
-                window: 200,
-                limit: 1,
-                onLimitExceeded: (ctx, next) =>
-                  ctx.reply('Превышено кол-во запросов'),
-              }),
-              session(),
-            ]
-          : [
-              rateLimit({
-                window: 200,
-                limit: 1,
-                onLimitExceeded: (ctx, next) =>
-                  ctx.reply('Превышено кол-во запросов'),
-              }),
-              new RedisSession({
-                store: {
-                  host: process.env.REDIS_HOST,
-                  port: process.env.REDIS_PORT,
-                  password: process.env.REDIS_PASSWORD,
-                },
-              }).middleware(),
-            ]),
-      ],
+    TelegrafModule.forRootAsync({
+      imports: [ConfigModule],
+      botName: 'bot',
+      useFactory: (configService: ConfigService) => ({
+        ...(process.env.TEST
+          ? { options: { telegram: { testEnv: true } } }
+          : {}),
+        token: process.env.TELEGRAM_API_KEY,
+        middlewares: [
+          ...(process.env.MODE === 'LOCAL'
+            ? [
+                rateLimit({
+                  window: 200,
+                  limit: 1,
+                  onLimitExceeded: (ctx, next) =>
+                    ctx.reply('Превышено кол-во запросов'),
+                }),
+                session(),
+              ]
+            : [
+                rateLimit({
+                  window: 200,
+                  limit: 1,
+                  onLimitExceeded: (ctx, next) =>
+                    ctx.reply('Превышено кол-во запросов'),
+                }),
+                new RedisSession({
+                  store: {
+                    host: process.env.REDIS_HOST,
+                    port: process.env.REDIS_PORT,
+                    password: process.env.REDIS_PASSWORD,
+                  },
+                }).middleware(),
+              ]),
+        ],
+      }),
+      inject: [ConfigService],
+    }),
+    TelegrafModule.forRootAsync({
+      imports: [ConfigModule],
+      botName: 'logger',
+      useFactory: (configService: ConfigService) => ({
+        ...(process.env.TEST
+          ? { options: { telegram: { testEnv: true } } }
+          : {}),
+        token: process.env.TELEGRAM_LOGGER_API_KEY,
+      }),
+      inject: [ConfigService],
     }),
     forwardRef(() => UserModule),
     forwardRef(() => RightsChangeModule),
@@ -74,6 +93,8 @@ import rateLimit from 'telegraf-ratelimit';
     PartnerScene,
     editCategoryTitleScene,
     editCategoryDescriptionScene,
+    BotLogger,
   ],
+  exports: [BotLogger],
 })
 export class BotModule {}

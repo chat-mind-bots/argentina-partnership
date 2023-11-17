@@ -25,7 +25,7 @@ import { telegramDataHelper } from 'src/common/helpers/telegram-data.helper';
 @UseFilters(TelegrafExceptionFilter)
 export class BotUpdate {
   constructor(
-    @InjectBot() private readonly bot: Telegraf<Context>,
+    @InjectBot('bot') private readonly bot: Telegraf<Context>,
     @Inject(forwardRef(() => UserService))
     private readonly userService: UserService,
     @Inject(forwardRef(() => BotService))
