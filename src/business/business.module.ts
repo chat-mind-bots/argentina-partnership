@@ -5,6 +5,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { Business, BusinessSchema } from 'src/business/business.schema';
 import { UserModule } from 'src/user/user.module';
 import { CategoriesModule } from 'src/categories/categories.module';
+import { BotLogger } from 'src/bot/bot.logger';
 
 @Module({
   imports: [
@@ -15,7 +16,7 @@ import { CategoriesModule } from 'src/categories/categories.module';
     forwardRef(() => CategoriesModule),
   ],
   controllers: [BusinessController],
-  providers: [BusinessService],
-  exports: [BusinessService],
+  providers: [BusinessService, BotLogger],
+  exports: [BusinessService, BotLogger],
 })
 export class BusinessModule {}

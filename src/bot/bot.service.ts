@@ -13,7 +13,7 @@ import { FileService } from 'src/file/file.service';
 @Injectable()
 export class BotService implements OnModuleInit {
   constructor(
-    @InjectBot() private readonly bot: Telegraf<Context>,
+    @InjectBot('bot') private readonly bot: Telegraf<Context>,
     @Inject(forwardRef(() => UserService))
     private readonly userService: UserService,
     private readonly userCodeService: UserCodesService,
